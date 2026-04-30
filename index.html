@@ -661,8 +661,8 @@ tbody tr:hover td{background:var(--surface2)}
       </div>
     <!-- MAT PANEL -->
     <div id="panel-mat" class="panel">
-      <div id="matLoad" class="loading"><div class="spinner"></div><div class="loading-txt">carregando dados · materiais</div></div>
-      <div id="matBody" style="display:none">
+      <div id="matLoad" class="loading" style="display:none"><div class="spinner"></div><div class="loading-txt">carregando dados · materiais</div></div>
+      <div id="matBody">
 
         <div class="top-filter-bar">
           <span class="top-filter-bar-title">Filtros</span>
@@ -749,10 +749,12 @@ function goTo(id){
   document.getElementById('nav-'+id).classList.add('active');
   document.getElementById('pgTitle').textContent=pages[id].t;
   document.getElementById('pgSub').textContent=pages[id].s;
-  // Re-render charts when switching to panel (canvas needs to be visible)
-  if(id==='mat'&&matData.length>0)renderMAT();
-  if(id==='aet'&&aetData.length>0)renderAETcharts();
-  if(id==='mob'&&mobData.length>0)renderMOBcharts();
+  // Re-render charts when panel becomes visible
+  setTimeout(function(){
+    if(id==='mat'){if(matData.length>0){if(mAC){mAC.destroy();mAC=null;}renderMAT();}else{var ml=document.getElementById('matLoad');if(ml)ml.style.display='flex';}}
+    if(id==='aet'&&aetData.length>0){if(aC){aC.destroy();aC=null;}renderAETcharts();}
+    if(id==='mob'&&mobData.length>0){if(mC){mC.destroy();mC=null;}renderMOBcharts();}
+  },50);
 }
 
 function toggleTheme(){
