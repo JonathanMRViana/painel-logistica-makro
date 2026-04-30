@@ -1324,7 +1324,7 @@ function renderMAT(){
   const legEl=document.getElementById('matLeg');
   if(legEl)legEl.innerHTML=[['#c81428','Déficit',def],['#f39c12','Excesso',exc],['#2db87a','Regular',reg]].map(([c,l,v])=>`<span class="leg"><span class="leg-dot" style="background:${c}"></span>${l} ${v}</span>`).join('');
   const donutEl=document.getElementById('matDonut');
-  if(donutEl)mAC=new Chart(donutEl,{type:'doughnut',data:{labels:['Déficit','Excesso','Regular'],datasets:[{data:[def,exc,reg],backgroundColor:['#c81428','#f39c12','#2db87a'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'72%'}});
+  if(donutEl&&donutEl.offsetParent!==null)mAC=new Chart(donutEl,{type:'doughnut',data:{labels:['Déficit','Excesso','Regular'],datasets:[{data:[def,exc,reg],backgroundColor:['#c81428','#f39c12','#2db87a'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'72%'}});
   renderMATtbl();
 }
 
