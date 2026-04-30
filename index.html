@@ -749,6 +749,10 @@ function goTo(id){
   document.getElementById('nav-'+id).classList.add('active');
   document.getElementById('pgTitle').textContent=pages[id].t;
   document.getElementById('pgSub').textContent=pages[id].s;
+  // Re-render charts when switching to panel (canvas needs to be visible)
+  if(id==='mat'&&matData.length>0)renderMAT();
+  if(id==='aet'&&aetData.length>0)renderAETcharts();
+  if(id==='mob'&&mobData.length>0)renderMOBcharts();
 }
 
 function toggleTheme(){
