@@ -308,7 +308,7 @@ tbody tr:hover td{background:var(--surface2)}
     <span class="nav-lbl">Programação Logística</span>
   </div>
 
-  <div class="nav-item nav-disabled">
+  <div class="nav-item" id="nav-pat" onclick="goTo('pat')">
     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     <span class="nav-lbl">Gestão de Pátio</span>
   </div>
@@ -773,17 +773,120 @@ tbody tr:hover td{background:var(--surface2)}
       </div>
     </div>
 
+    <!-- PAT PANEL -->
+    <div id="panel-pat" class="panel">
+      <div id="patBody">
+        <div class="top-filter-bar">
+          <span class="top-filter-bar-title">Filtros</span>
+          <div class="filter-divider"></div>
+          <div class="search-wrap" style="flex:1;min-width:160px;margin-bottom:0">
+            <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="search-input" id="patSearch" placeholder="Buscar atividade ou frota..." oninput="renderPATtbl()">
+          </div>
+          <div class="select-group">
+            <label class="select-label">Status</label>
+            <select class="f-select" id="patStatus" onchange="renderPATtbl()">
+              <option value="TODOS">Todos</option>
+              <option value="CONCLUÍDO">Concluído</option>
+              <option value="PENDENTE">Pendente</option>
+              <option value="EM ANDAMENTO">Em Andamento</option>
+              <option value="CANCELADO">Cancelado</option>
+            </select>
+          </div>
+          <div class="select-group">
+            <label class="select-label">Criticidade</label>
+            <select class="f-select" id="patCrit" onchange="renderPATtbl()">
+              <option value="TODOS">Todos</option>
+              <option value="ALTA">Alta</option>
+              <option value="MÉDIA">Média</option>
+              <option value="BAIXA">Baixa</option>
+            </select>
+          </div>
+          <div class="select-group">
+            <label class="select-label">Setor</label>
+            <select class="f-select" id="patSetor" onchange="renderPATtbl()">
+              <option value="TODOS">Todos</option>
+            </select>
+          </div>
+          <div class="select-group">
+            <label class="select-label">Ano</label>
+            <select class="f-select" id="patAno" onchange="renderPATtbl()">
+              <option value="TODOS">Todos</option>
+            </select>
+          </div>
+          <div class="select-group">
+            <label class="select-label">Mês</label>
+            <select class="f-select" id="patMes" onchange="renderPATtbl()">
+              <option value="TODOS">Todos</option>
+              <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+              <option value="3">Março</option><option value="4">Abril</option>
+              <option value="5">Maio</option><option value="6">Junho</option>
+              <option value="7">Julho</option><option value="8">Agosto</option>
+              <option value="9">Setembro</option><option value="10">Outubro</option>
+              <option value="11">Novembro</option><option value="12">Dezembro</option>
+            </select>
+          </div>
+          <button class="clear-filters-btn" onclick="clearPATFilters()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Limpar
+          </button>
+        </div>
+
+        <div class="kpi-row" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+          <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Total de Atividades</div><div class="kpi-value" id="pt0">—</div><div class="kpi-sub"> </div></div>
+          <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Concluídas</div><div class="kpi-value" id="pt1">—</div><div class="kpi-sub" id="pt1s">—</div></div>
+          <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Pendentes</div><div class="kpi-value" id="pt2">—</div><div class="kpi-sub" id="pt2s">—</div></div>
+          <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Alta Criticidade</div><div class="kpi-value" id="pt3">—</div><div class="kpi-sub" id="pt3s">—</div></div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:20px">
+          <div class="card">
+            <div class="card-head"><span class="card-title">Status das Atividades</span></div>
+            <div style="position:relative;height:176px"><canvas id="patDonut"></canvas></div>
+            <div class="legend" id="patLeg" style="margin-top:10px"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Por Setor Demandante</span></div>
+            <div class="bars" id="patBars"></div>
+          </div>
+        </div>
+
+        <div class="tbl-card">
+          <div class="tbl-head"><span class="tbl-title">Detalhamento de Atividades</span><span class="count-tag" id="patCnt">0 registros</span></div>
+          <div class="tbl-wrap">
+            <table style="table-layout:auto">
+              <thead><tr>
+                <th>Dt. Identificação</th>
+                <th>Atividade</th>
+                <th>Frota</th>
+                <th>Frota MKT</th>
+                <th>Setor</th>
+                <th>Criticidade</th>
+                <th>Status</th>
+                <th>Dt. Prevista</th>
+                <th>Dt. Reprogramada</th>
+                <th>Dt. Finalização Real</th>
+                <th>Obs.</th>
+              </tr></thead>
+              <tbody id="patTbl"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
   </div>
 </div>
 
 <script>
-let aetData=[],mobData=[],matData=[],aC=null,mC=null,mAC=null,dark=false;
+let aetData=[],mobData=[],matData=[],patData=[],aC=null,mC=null,mAC=null,pC=null,dark=false;
 window._aet=()=>aetData;
 window._mob=()=>mobData;
 
 const pages={aet:{t:'Gestão de AET',s:'licenças especiais de trânsito'},mob:{t:'Gestão de Mobilizações',s:'operações de mobilização e desmobilização'},
-  mat:{t:'Mat. de Amarração & Segurança',s:'controle de materiais por frota'}};
+  mat:{t:'Mat. de Amarração & Segurança',s:'controle de materiais por frota'},
+  pat:{t:'Gestão de Pátio',s:'controle de atividades e operações de pátio'}};
 
 function goTo(id){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -830,6 +933,7 @@ function cC(){return dark?{bg:'rgba(255,255,255,0.05)',txt:'#6b7280'}:{bg:'rgba(
 
 // GIDs das abas - atualize se necessário
 const CSV_AET = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_Ry7aRW5A3zpaLdCu2u_xb3vgfOjnfHRmSH_OyvVX3wzmxvh4fSZBFvZakDRF2eDNA3DWJk9OFbml/pub?output=csv&gid=1076498373";
+const CSV_PATIO = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRuyDBTaz3bDMc7uelyXQ8t5GkpUjdr0pfK2xm9TZHHJL6uEVEo0GxrTImAyKs-PbjHhhmNIziyBXMO/pub?output=csv";
 const CSV_MAT = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1E33A1HGe5Qs178YvjZnrV_eA-RDIjVkxczBTHBwhk2w0_9LzGuhxLxzrIWu9jHEhKr6oZ66hoJYr/pub?output=csv";
 const CSV_MOB = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_Ry7aRW5A3zpaLdCu2u_xb3vgfOjnfHRmSH_OyvVX3wzmxvh4fSZBFvZakDRF2eDNA3DWJk9OFbml/pub?output=csv&gid=1729222115";
 
@@ -867,12 +971,14 @@ async function loadAll(){
     const [resAet,resMob,resMat]=await Promise.all([
       fetch(CSV_AET+'&t='+Date.now()),
       fetch(CSV_MOB+'&t='+Date.now()),
-      fetch(CSV_MAT+'&t='+Date.now())
+      fetch(CSV_MAT+'&t='+Date.now()),
+      fetch(CSV_PATIO+'&t='+Date.now())
     ]);
-    const [txtAet,txtMob,txtMat]=await Promise.all([resAet.text(),resMob.text(),resMat.text()]);
+        const [txtAet,txtMob,txtMat,txtPat]=await Promise.all([resAet.text(),resMob.text(),resMat.text(),resPat.text()]);
     try{processAET(parseCSV(txtAet));}catch(e2){console.error('processAET error:',e2.message);}
     try{processMOB(parseCSV(txtMob));}catch(e3){console.error('processMOB error:',e3.message);}
     try{processMAT(parseCSV(txtMat));}catch(e4){console.error('processMAT error:',e4.message);}
+    try{processPAT(parseCSV(txtPat));}catch(e5){console.error('processPAT error:',e5.message);}
     document.getElementById('updTxt').textContent=new Date().toLocaleTimeString('pt-BR');
   }catch(e){
     document.getElementById('updTxt').textContent='erro ao carregar';
@@ -1448,6 +1554,128 @@ function clearMATFilters(){
   ['matTipo','matStatus'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
   const s=document.getElementById('matSearch');if(s)s.value='';
   renderMATtbl();
+}
+
+
+function processPAT(rows){
+  let hi=-1;
+  for(let i=0;i<rows.length;i++){
+    if(rows[i].some(c=>String(c).toUpperCase().includes('DATA DE IDENTIFICA'))){hi=i;break;}
+  }
+  if(hi<0)hi=5;
+  patData=[];
+  for(let i=hi+1;i<rows.length;i++){
+    const v=rows[i];
+    if(!v[0]&&!v[1])continue;
+    const st=String(v[6]||'').toUpperCase().trim();
+    patData.push({
+      dtId:String(v[0]||''),ativ:String(v[1]||''),
+      frota:String(v[2]||''),frotaMKT:String(v[3]||''),
+      setor:String(v[4]||'').toUpperCase().trim(),
+      crit:String(v[5]||'').toUpperCase().trim(),
+      status:st,
+      dtPrev:String(v[7]||''),dtRep:String(v[8]||''),
+      dtFin:String(v[9]||''),obs:String(v[10]||'').replace(/"/g,'').trim()
+    });
+  }
+  // Dynamic selects
+  const setores=[...new Set(patData.map(r=>r.setor).filter(s=>s&&s!==''))].sort();
+  const setorEl=document.getElementById('patSetor');
+  if(setorEl)setorEl.innerHTML='<option value="TODOS">Todos</option>'+setores.map(s=>'<option value="'+s+'">'+s+'</option>').join('');
+  const anos=[...new Set(patData.map(r=>getDateYear(r.dtId)).filter(y=>y))].sort((a,b)=>b-a);
+  const anoEl=document.getElementById('patAno');
+  if(anoEl)anoEl.innerHTML='<option value="TODOS">Todos</option>'+anos.map(a=>'<option value="'+a+'">'+a+'</option>').join('');
+  renderPAT();
+}
+
+function renderPAT(){
+  const scc={'CONCLUÍDO':'#2db87a','PENDENTE':'#e8943a','EM ANDAMENTO':'#2ab0b8','CANCELADO':'#6b7280'};
+  const statuses=[...new Set(patData.map(r=>r.status).filter(s=>s))];
+  const sc={};statuses.forEach(s=>sc[s]=(sc[s]||0)+patData.filter(r=>r.status===s).length);
+  const legEl=document.getElementById('patLeg');
+  if(legEl)legEl.innerHTML=statuses.map(s=>'<span class="leg"><span class="leg-dot" style="background:'+(scc[s]||'#6b7280')+'"></span>'+s+' '+sc[s]+'</span>').join('');
+  const donutEl=document.getElementById('patDonut');
+  if(donutEl&&donutEl.offsetParent!==null){
+    if(pC){pC.destroy();pC=null;}
+    pC=new Chart(donutEl,{type:'doughnut',data:{labels:statuses,datasets:[{data:statuses.map(s=>sc[s]),backgroundColor:statuses.map(s=>scc[s]||'#6b7280'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'72%'}});
+  }
+  renderPATtbl();
+}
+
+function renderPATtbl(){
+  try{
+    const q=((document.getElementById('patSearch')||{}).value||'').toLowerCase().trim();
+    const status=((document.getElementById('patStatus')||{}).value)||'TODOS';
+    const crit=((document.getElementById('patCrit')||{}).value)||'TODOS';
+    const setor=((document.getElementById('patSetor')||{}).value)||'TODOS';
+    const ano=((document.getElementById('patAno')||{}).value)||'TODOS';
+    const mes=((document.getElementById('patMes')||{}).value)||'TODOS';
+    const f=patData.filter(r=>{
+      if(status!=='TODOS'&&r.status!==status)return false;
+      if(crit!=='TODOS'&&r.crit!==crit)return false;
+      if(setor!=='TODOS'&&r.setor!==setor)return false;
+      if(ano!=='TODOS'){const y=getDateYear(r.dtId);if(String(y)!==ano)return false;}
+      if(mes!=='TODOS'){const m=getDateMonth(r.dtId);if(String(m)!==mes)return false;}
+      if(q&&!r.ativ.toLowerCase().includes(q)&&!r.frota.toLowerCase().includes(q)&&!r.frotaMKT.toLowerCase().includes(q))return false;
+      return true;
+    });
+    // Update KPIs
+    const tot2=f.length||1;
+    const conc=f.filter(r=>r.status==='CONCLUÍDO').length;
+    const pend=f.filter(r=>r.status==='PENDENTE'||r.status==='EM ANDAMENTO').length;
+    const alta=f.filter(r=>r.crit==='ALTA').length;
+    const e0=document.getElementById('pt0');const e1=document.getElementById('pt1');
+    const e1s=document.getElementById('pt1s');const e2=document.getElementById('pt2');
+    const e2s=document.getElementById('pt2s');const e3=document.getElementById('pt3');
+    const e3s=document.getElementById('pt3s');
+    if(e0)e0.textContent=f.length;
+    if(e1)e1.textContent=conc;if(e1s)e1s.textContent=Math.round(conc/tot2*100)+'% do total';
+    if(e2)e2.textContent=pend;if(e2s)e2s.textContent=Math.round(pend/tot2*100)+'% do total';
+    if(e3)e3.textContent=alta;if(e3s)e3s.textContent=Math.round(alta/tot2*100)+'% do total';
+    // Update setor bars
+    const setores={};f.forEach(r=>{if(r.setor)setores[r.setor]=(setores[r.setor]||0)+1;});
+    const ss=Object.entries(setores).sort((a,b)=>b[1]-a[1]).slice(0,7);
+    const mx=ss[0]?ss[0][1]:1;
+    const barsEl=document.getElementById('patBars');
+    if(barsEl)barsEl.innerHTML=ss.map(([l,v])=>'<div class="bar-row"><span class="bar-lbl">'+l+'</span><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(v/mx*100)+'%;background:var(--accent)"></div></div><span class="bar-num">'+v+'</span></div>').join('');
+    // Update donut
+    const scc2={'CONCLUÍDO':'#2db87a','PENDENTE':'#e8943a','EM ANDAMENTO':'#2ab0b8','CANCELADO':'#6b7280'};
+    const statuses2=[...new Set(f.map(r=>r.status).filter(s=>s))];
+    const sc2={};f.forEach(r=>{if(r.status)sc2[r.status]=(sc2[r.status]||0)+1;});
+    const legEl=document.getElementById('patLeg');
+    if(legEl)legEl.innerHTML=statuses2.map(s=>'<span class="leg"><span class="leg-dot" style="background:'+(scc2[s]||'#6b7280')+'"></span>'+s+' '+sc2[s]+'</span>').join('');
+    const donutEl=document.getElementById('patDonut');
+    if(donutEl&&donutEl.offsetParent!==null){if(pC){pC.destroy();pC=null;}pC=new Chart(donutEl,{type:'doughnut',data:{labels:statuses2,datasets:[{data:statuses2.map(s=>sc2[s]),backgroundColor:statuses2.map(s=>scc2[s]||'#6b7280'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'72%'}});}
+    // Table
+    const cnt=document.getElementById('patCnt');
+    const tbl=document.getElementById('patTbl');
+    if(cnt)cnt.textContent=f.length+' registros';
+    if(!tbl)return;
+    const stTag=(s)=>{const c=s==='CONCLUÍDO'?'tag-green':s==='PENDENTE'?'tag-amber':s==='EM ANDAMENTO'?'tag-teal':s==='CANCELADO'?'tag-dim':'tag-dim';return'<span class="tag '+c+'">'+s+'</span>';};
+    const crTag=(c)=>c==='ALTA'?'<span class="tag tag-red">ALTA</span>':c==='MÉDIA'?'<span class="tag tag-amber">MÉDIA</span>':c==='BAIXA'?'<span class="tag tag-green">BAIXA</span>':'<span class="tag tag-dim">'+c+'</span>';
+    const obsC=(r)=>r.obs?'<span class="obs-icon" data-frota="'+r.frota+'" data-obs="'+r.obs.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')+'">☰</span>':'—';
+    tbl.innerHTML=f.length===0
+      ?'<tr><td colspan="11" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro encontrado</td></tr>'
+      :f.map(r=>'<tr>'
+        +'<td style="font-family:\'DM Mono\',monospace">'+fD(r.dtId)+'</td>'
+        +'<td style="max-width:200px">'+r.ativ+'</td>'
+        +'<td style="font-family:\'DM Mono\',monospace">'+r.frota+'</td>'
+        +'<td style="font-family:\'DM Mono\',monospace">'+r.frotaMKT+'</td>'
+        +'<td>'+r.setor+'</td>'
+        +'<td>'+crTag(r.crit)+'</td>'
+        +'<td>'+stTag(r.status)+'</td>'
+        +'<td style="font-family:\'DM Mono\',monospace">'+fD(r.dtPrev)+'</td>'
+        +'<td style="font-family:\'DM Mono\',monospace">'+fD(r.dtRep)+'</td>'
+        +'<td style="font-family:\'DM Mono\',monospace">'+fD(r.dtFin)+'</td>'
+        +'<td class="obs-cell">'+obsC(r)+'</td>'
+        +'</tr>').join('');
+  }catch(e){console.error('renderPATtbl:',e);}
+}
+
+function clearPATFilters(){
+  ['patStatus','patCrit','patSetor','patAno','patMes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
+  const s=document.getElementById('patSearch');if(s)s.value='';
+  renderPATtbl();
 }
 
 function toggleSB(){
