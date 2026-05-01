@@ -445,8 +445,10 @@ tbody tr:hover td{background:var(--surface2)}
         <div class="grid-2">
           <div class="card">
             <div class="card-head"><span class="card-title">Semáforo de Validade</span></div>
-            <div class="legend" id="aLeg"></div>
-            <div style="position:relative;height:176px"><canvas id="aDonut"></canvas></div>
+            <div style="display:flex;align-items:center;gap:16px;min-height:180px">
+              <div style="position:relative;width:180px;height:180px;flex-shrink:0"><canvas id="aDonut"></canvas></div>
+              <div class="legend" id="aLeg" style="flex:1;display:flex;flex-direction:column;gap:7px"></div>
+            </div>
           </div>
           <div class="card">
             <div class="card-head"><span class="card-title">Por Tipo de Licença</span></div>
@@ -608,8 +610,10 @@ tbody tr:hover td{background:var(--surface2)}
           </div>
           <div class="card">
             <div class="card-head"><span class="card-title">Status SLA</span></div>
-            <div class="legend" id="mLeg"></div>
-            <div style="position:relative;height:176px"><canvas id="mDonut"></canvas></div>
+            <div style="display:flex;align-items:center;gap:16px;min-height:180px">
+              <div style="position:relative;width:180px;height:180px;flex-shrink:0"><canvas id="mDonut"></canvas></div>
+              <div class="legend" id="mLeg" style="flex:1;display:flex;flex-direction:column;gap:7px"></div>
+            </div>
           </div>
         </div>
         <div class="tbl-card">
@@ -739,8 +743,10 @@ tbody tr:hover td{background:var(--surface2)}
           </div>
           <div class="card">
             <div class="card-head"><span class="card-title">Status das Frotas</span></div>
-            <div style="position:relative;height:176px"><canvas id="matDonut"></canvas></div>
-            <div class="legend" id="matLeg" style="margin-top:10px"></div>
+            <div style="display:flex;align-items:center;gap:16px;min-height:180px">
+              <div style="position:relative;width:180px;height:180px;flex-shrink:0"><canvas id="matDonut"></canvas></div>
+              <div class="legend" id="matLeg" style="flex:1;display:flex;flex-direction:column;gap:7px"></div>
+            </div>
           </div>
         </div>
 
@@ -875,8 +881,10 @@ tbody tr:hover td{background:var(--surface2)}
         <div class="grid-2" style="margin-bottom:20px">
           <div class="card">
             <div class="card-head"><span class="card-title">Status das Atividades</span></div>
-            <div style="position:relative;height:176px"><canvas id="patDonut"></canvas></div>
-            <div class="legend" id="patLeg" style="margin-top:10px"></div>
+            <div style="display:flex;align-items:center;gap:16px;min-height:180px">
+              <div style="position:relative;width:180px;height:180px;flex-shrink:0"><canvas id="patDonut"></canvas></div>
+              <div class="legend" id="patLeg" style="flex:1;display:flex;flex-direction:column;gap:7px"></div>
+            </div>
           </div>
           <div class="card">
             <div class="card-head"><span class="card-title">Por Setor Demandante</span></div>
@@ -1407,7 +1415,7 @@ function renderAETcharts(){
   if(el4)el4.textContent=C5;if(el4s)el4s.textContent='vence em até 5 dias';
   if(el5)el5.textContent=C15;
   if(aC)aC.destroy();
-  document.getElementById('aLeg').innerHTML=[['#c0392b','Vencidas',V],['#e74c3c','Crítico 5d',C5],['#e8943a','Atenção 15d',C15],['#f39c12','Vencendo 30d',C30],['#2db87a','Regular',R],['#3d4559','Sem data',SD]].map(([c,l,v])=>`<span class="leg"><span class="leg-dot" style="background:${c}"></span>${l} ${v}</span>`).join('');
+  document.getElementById('aLeg').innerHTML=[['#c0392b','Vencidas',V],['#e74c3c','Crítico 5d',C5],['#e8943a','Atenção 15d',C15],['#f39c12','Vencendo 30d',C30],['#2db87a','Regular',R],['#3d4559','Sem data',SD]].map(([c,l,v])=>`<span class="leg" style="width:100%;justify-content:space-between"><span style="display:flex;align-items:center;gap:5px"><span class="leg-dot" style="background:${c}"></span>${l}</span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px">${v}</span></span>`).join('');
   aC=new Chart(document.getElementById('aDonut'),{type:'doughnut',data:{labels:['Vencida','Crítico 5d','Atenção 15d','Vencendo 30d','Regular','Sem data'],datasets:[{data:[V,C5,C15,C30,R,SD],backgroundColor:['#c0392b','#e74c3c','#e8943a','#f39c12','#2db87a','#2e3340'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%',hoverOffset:6}});
   const tipos={};d.forEach(r=>{if(r.tipo)tipos[r.tipo]=(tipos[r.tipo]||0)+1;});
   const ts=Object.entries(tipos).sort((a,b)=>b[1]-a[1]).slice(0,6);
@@ -1561,7 +1569,7 @@ function renderMAT(){
   // Donut
   if(mAC)mAC.destroy();
   const legEl=document.getElementById('matLeg');
-  if(legEl)legEl.innerHTML=[['#c81428','Déficit',def],['#f39c12','Excesso',exc],['#2db87a','Regular',reg]].map(([c,l,v])=>`<span class="leg"><span class="leg-dot" style="background:${c}"></span>${l} ${v}</span>`).join('');
+  if(legEl)legEl.innerHTML=[['#c81428','Déficit',def],['#f39c12','Excesso',exc],['#2db87a','Regular',reg]].map(([c,l,v])=>`<span class="leg" style="width:100%;justify-content:space-between"><span style="display:flex;align-items:center;gap:5px"><span class="leg-dot" style="background:${c}"></span>${l}</span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px">${v}</span></span>`).join('');
   const donutEl=document.getElementById('matDonut');
   if(donutEl&&donutEl.offsetParent!==null)mAC=new Chart(donutEl,{type:'doughnut',data:{labels:['Déficit','Excesso','Regular'],datasets:[{data:[def,exc,reg],backgroundColor:['#c81428','#f39c12','#2db87a'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%',hoverOffset:6}});
   renderMATtbl();
@@ -1737,7 +1745,7 @@ function renderPATtbl(){
     const legEl=document.getElementById('patLeg');
     if(legEl)legEl.innerHTML=statuses2.map(s=>'<span class="leg"><span class="leg-dot" style="background:'+(scc2[s]||'#6b7280')+'"></span>'+s+' '+sc2[s]+'</span>').join('');
     const donutEl=document.getElementById('patDonut');
-    if(donutEl&&donutEl.offsetParent!==null){if(pC){pC.destroy();pC=null;}pC=new Chart(donutEl,{type:'doughnut',data:{labels:statuses2,datasets:[{data:statuses2.map(s=>sc2[s]),backgroundColor:statuses2.map(s=>scc2[s]||'#6b7280'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%',hoverOffset:6}});}
+    if(donutEl){if(pC){pC.destroy();pC=null;}pC=new Chart(donutEl,{type:'doughnut',data:{labels:statuses2,datasets:[{data:statuses2.map(s=>sc2[s]),backgroundColor:statuses2.map(s=>scc2[s]||'#6b7280'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%',hoverOffset:6}});}
     // Table
     const cnt=document.getElementById('patCnt');
     const tbl=document.getElementById('patTbl');
