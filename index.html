@@ -738,6 +738,31 @@ tbody tr:hover td{background:var(--surface2)}
 
         <div class="tbl-card">
           <div class="tbl-head"><span class="tbl-title">Detalhamento por Frota</span><span class="count-tag" id="matCnt">0 registros</span></div>
+          <div class="filter-bar-row">
+            <div class="search-wrap" style="flex:1;min-width:160px;margin-bottom:0">
+              <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="search-input" id="matSearchBot" placeholder="Buscar conjunto ou motorista..." oninput="document.getElementById('matSearch').value=this.value;renderMATtbl()">
+            </div>
+            <div class="select-group">
+              <label class="select-label">Tipo</label>
+              <select class="f-select" id="matTipoBot" onchange="document.getElementById('matTipo').value=this.value;renderMATtbl()">
+                <option value="TODOS">Todos</option>
+              </select>
+            </div>
+            <div class="select-group">
+              <label class="select-label">Status</label>
+              <select class="f-select" id="matStatusBot" onchange="document.getElementById('matStatus').value=this.value;renderMATtbl()">
+                <option value="TODOS">Todos</option>
+                <option value="DEFICIT">Com Déficit</option>
+                <option value="REGULAR">Regular</option>
+                <option value="EXCESSO">Com Excesso</option>
+              </select>
+            </div>
+            <button class="clear-filters-btn" onclick="clearMATFilters()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Limpar
+            </button>
+          </div>
           <div class="tbl-wrap">
             <table style="table-layout:auto;border-collapse:collapse">
               <thead>
@@ -853,6 +878,59 @@ tbody tr:hover td{background:var(--surface2)}
 
         <div class="tbl-card">
           <div class="tbl-head"><span class="tbl-title">Detalhamento de Atividades</span><span class="count-tag" id="patCnt">0 registros</span></div>
+          <div class="filter-bar-row">
+            <div class="search-wrap" style="flex:1;min-width:160px;margin-bottom:0">
+              <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="search-input" id="patSearchBot" placeholder="Buscar atividade ou frota..." oninput="document.getElementById('patSearch').value=this.value;renderPATtbl()">
+            </div>
+            <div class="select-group">
+              <label class="select-label">Status</label>
+              <select class="f-select" id="patStatusBot" onchange="document.getElementById('patStatus').value=this.value;renderPATtbl()">
+                <option value="TODOS">Todos</option>
+                <option value="CONCLUÍDO">Concluído</option>
+                <option value="PENDENTE">Pendente</option>
+                <option value="EM ANDAMENTO">Em Andamento</option>
+                <option value="CANCELADO">Cancelado</option>
+              </select>
+            </div>
+            <div class="select-group">
+              <label class="select-label">Criticidade</label>
+              <select class="f-select" id="patCritBot" onchange="document.getElementById('patCrit').value=this.value;renderPATtbl()">
+                <option value="TODOS">Todos</option>
+                <option value="ALTA">Alta</option>
+                <option value="MÉDIA">Média</option>
+                <option value="BAIXA">Baixa</option>
+              </select>
+            </div>
+            <div class="select-group">
+              <label class="select-label">Setor</label>
+              <select class="f-select" id="patSetorBot" onchange="document.getElementById('patSetor').value=this.value;renderPATtbl()">
+                <option value="TODOS">Todos</option>
+              </select>
+            </div>
+            <div class="select-group">
+              <label class="select-label">Ano</label>
+              <select class="f-select" id="patAnoBot" onchange="document.getElementById('patAno').value=this.value;renderPATtbl()">
+                <option value="TODOS">Todos</option>
+              </select>
+            </div>
+            <div class="select-group">
+              <label class="select-label">Mês</label>
+              <select class="f-select" id="patMesBot" onchange="document.getElementById('patMes').value=this.value;renderPATtbl()">
+                <option value="TODOS">Todos</option>
+                <option value="1">Jan</option><option value="2">Fev</option>
+                <option value="3">Mar</option><option value="4">Abr</option>
+                <option value="5">Mai</option><option value="6">Jun</option>
+                <option value="7">Jul</option><option value="8">Ago</option>
+                <option value="9">Set</option><option value="10">Out</option>
+                <option value="11">Nov</option><option value="12">Dez</option>
+              </select>
+            </div>
+            <button class="clear-filters-btn" onclick="clearPATFilters()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Limpar
+            </button>
+          </div>
           <div class="tbl-wrap">
             <table style="table-layout:auto">
               <thead><tr>
@@ -1581,10 +1659,16 @@ function processPAT(rows){
   // Dynamic selects
   const setores=[...new Set(patData.map(r=>r.setor).filter(s=>s&&s!==''))].sort();
   const setorEl=document.getElementById('patSetor');
-  if(setorEl)setorEl.innerHTML='<option value="TODOS">Todos</option>'+setores.map(s=>'<option value="'+s+'">'+s+'</option>').join('');
+  const setorBotEl=document.getElementById('patSetorBot');
+  const setorHtml='<option value="TODOS">Todos</option>'+setores.map(s=>'<option value="'+s+'">'+s+'</option>').join('');
+  if(setorEl)setorEl.innerHTML=setorHtml;
+  if(setorBotEl)setorBotEl.innerHTML=setorHtml;
   const anos=[...new Set(patData.map(r=>getDateYear(r.dtId)).filter(y=>y))].sort((a,b)=>b-a);
   const anoEl=document.getElementById('patAno');
-  if(anoEl)anoEl.innerHTML='<option value="TODOS">Todos</option>'+anos.map(a=>'<option value="'+a+'">'+a+'</option>').join('');
+  const anoBotEl=document.getElementById('patAnoBot');
+  const anoHtml='<option value="TODOS">Todos</option>'+anos.map(a=>'<option value="'+a+'">'+a+'</option>').join('');
+  if(anoEl)anoEl.innerHTML=anoHtml;
+  if(anoBotEl)anoBotEl.innerHTML=anoHtml;
   renderPAT();
 }
 
