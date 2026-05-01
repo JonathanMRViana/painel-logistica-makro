@@ -1366,6 +1366,36 @@ function renderMATtbl(){
       if(q&&!r.conj.toLowerCase().includes(q)&&!r.motorista.toLowerCase().includes(q))return false;
       return true;
     });
+    // Update KPIs based on filtered data
+    const tot2=f.length||1;
+    const def=f.filter(r=>r.status==='DEFICIT').length;
+    const reg=f.filter(r=>r.status==='REGULAR').length;
+    const exc=f.filter(r=>r.status==='EXCESSO').length;
+    const falta=f.reduce((s,r)=>{['dCor','dTen','dCin','dCat'].forEach(k=>{if(r[k]!==null&&r[k]<0)s+=Math.abs(r[k]);});return s;},0);
+    const e0=document.getElementById('mt0');const e1=document.getElementById('mt1');
+    const e1s=document.getElementById('mt1s');const e2=document.getElementById('mt2');
+    const e3=document.getElementById('mt3');const e3s=document.getElementById('mt3s');
+    if(e0)e0.textContent=f.length;
+    if(e1)e1.textContent=def;if(e1s)e1s.textContent=Math.round(def/tot2*100)+'% da base';
+    if(e2)e2.textContent=falta;
+    if(e3)e3.textContent=reg;if(e3s)e3s.textContent=Math.round(reg/tot2*100)+'% da base';
+    // Update bars
+    const tipos={Corrente:0,Tensionador:0,Cinta:0,Catraca:0};
+    f.forEach(r=>{
+      if(r.dCor!==null&&r.dCor<0)tipos.Corrente+=Math.abs(r.dCor);
+      if(r.dTen!==null&&r.dTen<0)tipos.Tensionador+=Math.abs(r.dTen);
+      if(r.dCin!==null&&r.dCin<0)tipos.Cinta+=Math.abs(r.dCin);
+      if(r.dCat!==null&&r.dCat<0)tipos.Catraca+=Math.abs(r.dCat);
+    });
+    const mx=Math.max(...Object.values(tipos))||1;
+    const barColors=['#c81428','#e8943a','#2db87a','#2ab0b8'];
+    const barsEl=document.getElementById('matBars');
+    if(barsEl)barsEl.innerHTML=Object.entries(tipos).map(([l,v],i)=>'<div class="bar-row"><span class="bar-lbl">'+l+'</span><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(v/mx*100)+'%;background:'+barColors[i]+'"></div></div><span class="bar-num">'+v+'</span></div>').join('');
+    // Update donut
+    const legEl=document.getElementById('matLeg');
+    if(legEl)legEl.innerHTML=[['#c81428','Déficit',def],['#f39c12','Excesso',exc],['#2db87a','Regular',reg]].map(([c,l,v])=>'<span class="leg"><span class="leg-dot" style="background:'+c+'"></span>'+l+' '+v+'</span>').join('');
+    const donutEl=document.getElementById('matDonut');
+    if(donutEl&&donutEl.offsetParent!==null){if(mAC){mAC.destroy();mAC=null;}mAC=new Chart(donutEl,{type:'doughnut',data:{labels:['Déficit','Excesso','Regular'],datasets:[{data:[def,exc,reg],backgroundColor:['#c81428','#f39c12','#2db87a'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'72%'}});}
     const cnt=document.getElementById('matCnt');
     const tbl=document.getElementById('matTbl');
     if(cnt)cnt.textContent=f.length+' registros';
