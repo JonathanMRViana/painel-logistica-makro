@@ -1696,21 +1696,12 @@ function processPAT(rows){
 }
 
 function renderPAT(){
-  const pl=document.getElementById('patLoad');const pb=document.getElementById('patBody');
-  if(pl)pl.style.display='none';if(pb){pb.style.display='block';pb.classList.add('panel-body-fade');}
-  const scc={'CONCLUÍDO':'#2db87a','PENDENTE':'#e8943a','EM ANDAMENTO':'#2ab0b8','CANCELADO':'#6b7280'};
-  const statuses=[...new Set(patData.map(r=>r.status).filter(s=>s))];
-  const sc={};statuses.forEach(s=>sc[s]=(sc[s]||0)+patData.filter(r=>r.status===s).length);
-  const legEl=document.getElementById('patLeg');
-  if(legEl)legEl.innerHTML=statuses.map(s=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${scc[s]||'#6b7280'}"></span><span style="font-size:12px">${s}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${sc[s]})</span></span>`).join('');
-  const donutEl=document.getElementById('patDonut');
-  if(donutEl&&donutEl.offsetParent!==null){
-    if(pC){pC.destroy();pC=null;}
-    pC=new Chart(donutEl,{type:'doughnut',data:{labels:statuses,datasets:[{data:statuses.map(s=>sc[s]),backgroundColor:statuses.map(s=>scc[s]||'#6b7280'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%',hoverOffset:6}});
-  }
+  const pl=document.getElementById('patLoad');
+  const pb=document.getElementById('patBody');
+  if(pl)pl.style.display='none';
+  if(pb)pb.style.display='block';
   renderPATtbl();
 }
-
 function renderPATtbl(){
   try{
     const q=((document.getElementById('patSearch')||{}).value||'').toLowerCase().trim();
