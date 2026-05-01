@@ -999,7 +999,7 @@ function processMOB(rows){
   for(let i=0;i<rows.length;i++){
     if(rows[i].some(c=>String(c).toUpperCase().trim()==='FROTA')){hi=i;break;}
   }
-  if(hi<0)hi=3;
+  if(hi<0)hi=4;
   mobData=[];
   for(let i=hi+1;i<rows.length;i++){
     const v=rows[i];
