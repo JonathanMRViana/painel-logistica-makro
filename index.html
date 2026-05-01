@@ -721,14 +721,33 @@ tbody tr:hover td{background:var(--surface2)}
         <div class="tbl-card">
           <div class="tbl-head"><span class="tbl-title">Detalhamento por Frota</span><span class="count-tag" id="matCnt">0 registros</span></div>
           <div class="tbl-wrap">
-            <table style="table-layout:auto">
-              <thead><tr>
-                <th>Conjunto</th><th>Tipo</th><th>Motorista</th>
-                <th title="Corrente Ideal">Cor.I</th><th title="Tensionador Ideal">Ten.I</th><th title="Cinta Ideal">Cin.I</th><th title="Catraca Ideal">Cat.I</th>
-                <th title="Corrente Atual">Cor.A</th><th title="Tensionador Atual">Ten.A</th><th title="Cinta Atual">Cin.A</th><th title="Catraca Atual">Cat.A</th>
-                <th title="Δ Corrente">ΔCor</th><th title="Δ Tensionador">ΔTen</th><th title="Δ Cinta">ΔCin</th><th title="Δ Catraca">ΔCat</th>
-                <th>Status</th><th>Obs.</th>
-              </tr></thead>
+            <table style="table-layout:auto;border-collapse:collapse">
+              <thead>
+                <tr>
+                  <th rowspan="2" style="border:1px solid var(--border2);background:var(--surface2)">Conjunto</th>
+                  <th rowspan="2" style="border:1px solid var(--border2);background:var(--surface2)">Tipo</th>
+                  <th rowspan="2" style="border:1px solid var(--border2);background:var(--surface2)">Motorista</th>
+                  <th colspan="4" style="border:1px solid var(--border2);background:rgba(27,63,122,0.15);color:var(--makro-blue);text-align:center;font-family:'Montserrat',sans-serif">QUANTIDADE IDEAL</th>
+                  <th colspan="4" style="border:1px solid var(--border2);background:rgba(45,184,122,0.12);color:var(--green);text-align:center;font-family:'Montserrat',sans-serif">QUANTIDADE ATUAL</th>
+                  <th colspan="4" style="border:1px solid var(--border2);background:rgba(200,20,40,0.1);color:var(--accent);text-align:center;font-family:'Montserrat',sans-serif">DIFERENÇA</th>
+                  <th rowspan="2" style="border:1px solid var(--border2);background:var(--surface2)">Status</th>
+                  <th rowspan="2" style="border:1px solid var(--border2);background:var(--surface2)">Obs.</th>
+                </tr>
+                <tr>
+                  <th style="border:1px solid var(--border2);background:rgba(27,63,122,0.08);text-align:center">Corrente</th>
+                  <th style="border:1px solid var(--border2);background:rgba(27,63,122,0.08);text-align:center">Tensionador</th>
+                  <th style="border:1px solid var(--border2);background:rgba(27,63,122,0.08);text-align:center">Cinta</th>
+                  <th style="border:1px solid var(--border2);background:rgba(27,63,122,0.08);text-align:center">Catraca</th>
+                  <th style="border:1px solid var(--border2);background:rgba(45,184,122,0.06);text-align:center">Corrente</th>
+                  <th style="border:1px solid var(--border2);background:rgba(45,184,122,0.06);text-align:center">Tensionador</th>
+                  <th style="border:1px solid var(--border2);background:rgba(45,184,122,0.06);text-align:center">Cinta</th>
+                  <th style="border:1px solid var(--border2);background:rgba(45,184,122,0.06);text-align:center">Catraca</th>
+                  <th style="border:1px solid var(--border2);background:rgba(200,20,40,0.06);text-align:center">Corrente</th>
+                  <th style="border:1px solid var(--border2);background:rgba(200,20,40,0.06);text-align:center">Tensionador</th>
+                  <th style="border:1px solid var(--border2);background:rgba(200,20,40,0.06);text-align:center">Cinta</th>
+                  <th style="border:1px solid var(--border2);background:rgba(200,20,40,0.06);text-align:center">Catraca</th>
+                </tr>
+              </thead>
               <tbody id="matTbl"></tbody>
             </table>
           </div>
@@ -1351,26 +1370,26 @@ function renderMATtbl(){
     const tbl=document.getElementById('matTbl');
     if(cnt)cnt.textContent=f.length+' registros';
     if(!tbl)return;
-    const dCell=(v)=>v===null?'<td>—</td>':`<td style="font-family:'DM Mono',monospace;text-align:center">${v}</td>`;
+    const dCell=(v)=>v===null?'<td style="border:1px solid var(--border);text-align:center">—</td>':`<td style="font-family:'DM Mono',monospace;text-align:center;border:1px solid var(--border)">${v}</td>`;
     const diffCell=(v)=>{
       if(v===null)return'<td>—</td>';
       const col=v<0?'var(--red)':v>0?'var(--green)':'var(--text3)';
       const pre=v>0?'+':'';
-      return`<td style="font-family:'DM Mono',monospace;font-weight:600;color:${col};text-align:center">${pre}${v}</td>`;
+      return`<td style="font-family:'DM Mono',monospace;font-weight:600;color:${col};text-align:center;border:1px solid var(--border)">${pre}${v}</td>`;
     };
     const stTag=(s)=>s==='DEFICIT'?'<span class="tag tag-red">DÉFICIT</span>':s==='EXCESSO'?'<span class="tag tag-teal">EXCESSO</span>':'<span class="tag tag-green">REGULAR</span>';
     const obsCell=(r)=>r.obs?'<span class="obs-icon" data-frota="'+r.conj+'" data-obs="'+r.obs.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')+'">☰</span>':'—';
     tbl.innerHTML=f.length===0
-      ?'<tr><td colspan="17" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro encontrado</td></tr>'
+      ?'<tr><td colspan="17" style="text-align:center;color:var(--text3);padding:24px;border:1px solid var(--border)">Nenhum registro encontrado</td></tr>'
       :f.map(r=>'<tr>'
-        +'<td style="font-family:\'DM Mono\',monospace;font-weight:500">'+r.conj+'</td>'
-        +'<td>'+r.tipo+'</td>'
-        +'<td style="max-width:140px">'+r.motorista+'</td>'
+        +'<td style="font-family:\'DM Mono\',monospace;font-weight:500;border:1px solid var(--border)">'+r.conj+'</td>'
+        +'<td style="border:1px solid var(--border)">'+r.tipo+'</td>'
+        +'<td style="border:1px solid var(--border);max-width:160px">'+r.motorista+'</td>'
         +dCell(r.corI)+dCell(r.tenI)+dCell(r.cinI)+dCell(r.catI)
         +dCell(r.corA)+dCell(r.tenA)+dCell(r.cinA)+dCell(r.catA)
         +diffCell(r.dCor)+diffCell(r.dTen)+diffCell(r.dCin)+diffCell(r.dCat)
-        +'<td>'+stTag(r.status)+'</td>'
-        +'<td class="obs-cell">'+obsCell(r)+'</td>'
+        +'<td style="border:1px solid var(--border)">'+stTag(r.status)+'</td>'
+        +'<td class="obs-cell" style="border:1px solid var(--border)">'+obsCell(r)+'</td>'
         +'</tr>').join('');
   }catch(e){console.error('renderMATtbl error:',e);}
 }
