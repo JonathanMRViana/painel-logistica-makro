@@ -218,6 +218,8 @@ tbody tr:hover td{background:var(--surface2)}
 .tag-blue{background:var(--accent-dim);color:var(--accent);border-color:rgba(79,142,247,.2)}
 .tag-teal{background:var(--teal-dim);color:var(--teal);border-color:rgba(53,184,192,.2)}
 .tag-dim{background:var(--surface2);color:var(--text3);border-color:var(--border)}
+.panel-body-fade{animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .loading{display:flex;align-items:center;justify-content:center;height:320px;flex-direction:column;gap:10px;color:var(--text3);margin-top:24px}
 .spinner{width:28px;height:28px;border:1.5px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -1251,7 +1253,7 @@ function renderMOB(){
   const scc={FP:'#3dbf7f',OK:'#35b8c0',SP:'#2e3340',AT:'#e05454',CR:'#e8a53a',CX:'#4a5568',FF:'#e8a53a',F:'#3dbf7f'};
   const slbl={FP:'Finalizado OK',OK:'No Prazo',SP:'Sem Prazo',AT:'Atrasado',CX:'Cancelado',FF:'Fora do Prazo',F:'Finalizado'};
   if(mC)mC.destroy();
-  document.getElementById('mLeg').innerHTML=sl.map(l=>`<span class="leg"><span class="leg-dot" style="background:${scc[l]||'#4a5568'}"></span>${slbl[l]||l} ${sc[l]}</span>`).join('');
+  document.getElementById('mLeg').innerHTML=sl.map(l=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${scc[l]||'#4a5568'}"></span><span style="font-size:12px">${slbl[l]||l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${sc[l]})</span></span>`).join('');
   mC=new Chart(document.getElementById('mDonut'),{type:'doughnut',data:{labels:sl.map(l=>slbl[l]||l),datasets:[{data:sl.map(l=>sc[l]),backgroundColor:sl.map(l=>scc[l]||'#4a5568'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%',hoverOffset:6}});
   renderMOBtbl();
 }
@@ -1460,7 +1462,7 @@ function renderMOBcharts(){
   const scc={FP:'#2db87a',OK:'#2ab0b8',SP:'#2e3340',AT:'#e05454',CX:'#4a5568',FF:'#e8943a',F:'#2db87a'};
   const slbl={FP:'Finalizado OK',OK:'No Prazo',SP:'Sem Prazo',AT:'Atrasado',CX:'Cancelado',FF:'Fora do Prazo',F:'Finalizado'};
   if(mC)mC.destroy();
-  document.getElementById('mLeg').innerHTML=sl.map(l=>`<span class="leg"><span class="leg-dot" style="background:${scc[l]||'#4a5568'}"></span>${slbl[l]||l} ${sc[l]}</span>`).join('');
+  document.getElementById('mLeg').innerHTML=sl.map(l=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${scc[l]||'#4a5568'}"></span><span style="font-size:12px">${slbl[l]||l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${sc[l]})</span></span>`).join('');
   mC=new Chart(document.getElementById('mDonut'),{type:'doughnut',data:{labels:sl.map(l=>slbl[l]||l),datasets:[{data:sl.map(l=>sc[l]),backgroundColor:sl.map(l=>scc[l]||'#4a5568'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%',hoverOffset:6}});
 }
 
@@ -1695,12 +1697,12 @@ function processPAT(rows){
 
 function renderPAT(){
   const pl=document.getElementById('patLoad');const pb=document.getElementById('patBody');
-  if(pl)pl.style.display='none';if(pb)pb.style.display='block';
+  if(pl)pl.style.display='none';if(pb){pb.style.display='block';pb.classList.add('panel-body-fade');}
   const scc={'CONCLUÍDO':'#2db87a','PENDENTE':'#e8943a','EM ANDAMENTO':'#2ab0b8','CANCELADO':'#6b7280'};
   const statuses=[...new Set(patData.map(r=>r.status).filter(s=>s))];
   const sc={};statuses.forEach(s=>sc[s]=(sc[s]||0)+patData.filter(r=>r.status===s).length);
   const legEl=document.getElementById('patLeg');
-  if(legEl)legEl.innerHTML=statuses.map(s=>'<span class="leg"><span class="leg-dot" style="background:'+(scc[s]||'#6b7280')+'"></span>'+s+' '+sc[s]+'</span>').join('');
+  if(legEl)legEl.innerHTML=statuses.map(s=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${scc[s]||'#6b7280'}"></span><span style="font-size:12px">${s}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${sc[s]})</span></span>`).join('');
   const donutEl=document.getElementById('patDonut');
   if(donutEl&&donutEl.offsetParent!==null){
     if(pC){pC.destroy();pC=null;}
@@ -1750,7 +1752,7 @@ function renderPATtbl(){
     const statuses2=[...new Set(f.map(r=>r.status).filter(s=>s))];
     const sc2={};f.forEach(r=>{if(r.status)sc2[r.status]=(sc2[r.status]||0)+1;});
     const legEl=document.getElementById('patLeg');
-    if(legEl)legEl.innerHTML=statuses2.map(s=>'<span class="leg"><span class="leg-dot" style="background:'+(scc2[s]||'#6b7280')+'"></span>'+s+' '+sc2[s]+'</span>').join('');
+    if(legEl)legEl.innerHTML=statuses2.map(s=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${scc2[s]||'#6b7280'}"></span><span style="font-size:12px">${s}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${sc2[s]})</span></span>`).join('');
     const donutEl=document.getElementById('patDonut');
     if(donutEl){if(pC){pC.destroy();pC=null;}pC=new Chart(donutEl,{type:'doughnut',data:{labels:statuses2,datasets:[{data:statuses2.map(s=>sc2[s]),backgroundColor:statuses2.map(s=>scc2[s]||'#6b7280'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%',hoverOffset:6}});}
     // Table
