@@ -820,7 +820,7 @@ tbody tr:hover td{background:var(--surface2)}
     <!-- PAT PANEL -->
     <div id="panel-pat" class="panel">
       <div id="patLoad" class="loading"><div class="spinner"></div><div class="loading-txt">carregando dados · pátio</div></div>
-      <div id="patBody" style="display:none">
+      <div id="patBody">
         <div class="top-filter-bar">
           <span class="top-filter-bar-title">Filtros</span>
           <div class="filter-divider"></div>
@@ -1697,9 +1697,7 @@ function processPAT(rows){
 
 function renderPAT(){
   const pl=document.getElementById('patLoad');
-  const pb=document.getElementById('patBody');
   if(pl)pl.style.display='none';
-  if(pb)pb.style.display='block';
   renderPATtbl();
 }
 function renderPATtbl(){
