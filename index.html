@@ -433,7 +433,7 @@ tbody tr:hover td{background:var(--surface2)}
         </div>
 
                 <div class="kpi-row" style="grid-template-columns:repeat(3,minmax(0,1fr))">
-          <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Total de Licenças</div><div class="kpi-value" id="a0">—</div><div class="kpi-sub">base completa</div></div>
+          <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Total de Licenças</div><div class="kpi-value" id="a0">—</div><div class="kpi-sub"> </div></div>
           <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Vencidas</div><div class="kpi-value" id="a1">—</div><div class="kpi-sub" id="a1s">—</div></div>
           <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Regulares</div><div class="kpi-value" id="a3">—</div><div class="kpi-sub" id="a3s">—</div></div>
         </div>
@@ -541,11 +541,20 @@ tbody tr:hover td{background:var(--surface2)}
             </select>
           </div>
           <div class="select-group">
+            <label class="select-label">Status</label>
+            <select class="f-select" id="mobStatusTop" onchange="syncMOBSelect(this,'mobStatus')">
+              <option value="TODOS">Todos</option>
+              <option value="A iniciar">A iniciar</option>
+              <option value="Em andamento">Em andamento</option>
+              <option value="Finalizado">Finalizado</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
+          <div class="select-group">
             <label class="select-label">SLA</label>
             <select class="f-select" id="mobSlaTop" onchange="syncMOBSelect(this,'mobSla')">
               <option value="TODOS">Todos</option>
               <option value="AT">Atrasado</option>
-              <option value="CR">Crítico</option>
               <option value="OK">No Prazo</option>
               <option value="FP">Finalizado</option>
               <option value="SP">Sem Prazo</option>
@@ -583,7 +592,7 @@ tbody tr:hover td{background:var(--surface2)}
         </div>
 
                 <div class="kpi-row">
-          <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Total de Operações</div><div class="kpi-value" id="m0">—</div><div class="kpi-sub">mob + desmob</div></div>
+          <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Total de Operações</div><div class="kpi-value" id="m0">—</div><div class="kpi-sub"> </div></div>
           <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Alta Criticidade</div><div class="kpi-value" id="m1">—</div><div class="kpi-sub" id="m1s">—</div></div>
           <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">SLA Atrasado</div><div class="kpi-value" id="m2">—</div><div class="kpi-sub">fora do prazo</div></div>
           <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Finalizadas no Prazo</div><div class="kpi-value" id="m3">—</div><div class="kpi-sub" id="m3s">—</div></div>
@@ -625,11 +634,20 @@ tbody tr:hover td{background:var(--surface2)}
               </select>
             </div>
             <div class="select-group">
+              <label class="select-label">Status</label>
+              <select class="f-select" id="mobStatus" onchange="syncMOBSelect(this,'mobStatus')">
+                <option value="TODOS">Todos</option>
+                <option value="A iniciar">A iniciar</option>
+                <option value="Em andamento">Em andamento</option>
+                <option value="Finalizado">Finalizado</option>
+                <option value="Cancelado">Cancelado</option>
+              </select>
+            </div>
+            <div class="select-group">
               <label class="select-label">SLA</label>
               <select class="f-select" id="mobSla" onchange="syncMOBSelect(this,'mobSla')">
                 <option value="TODOS">Todos</option>
                 <option value="AT">Atrasado</option>
-                <option value="CR">Crítico</option>
                 <option value="OK">No Prazo</option>
                 <option value="FP">Finalizado</option>
                 <option value="SP">Sem Prazo</option>
@@ -700,7 +718,7 @@ tbody tr:hover td{background:var(--surface2)}
         </div>
 
         <div class="kpi-row" style="grid-template-columns:repeat(4,minmax(0,1fr))">
-          <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Total de Frotas</div><div class="kpi-value" id="mt0">—</div><div class="kpi-sub">base completa</div></div>
+          <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Total de Frotas</div><div class="kpi-value" id="mt0">—</div><div class="kpi-sub"> </div></div>
           <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Com Déficit</div><div class="kpi-value" id="mt1">—</div><div class="kpi-sub" id="mt1s">—</div></div>
           <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Itens em Falta</div><div class="kpi-value" id="mt2">—</div><div class="kpi-sub">total de peças</div></div>
           <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Regulares</div><div class="kpi-value" id="mt3">—</div><div class="kpi-sub" id="mt3s">—</div></div>
@@ -800,11 +818,11 @@ function toggleTheme(){
 
 function crit(c){if(!c)return'—';const v=c.toLowerCase();return v.includes('alta')?'ALTA':v.includes('dia')||v.includes('édia')?'MÉDIA':v.includes('aixa')?'BAIXA':c.toUpperCase();}
 function nTipo(t){if(!t)return'';const v=t.toUpperCase();return v.includes('DESMOB')?'DESMOBILIZAÇÃO':v.includes('MOB')?'MOBILIZAÇÃO':v;}
-function calcSLA(p,s){const x=(s||'').toLowerCase();if(x.includes('finaliz')&&x.includes('prazo')&&!x.includes('fora'))return'FP';if(x.includes('finaliz')&&x.includes('fora'))return'FF';if(x.includes('finaliz'))return'F';if(x.includes('cancelad'))return'CX';if(!p||p==='')return'SP';const d=diasN(p);if(d===null)return'SP';return d<0?'AT':d<=7?'CR':'OK';}
+function calcSLA(p,s){const x=(s||'').toLowerCase();if(x.includes('finaliz')&&x.includes('prazo')&&!x.includes('fora'))return'FP';if(x.includes('finaliz')&&x.includes('fora'))return'FF';if(x.includes('finaliz'))return'F';if(x.includes('cancelad'))return'CX';if(!p||p==='')return'SP';const d=diasN(p);if(d===null)return'SP';return d<0?'AT':'OK';}
 
 
 function tagAET(s){const m={V:['tag-red','VENCIDA'],C5:['tag-red','CRÍTICO 5d'],C15:['tag-amber','ATENÇÃO 15d'],C30:['tag-amber','VENCENDO 30d'],R:['tag-green','REGULAR'],SD:['tag-dim','SEM DATA']};const[c,l]=m[s]||['tag-dim',s];return`<span class="tag ${c}">${l}</span>`;}
-function tagSLA(s){const m={AT:['tag-red','ATRASADO'],CR:['tag-amber','CRÍTICO'],OK:['tag-green','NO PRAZO'],FP:['tag-teal','FINALIZADO'],FF:['tag-amber','FORA DO PRAZO'],F:['tag-teal','FINALIZADO'],CX:['tag-dim','CANCELADA'],SP:['tag-dim','SEM PRAZO']};const[c,l]=m[s]||['tag-dim',s];return`<span class="tag ${c}">${l}</span>`;}
+function tagSLA(s){const m={AT:['tag-red','ATRASADO'],OK:['tag-green','NO PRAZO'],FP:['tag-teal','FINALIZADO'],FF:['tag-amber','FORA DO PRAZO'],F:['tag-teal','FINALIZADO'],CX:['tag-dim','CANCELADA'],SP:['tag-dim','SEM PRAZO']};const[c,l]=m[s]||['tag-dim',s];return`<span class="tag ${c}">${l}</span>`;}
 function tagCrit(c){const m={ALTA:['tag-red','ALTA'],MÉDIA:['tag-amber','MÉDIA'],BAIXA:['tag-green','BAIXA']};const[cl,l]=m[c]||['tag-dim',c];return`<span class="tag ${cl}">${l}</span>`;}
 function tagRen(r){if(r==='SIM')return'<span class="tag tag-red">SIM</span>';if(r==='NÃO')return'<span class="tag tag-green">NÃO</span>';return`<span class="tag tag-dim">${r||'—'}</span>`;}
 
@@ -1026,7 +1044,7 @@ function renderMOB(){
   const sc={};mobData.forEach(r=>{sc[r.sla]=(sc[r.sla]||0)+1;});
   const sl=Object.keys(sc);
   const scc={FP:'#3dbf7f',OK:'#35b8c0',SP:'#2e3340',AT:'#e05454',CR:'#e8a53a',CX:'#4a5568',FF:'#e8a53a',F:'#3dbf7f'};
-  const slbl={FP:'Finalizado OK',OK:'No Prazo',SP:'Sem Prazo',AT:'Atrasado',CR:'Crítico',CX:'Cancelado',FF:'Fora do Prazo',F:'Finalizado'};
+  const slbl={FP:'Finalizado OK',OK:'No Prazo',SP:'Sem Prazo',AT:'Atrasado',CX:'Cancelado',FF:'Fora do Prazo',F:'Finalizado'};
   if(mC)mC.destroy();
   document.getElementById('mLeg').innerHTML=sl.map(l=>`<span class="leg"><span class="leg-dot" style="background:${scc[l]||'#4a5568'}"></span>${slbl[l]||l} ${sc[l]}</span>`).join('');
   mC=new Chart(document.getElementById('mDonut'),{type:'doughnut',data:{labels:sl.map(l=>slbl[l]||l),datasets:[{data:sl.map(l=>sc[l]),backgroundColor:sl.map(l=>scc[l]||'#4a5568'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'72%'}});
@@ -1040,6 +1058,7 @@ function renderMOBtbl(){
     const tipo=((document.getElementById('mobTipo')||{}).value)||'TODOS';
     const slaVal=((document.getElementById('mobSla')||{}).value)||'TODOS';
     const und=((document.getElementById('mobUnd')||{}).value)||'TODOS';
+    const mobSt=((document.getElementById('mobStatus')||{}).value)||'TODOS';
     const ano=((document.getElementById('mobAno')||{}).value)||'TODOS';
     const mes=((document.getElementById('mobMes')||{}).value)||'TODOS';
     const f=mobData.filter(r=>{
@@ -1141,7 +1160,8 @@ function updateMOBFilterCount(){
   const q=(document.getElementById('mobSearch')||{value:''}).value;
   const _ano=((document.getElementById('mobAno')||{}).value)||'TODOS';
   const _mes=((document.getElementById('mobMes')||{}).value)||'TODOS';
-  const n=[crit,tipo,slaVal,und,_ano,_mes].filter(v=>v!=='TODOS').length+(q?1:0);
+  const mobStC=((document.getElementById('mobStatus')||{value:'TODOS'}).value)||'TODOS';
+  const n=[crit,tipo,mobStC,slaVal,und,_ano,_mes].filter(v=>v!=='TODOS').length+(q?1:0);
   const el=document.getElementById('mobFilterCount');
   if(el){el.textContent=n;el.classList.toggle('show',n>0);}
 }
@@ -1153,7 +1173,7 @@ function clearAETFilters(){
   renderAETcharts();
 }
 function clearMOBFilters(){
-  ['mobCrit','mobCritTop','mobTipo','mobTipoTop','mobSla','mobSlaTop','mobUnd','mobUndTop','mobAno','mobAnoTop','mobMes','mobMesTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
+  ['mobCrit','mobCritTop','mobTipo','mobTipoTop','mobStatus','mobStatusTop','mobSla','mobSlaTop','mobUnd','mobUndTop','mobAno','mobAnoTop','mobMes','mobMesTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
   ['mobSearch','mobSearchTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   updateMOBFilterCount();
   renderMOBtbl();
@@ -1232,8 +1252,8 @@ function renderMOBcharts(){
   document.getElementById('mBars').innerHTML=us.map(([l,v])=>`<div class="bar-row"><span class="bar-lbl">${l}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/mu*100)}%;background:var(--accent)"></div></div><span class="bar-num">${v}</span></div>`).join('');
   const sc={};d.forEach(r=>{sc[r.sla]=(sc[r.sla]||0)+1;});
   const sl=Object.keys(sc);
-  const scc={FP:'#2db87a',OK:'#2ab0b8',SP:'#2e3340',AT:'#e05454',CR:'#e8943a',CX:'#4a5568',FF:'#e8943a',F:'#2db87a'};
-  const slbl={FP:'Finalizado OK',OK:'No Prazo',SP:'Sem Prazo',AT:'Atrasado',CR:'Crítico',CX:'Cancelado',FF:'Fora do Prazo',F:'Finalizado'};
+  const scc={FP:'#2db87a',OK:'#2ab0b8',SP:'#2e3340',AT:'#e05454',CX:'#4a5568',FF:'#e8943a',F:'#2db87a'};
+  const slbl={FP:'Finalizado OK',OK:'No Prazo',SP:'Sem Prazo',AT:'Atrasado',CX:'Cancelado',FF:'Fora do Prazo',F:'Finalizado'};
   if(mC)mC.destroy();
   document.getElementById('mLeg').innerHTML=sl.map(l=>`<span class="leg"><span class="leg-dot" style="background:${scc[l]||'#4a5568'}"></span>${slbl[l]||l} ${sc[l]}</span>`).join('');
   mC=new Chart(document.getElementById('mDonut'),{type:'doughnut',data:{labels:sl.map(l=>slbl[l]||l),datasets:[{data:sl.map(l=>sc[l]),backgroundColor:sl.map(l=>scc[l]||'#4a5568'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'72%'}});
