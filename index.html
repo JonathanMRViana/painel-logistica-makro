@@ -998,9 +998,10 @@ function goTo(id){
   document.getElementById('pgSub').textContent=pages[id].s;
   // Re-render charts when panel becomes visible
   setTimeout(function(){
-    if(id==='mat'){if(matData.length>0){if(mAC){mAC.destroy();mAC=null;}renderMAT();}else{var ml=document.getElementById('matLoad');if(ml)ml.style.display='flex';}}
     if(id==='aet'&&aetData.length>0){if(aC){aC.destroy();aC=null;}renderAETcharts();}
     if(id==='mob'&&mobData.length>0){if(mC){mC.destroy();mC=null;}renderMOBcharts();}
+    if(id==='pat'&&patData.length>0){if(pC){pC.destroy();pC=null;}renderPAT();}
+    if(id==='mat'&&matData.length>0){if(mAC){mAC.destroy();mAC=null;}renderMAT();}
   },50);
 }
 
