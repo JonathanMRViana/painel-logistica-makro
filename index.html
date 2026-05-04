@@ -354,11 +354,7 @@ tbody tr:hover td{background:var(--surface2)}
       <div class="theme-switch"></div>
     </div>
     <div class="theme-icon-only" onclick="toggleTheme()" id="themeIconOnly" title="Modo escuro">🌙</div>
-    <div class="sb-meta">
-      <div class="status-dot"></div>
-      <span>Conectado</span>
-    </div>
-    <div class="upd-txt" id="updTxt">—</div>
+
   </div>
 </aside>
 
@@ -369,6 +365,10 @@ tbody tr:hover td{background:var(--surface2)}
       <div class="sub" id="pgSub">operações de mobilização e desmobilização</div>
     </div>
     <div class="topbar-right">
+      <div style="display:flex;align-items:center;gap:8px;margin-right:8px">
+        <div class="status-dot"></div>
+        <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace" id="updTxt">—</span>
+      </div>
       <button class="refresh-btn" onclick="loadAll()">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
         Atualizar
@@ -1375,7 +1375,7 @@ function renderMOB(){
   const scc={FP:'#3dbf7f',OK:'#35b8c0',SP:'#2e3340',AT:'#e05454',CR:'#e8a53a',CX:'#4a5568',FF:'#e8a53a',F:'#3dbf7f'};
   const slbl={FP:'Finalizado',OK:'No Prazo',SP:'Sem Prazo',AT:'Atrasado',CX:'Cancelado',FF:'Fora do Prazo',F:'Finalizado'};
   if(mC)mC.destroy();
-  document.getElementById('mLeg').innerHTML=sl.map(l=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${scc[l]||'#4a5568'}"></span><span style="font-size:12px">${slbl[l]||l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${sc[l]})</span></span>`).join('');
+  document.getElementById('mLeg').innerHTML=sl.map(l=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${scc[l]||'#4a5568'}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${slbl[l]||l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${sc[l]})</span></span>`).join('');
   mC=new Chart(document.getElementById('mDonut'),{type:'doughnut',data:{labels:sl.map(l=>slbl[l]||l),datasets:[{data:sl.map(l=>sc[l]),backgroundColor:sl.map(l=>scc[l]||'#4a5568'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});
   renderMOBtbl();
 }
@@ -1507,6 +1507,9 @@ function clearMOBFilters(){
   updateMOBFilterCount();
   renderMOBtbl();
   renderMOBcharts();
+  // Force UI update
+  document.querySelectorAll('#panel-mob .ftag').forEach(b=>b.classList.remove('on'));
+  const allBtn=document.querySelector('#panel-mob .ftag');if(allBtn)allBtn.classList.add('on');
 }
 
 // ── EXTRACTED CHART RENDERS (called on filter change) ──
@@ -1544,7 +1547,7 @@ function renderAETcharts(){
   if(el4)el4.textContent=C5;if(el4s)el4s.textContent='vence em até 5 dias';
   if(el5)el5.textContent=C15;
   if(aC)aC.destroy();
-  document.getElementById('aLeg').innerHTML=[['#c0392b','Vencidas',V],['#e74c3c','Crítico 5d',C5],['#e8943a','Atenção 15d',C15],['#f39c12','Vencendo 30d',C30],['#2db87a','Regular',R],['#3d4559','Sem data',SD]].map(([c,l,v])=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${c}"></span><span style="font-size:12px">${l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${v})</span></span>`).join('');
+  document.getElementById('aLeg').innerHTML=[['#c0392b','VENCIDAS',V],['#e74c3c','CRÍTICO 5D',C5],['#e8943a','ATENÇÃO 15D',C15],['#f39c12','VENCENDO 30D',C30],['#2db87a','REGULAR',R],['#3d4559','SEM DATA',SD]].map(([c,l,v])=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${c}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${v})</span></span>`).join('');
   aC=new Chart(document.getElementById('aDonut'),{type:'doughnut',data:{labels:['Vencida','Crítico 5d','Atenção 15d','Vencendo 30d','Regular','Sem data'],datasets:[{data:[V,C5,C15,C30,R,SD],backgroundColor:['#c0392b','#e74c3c','#e8943a','#f39c12','#2db87a','#2e3340'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});
   const tipos={};d.forEach(r=>{if(r.tipo)tipos[r.tipo]=(tipos[r.tipo]||0)+1;});
   const ts=Object.entries(tipos).sort((a,b)=>b[1]-a[1]).slice(0,6);
@@ -1584,7 +1587,7 @@ function renderMOBcharts(){
   const scc={FP:'#2db87a',OK:'#2ab0b8',SP:'#2e3340',AT:'#e05454',CX:'#4a5568',FF:'#e8943a',F:'#2db87a'};
   const slbl={FP:'Finalizado',OK:'No Prazo',SP:'Sem Prazo',AT:'Atrasado',CX:'Cancelado',FF:'Fora do Prazo',F:'Finalizado'};
   if(mC)mC.destroy();
-  document.getElementById('mLeg').innerHTML=sl.map(l=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${scc[l]||'#4a5568'}"></span><span style="font-size:12px">${slbl[l]||l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${sc[l]})</span></span>`).join('');
+  document.getElementById('mLeg').innerHTML=sl.map(l=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${scc[l]||'#4a5568'}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${slbl[l]||l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${sc[l]})</span></span>`).join('');
   mC=new Chart(document.getElementById('mDonut'),{type:'doughnut',data:{labels:sl.map(l=>slbl[l]||l),datasets:[{data:sl.map(l=>sc[l]),backgroundColor:sl.map(l=>scc[l]||'#4a5568'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});
 }
 
@@ -1698,7 +1701,7 @@ function renderMAT(){
   // Donut
   if(mAC)mAC.destroy();
   const legEl=document.getElementById('matLeg');
-  if(legEl)legEl.innerHTML=[['#c81428','Déficit',def],['#f39c12','Excesso',exc],['#2db87a','Regular',reg]].map(([c,l,v])=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${c}"></span><span style="font-size:12px">${l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${v})</span></span>`).join('');
+  if(legEl)legEl.innerHTML=[['#c81428','Déficit',def],['#f39c12','Excesso',exc],['#2db87a','Regular',reg]].map(([c,l,v])=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${c}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${v})</span></span>`).join('');
   const donutEl=document.getElementById('matDonut');
   if(donutEl&&donutEl.offsetParent!==null)mAC=new Chart(donutEl,{type:'doughnut',data:{labels:['Déficit','Excesso','Regular'],datasets:[{data:[def,exc,reg],backgroundColor:['#c81428','#f39c12','#2db87a'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});
   renderMATtbl();
@@ -1742,7 +1745,7 @@ function renderMATtbl(){
     if(barsEl)barsEl.innerHTML=Object.entries(tipos).map(([l,v],i)=>'<div class="bar-row"><span class="bar-lbl">'+l+'</span><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(v/mx*100)+'%;background:'+barColors[i]+'"></div></div><span class="bar-num">'+v+'</span></div>').join('');
     // Update donut
     const legEl=document.getElementById('matLeg');
-    if(legEl)legEl.innerHTML=[['#c81428','Déficit',def],['#f39c12','Excesso',exc],['#2db87a','Regular',reg]].map(([c,l,v])=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${c}"></span><span style="font-size:12px">${l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${v})</span></span>`).join('');
+    if(legEl)legEl.innerHTML=[['#c81428','Déficit',def],['#f39c12','Excesso',exc],['#2db87a','Regular',reg]].map(([c,l,v])=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${c}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${v})</span></span>`).join('');
     const donutEl=document.getElementById('matDonut');
     if(donutEl&&donutEl.offsetParent!==null){if(mAC){mAC.destroy();mAC=null;}mAC=new Chart(donutEl,{type:'doughnut',data:{labels:['Déficit','Excesso','Regular'],datasets:[{data:[def,exc,reg],backgroundColor:['#c81428','#f39c12','#2db87a'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});}
     const cnt=document.getElementById('matCnt');
@@ -1863,7 +1866,7 @@ function renderPATtbl(){
     const statuses2=[...new Set(f.map(r=>r.status).filter(s=>s))];
     const sc2={};f.forEach(r=>{if(r.status)sc2[r.status]=(sc2[r.status]||0)+1;});
     const legEl=document.getElementById('patLeg');
-    if(legEl)legEl.innerHTML=statuses2.map(s=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${scc2[s]||'#6b7280'}"></span><span style="font-size:12px">${s}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${sc2[s]})</span></span>`).join('');
+    if(legEl)legEl.innerHTML=statuses2.map(s=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${scc2[s]||'#6b7280'}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${s}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${sc2[s]})</span></span>`).join('');
     const donutEl=document.getElementById('patDonut');
     if(donutEl){if(pC){pC.destroy();pC=null;}pC=new Chart(donutEl,{type:'doughnut',data:{labels:statuses2,datasets:[{data:statuses2.map(s=>sc2[s]),backgroundColor:statuses2.map(s=>scc2[s]||'#6b7280'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});}
     // Table
@@ -2012,7 +2015,7 @@ function renderINEFtbl(){
     const cobSc={};f.forEach(r=>{if(r.cobr)cobSc[r.cobr]=(cobSc[r.cobr]||0)+1;});
     const cobKeys=Object.keys(cobSc);
     const legEl=document.getElementById('inefLeg');
-    if(legEl)legEl.innerHTML=cobKeys.map(k=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${cobMap[k]||'#6b7280'}"></span><span style="font-size:12px">${k}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${cobSc[k]})</span></span>`).join('');
+    if(legEl)legEl.innerHTML=cobKeys.map(k=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${cobMap[k]||'#6b7280'}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${k}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${cobSc[k]})</span></span>`).join('');
     const dEl=document.getElementById('inefDonut');
     if(dEl){if(iC){iC.destroy();iC=null;}iC=new Chart(dEl,{type:'doughnut',data:{labels:cobKeys,datasets:[{data:cobKeys.map(k=>cobSc[k]),backgroundColor:cobKeys.map(k=>cobMap[k]||'#6b7280'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});}
 
@@ -2057,9 +2060,9 @@ function renderINEFtbl(){
         plugins:{legend:{display:true,position:'top',labels:{font:{family:'Montserrat',size:11},color:'var(--text3)',boxWidth:12}},
           tooltip:{callbacks:{label:function(ctx){return ctx.dataset.yAxisID==='y'?' '+fMoney(ctx.raw):' '+ctx.raw+' ocorrências';}}}},
         scales:{
-          y:{position:'left',grid:{color:'var(--border)'},ticks:{callback:function(v){return'R$'+v.toLocaleString('pt-BR');},color:'var(--text3)',font:{family:'DM Mono',size:10}}},
+          y:{position:'left',grid:{display:false},ticks:{callback:function(v){return'R$'+v.toLocaleString('pt-BR');},color:'var(--text3)',font:{family:'DM Mono',size:10}}},
           y2:{position:'right',grid:{drawOnChartArea:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:10}}},
-          x:{grid:{color:'var(--border)'},ticks:{color:'var(--text3)',font:{family:'Montserrat',size:10},maxRotation:45}}
+          x:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'Montserrat',size:10},maxRotation:45}}
         }
       }});
     }
