@@ -1060,9 +1060,15 @@ tbody tr:hover td{background:var(--surface2)}
           </div>
         </div>
 
-        <!-- Evolução Mensal -->
+        <!-- Evolução Mensal/Semanal -->
         <div class="card" style="margin-bottom:20px">
-          <div class="card-head"><span class="card-title">Evolução Mensal de Custos com Diárias (R$)</span></div>
+          <div class="card-head" style="display:flex;justify-content:space-between;align-items:center">
+            <span class="card-title" id="inefLineTitle">Evolução Mensal de Custos com Diárias (R$)</span>
+            <div style="display:flex;gap:4px">
+              <button id="btnMensal" class="ftag on" onclick="setInefView('mensal')" style="font-size:10px;padding:3px 10px">Mensal</button>
+              <button id="btnSemanal" class="ftag" onclick="setInefView('semanal')" style="font-size:10px;padding:3px 10px">Semanal</button>
+            </div>
+          </div>
           <div style="position:relative;height:220px"><canvas id="inefLine"></canvas></div>
         </div>
 
@@ -2010,13 +2016,53 @@ function renderINEFtbl(){
     const dEl=document.getElementById('inefDonut');
     if(dEl){if(iC){iC.destroy();iC=null;}iC=new Chart(dEl,{type:'doughnut',data:{labels:cobKeys,datasets:[{data:cobKeys.map(k=>cobSc[k]),backgroundColor:cobKeys.map(k=>cobMap[k]||'#6b7280'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});}
 
-    // ── Line: Evolução mensal ──
+    // ── Line: Evolução mensal ou semanal ──
     const MESES_ORDER=['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
-    const mesesPresentes=[...new Set(inefData.map(r=>r.mes).filter(m=>m))].sort((a,b)=>MESES_ORDER.indexOf(a)-MESES_ORDER.indexOf(b));
-    const vlPorMes=mesesPresentes.map(m=>inefData.filter(r=>r.mes===m).reduce((s,r)=>s+r.vlTotal,0));
-    const ocPorMes=mesesPresentes.map(m=>inefData.filter(r=>r.mes===m).length);
     const lEl=document.getElementById('inefLine');
-    if(lEl){if(iC2){iC2.destroy();iC2=null;}iC2=new Chart(lEl,{type:'bar',data:{labels:mesesPresentes.map(m=>m.charAt(0)+m.slice(1).toLowerCase()),datasets:[{type:'bar',label:'Valor Total (R$)',data:vlPorMes,backgroundColor:'rgba(200,20,40,0.7)',borderColor:'#c81428',borderWidth:1,yAxisID:'y'},{type:'line',label:'Ocorrências',data:ocPorMes,borderColor:'#1b3f7a',backgroundColor:'rgba(27,63,122,0.1)',borderWidth:2,pointRadius:4,pointBackgroundColor:'#1b3f7a',yAxisID:'y2',tension:0.3}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:true,position:'top',labels:{font:{family:'Montserrat',size:11},color:'var(--text3)',boxWidth:12}},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.yAxisID==='y'?' '+fMoney(ctx.raw):' '+ctx.raw+' ocorrências';}}}},scales:{y:{position:'left',grid:{color:'var(--border)'},ticks:{callback:function(v){return'R$'+v.toLocaleString('pt-BR');},color:'var(--text3)',font:{family:'DM Mono',size:10}}},y2:{position:'right',grid:{drawOnChartArea:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:10}}},x:{grid:{color:'var(--border)'},ticks:{color:'var(--text3)',font:{family:'Montserrat',size:10}}}}}});}
+    if(lEl){
+      if(iC2){iC2.destroy();iC2=null;}
+      let labels,vlSerie,ocSerie;
+      if(inefView==='mensal'){
+        const mesesPresentes=[...new Set(inefData.map(r=>r.mes).filter(m=>m))].sort((a,b)=>MESES_ORDER.indexOf(a)-MESES_ORDER.indexOf(b));
+        labels=mesesPresentes.map(m=>m.charAt(0)+m.slice(1).toLowerCase());
+        vlSerie=mesesPresentes.map(m=>f.filter(r=>r.mes===m).reduce((s,r)=>s+r.vlTotal,0));
+        ocSerie=mesesPresentes.map(m=>f.filter(r=>r.mes===m).length);
+      } else {
+        // Semanal: group by ISO week number from dtCheg
+        const getWeek=(str)=>{
+          const match=str.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+          if(!match)return null;
+          const d=new Date(+match[3],+match[2]-1,+match[1]);
+          if(isNaN(d))return null;
+          const jan1=new Date(d.getFullYear(),0,1);
+          const week=Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
+          return d.getFullYear()+'-S'+String(week).padStart(2,'0');
+        };
+        const weekMap={};
+        f.forEach(r=>{
+          const w=getWeek(r.dtCheg);
+          if(!w)return;
+          if(!weekMap[w])weekMap[w]={vl:0,oc:0};
+          weekMap[w].vl+=r.vlTotal;weekMap[w].oc++;
+        });
+        const weeks=Object.keys(weekMap).sort();
+        labels=weeks.map(w=>'Sem '+w.split('-S')[1]+'/'+w.split('-S')[0]);
+        vlSerie=weeks.map(w=>weekMap[w].vl);
+        ocSerie=weeks.map(w=>weekMap[w].oc);
+      }
+      iC2=new Chart(lEl,{type:'bar',data:{labels,datasets:[
+        {type:'bar',label:'Valor Total (R$)',data:vlSerie,backgroundColor:'rgba(200,20,40,0.7)',borderColor:'#c81428',borderWidth:1,yAxisID:'y'},
+        {type:'line',label:'Ocorrências',data:ocSerie,borderColor:'#1b3f7a',backgroundColor:'rgba(27,63,122,0.1)',borderWidth:2,pointRadius:4,pointBackgroundColor:'#1b3f7a',yAxisID:'y2',tension:0.3}
+      ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+        plugins:{legend:{display:true,position:'top',labels:{font:{family:'Montserrat',size:11},color:'var(--text3)',boxWidth:12}},
+          tooltip:{callbacks:{label:function(ctx){return ctx.dataset.yAxisID==='y'?' '+fMoney(ctx.raw):' '+ctx.raw+' ocorrências';}}}},
+        scales:{
+          y:{position:'left',grid:{color:'var(--border)'},ticks:{callback:function(v){return'R$'+v.toLocaleString('pt-BR');},color:'var(--text3)',font:{family:'DM Mono',size:10}}},
+          y2:{position:'right',grid:{drawOnChartArea:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:10}}},
+          x:{grid:{color:'var(--border)'},ticks:{color:'var(--text3)',font:{family:'Montserrat',size:10},maxRotation:45}}
+        }
+      }});
+    }
 
     // ── Table ──
     const cnt=document.getElementById('inefCnt');
@@ -2049,6 +2095,14 @@ function renderINEFtbl(){
   }catch(e){console.error('renderINEFtbl:',e);}
 }
 
+let inefView='mensal';
+function setInefView(v){
+  inefView=v;
+  document.getElementById('btnMensal').classList.toggle('on',v==='mensal');
+  document.getElementById('btnSemanal').classList.toggle('on',v==='semanal');
+  document.getElementById('inefLineTitle').textContent=v==='mensal'?'Evolução Mensal de Custos com Diárias (R$)':'Evolução Semanal de Custos com Diárias (R$)';
+  renderINEFtbl();
+}
 function clearINEFFilters(){
   ['inefMes','inefStatus','inefCob','inefMotivo','inefTransp'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
   const s=document.getElementById('inefSearch');if(s)s.value='';
