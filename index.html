@@ -1430,7 +1430,7 @@ function renderAETcharts(){
   if(el4)el4.textContent=C5;if(el4s)el4s.textContent='vence em até 5 dias';
   if(el5)el5.textContent=C15;
   if(aC)aC.destroy();
-  document.getElementById('aLeg').innerHTML=[['#c0392b','Vencidas',V],['#e74c3c','Crítico 5d',C5],['#e8943a','Atenção 15d',C15],['#f39c12','Vencendo 30d',C30],['#2db87a','Regular',R],['#3d4559','Sem data',SD]].map(([c,l,v])=>`<span class="leg" style="width:100%;justify-content:space-between;padding:2px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${c}"></span><span style="font-size:12px">${l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${v})</span></span>`).join('');
+  document.getElementById('aLeg').innerHTML=[['#c0392b','Vencidas',V],['#e74c3c','Crítico 5d',C5],['#e8943a','Atenção 15d',C15],['#f39c12','Vencendo 30d',C30],['#2db87a','Regular',R],['#3d4559','Sem data',SD]].map(([c,l,v])=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${c}"></span><span style="font-size:12px">${l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${v})</span></span>`).join('');
   aC=new Chart(document.getElementById('aDonut'),{type:'doughnut',data:{labels:['Vencida','Crítico 5d','Atenção 15d','Vencendo 30d','Regular','Sem data'],datasets:[{data:[V,C5,C15,C30,R,SD],backgroundColor:['#c0392b','#e74c3c','#e8943a','#f39c12','#2db87a','#2e3340'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});
   const tipos={};d.forEach(r=>{if(r.tipo)tipos[r.tipo]=(tipos[r.tipo]||0)+1;});
   const ts=Object.entries(tipos).sort((a,b)=>b[1]-a[1]).slice(0,6);
@@ -1584,7 +1584,7 @@ function renderMAT(){
   // Donut
   if(mAC)mAC.destroy();
   const legEl=document.getElementById('matLeg');
-  if(legEl)legEl.innerHTML=[['#c81428','Déficit',def],['#f39c12','Excesso',exc],['#2db87a','Regular',reg]].map(([c,l,v])=>`<span class="leg" style="width:100%;justify-content:space-between;padding:2px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${c}"></span><span style="font-size:12px">${l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${v})</span></span>`).join('');
+  if(legEl)legEl.innerHTML=[['#c81428','Déficit',def],['#f39c12','Excesso',exc],['#2db87a','Regular',reg]].map(([c,l,v])=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${c}"></span><span style="font-size:12px">${l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${v})</span></span>`).join('');
   const donutEl=document.getElementById('matDonut');
   if(donutEl&&donutEl.offsetParent!==null)mAC=new Chart(donutEl,{type:'doughnut',data:{labels:['Déficit','Excesso','Regular'],datasets:[{data:[def,exc,reg],backgroundColor:['#c81428','#f39c12','#2db87a'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});
   renderMATtbl();
@@ -1628,7 +1628,7 @@ function renderMATtbl(){
     if(barsEl)barsEl.innerHTML=Object.entries(tipos).map(([l,v],i)=>'<div class="bar-row"><span class="bar-lbl">'+l+'</span><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(v/mx*100)+'%;background:'+barColors[i]+'"></div></div><span class="bar-num">'+v+'</span></div>').join('');
     // Update donut
     const legEl=document.getElementById('matLeg');
-    if(legEl)legEl.innerHTML=[['#c81428','Déficit',def],['#f39c12','Excesso',exc],['#2db87a','Regular',reg]].map(([c,l,v])=>'<span class="leg"><span class="leg-dot" style="background:'+c+'"></span>'+l+' '+v+'</span>').join('');
+    if(legEl)legEl.innerHTML=[['#c81428','Déficit',def],['#f39c12','Excesso',exc],['#2db87a','Regular',reg]].map(([c,l,v])=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${c}"></span><span style="font-size:12px">${l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${v})</span></span>`).join('');
     const donutEl=document.getElementById('matDonut');
     if(donutEl&&donutEl.offsetParent!==null){if(mAC){mAC.destroy();mAC=null;}mAC=new Chart(donutEl,{type:'doughnut',data:{labels:['Déficit','Excesso','Regular'],datasets:[{data:[def,exc,reg],backgroundColor:['#c81428','#f39c12','#2db87a'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});}
     const cnt=document.getElementById('matCnt');
@@ -1779,8 +1779,8 @@ function renderPATtbl(){
 }
 
 function clearPATFilters(){
-  ['patStatus','patCrit','patSetor','patAno','patMes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
-  const s=document.getElementById('patSearch');if(s)s.value='';
+  ['patStatus','patStatusBot','patCrit','patCritBot','patSetor','patSetorBot','patAno','patAnoBot','patMes','patMesBot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
+  ['patSearch','patSearchBot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   renderPATtbl();
 }
 
