@@ -1259,7 +1259,7 @@ function renderMOB(){
   const sc={};mobData.forEach(r=>{sc[r.sla]=(sc[r.sla]||0)+1;});
   const sl=Object.keys(sc);
   const scc={FP:'#3dbf7f',OK:'#35b8c0',SP:'#2e3340',AT:'#e05454',CR:'#e8a53a',CX:'#4a5568',FF:'#e8a53a',F:'#3dbf7f'};
-  const slbl={FP:'Finalizado OK',OK:'No Prazo',SP:'Sem Prazo',AT:'Atrasado',CX:'Cancelado',FF:'Fora do Prazo',F:'Finalizado'};
+  const slbl={FP:'Finalizado',OK:'No Prazo',SP:'Sem Prazo',AT:'Atrasado',CX:'Cancelado',FF:'Fora do Prazo',F:'Finalizado'};
   if(mC)mC.destroy();
   document.getElementById('mLeg').innerHTML=sl.map(l=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${scc[l]||'#4a5568'}"></span><span style="font-size:12px">${slbl[l]||l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${sc[l]})</span></span>`).join('');
   mC=new Chart(document.getElementById('mDonut'),{type:'doughnut',data:{labels:sl.map(l=>slbl[l]||l),datasets:[{data:sl.map(l=>sc[l]),backgroundColor:sl.map(l=>scc[l]||'#4a5568'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});
@@ -1468,7 +1468,7 @@ function renderMOBcharts(){
   const sc={};d.forEach(r=>{sc[r.sla]=(sc[r.sla]||0)+1;});
   const sl=Object.keys(sc);
   const scc={FP:'#2db87a',OK:'#2ab0b8',SP:'#2e3340',AT:'#e05454',CX:'#4a5568',FF:'#e8943a',F:'#2db87a'};
-  const slbl={FP:'Finalizado OK',OK:'No Prazo',SP:'Sem Prazo',AT:'Atrasado',CX:'Cancelado',FF:'Fora do Prazo',F:'Finalizado'};
+  const slbl={FP:'Finalizado',OK:'No Prazo',SP:'Sem Prazo',AT:'Atrasado',CX:'Cancelado',FF:'Fora do Prazo',F:'Finalizado'};
   if(mC)mC.destroy();
   document.getElementById('mLeg').innerHTML=sl.map(l=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${scc[l]||'#4a5568'}"></span><span style="font-size:12px">${slbl[l]||l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${sc[l]})</span></span>`).join('');
   mC=new Chart(document.getElementById('mDonut'),{type:'doughnut',data:{labels:sl.map(l=>slbl[l]||l),datasets:[{data:sl.map(l=>sc[l]),backgroundColor:sl.map(l=>scc[l]||'#4a5568'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});
