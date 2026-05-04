@@ -73,6 +73,7 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 .main-wrap.col{margin-left:var(--sbm)}
 .topbar{overflow:hidden;background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:50;transition:background .25s}
 .topbar-info .title{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.2px;font-family:'Montserrat',sans-serif}
+.topbar-info{padding-left:16px}
 .topbar-info .sub{font-size:11px;color:var(--text3);margin-top:1px;font-family:'DM Mono',monospace}
 .topbar-right{display:flex;align-items:center;gap:8px}
 .refresh-btn{display:flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--border);color:var(--text2);padding:6px 14px;border-radius:var(--radius-sm);font-size:12px;font-family:'Nunito Sans',sans-serif;cursor:pointer;transition:all .15s}
@@ -344,10 +345,6 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 
   </div>
-  <button class="sb-toggle" onclick="toggleSB()">
-    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-    <span>Recolher menu</span>
-  </button>
   <div class="sb-footer">
     <div class="theme-toggle" onclick="toggleTheme()">
       <div class="theme-toggle-left">
