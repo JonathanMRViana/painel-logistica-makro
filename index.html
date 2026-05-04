@@ -34,7 +34,7 @@
 body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,sans-serif;min-height:100vh;display:flex;transition:background .25s,color .25s;font-size:14px;-webkit-font-smoothing:antialiased}
 
 /* ── SIDEBAR ── */
-.sidebar{width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:background .25s}
+.sidebar{width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:50;transition:background .25s}
 
 .sb-brand{padding:24px 20px 20px;border-bottom:1px solid var(--border)}
 .sb-brand-mark{display:flex;align-items:center;gap:10px;margin-bottom:2px}
@@ -249,7 +249,7 @@ tbody tr:hover td{background:var(--surface2)}
 .sidebar.col .sb-section{opacity:0;height:0;padding:0;overflow:hidden;margin:0}
 .sidebar.col .theme-toggle{display:none}
 .sidebar.col .theme-icon-only{display:flex}
-.sidebar.col .upd-txt,.sidebar.col .sb-meta>span,.sidebar.col #sbToggleLbl{display:none}
+.sidebar.col .upd-txt,.sidebar.col .sb-meta>span{display:none}
 .sidebar.col .sb-meta{justify-content:center}
 .nav-lbl{overflow:hidden;white-space:nowrap}
 .sb-nav-top{flex:1;overflow-y:auto}
@@ -345,10 +345,6 @@ tbody tr:hover td{background:var(--surface2)}
 
   </div>
   <div class="sb-footer">
-    <button class="sb-toggle" onclick="toggleSB()">
-      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-      <span id="sbToggleLbl" style="transition:opacity .2s">Recolher</span>
-    </button>
     <div class="theme-toggle" onclick="toggleTheme()">
       <div class="theme-toggle-left">
         <span class="theme-toggle-icon" id="themeIco">🌙</span>
@@ -1788,12 +1784,8 @@ function clearPATFilters(){
 }
 
 function toggleSB(){
-  const sb=document.querySelector('.sidebar');
-  const mw=document.querySelector('.main-wrap');
-  sb.classList.toggle('col');
-  mw.classList.toggle('col');
-  const lbl=document.getElementById('sbToggleLbl');
-  if(lbl)lbl.textContent=sb.classList.contains('col')?'Expandir':'Recolher';
+  document.querySelector('.sidebar').classList.toggle('col');
+  document.querySelector('.main-wrap').classList.toggle('col');
 }
 loadAll();
 setInterval(loadAll,5*60*1000);
