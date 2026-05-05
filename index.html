@@ -404,9 +404,9 @@ tbody tr:hover td{background:var(--surface2)}
             <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" class="search-input" id="aetSearchTop" placeholder="Buscar frota ou nº de licença..." oninput="syncAETSearch(this,'aetSearch')">
           </div>
-          <div class="select-group"><label class="select-label">Status</label><select class="f-select" id="aetSem" onchange="renderAETtbl()"><option value="TODOS">Todos</option><option value="VENCIDA">Vencidas</option><option value="C5">Crítico 5d</option><option value="C15">Atenção 15d</option><option value="C30">Vencendo 30d</option><option value="R">Regular</option><option value="SD">Sem Data</option></select></div>
-          <div class="select-group"><label class="select-label">Tipo</label><select class="f-select" id="aetTipo" onchange="renderAETtbl()"><option value="TODOS">Todos</option></select></div>
-          <div class="select-group"><label class="select-label">Renovação</label><select class="f-select" id="aetRen" onchange="renderAETtbl()"><option value="TODOS">Todos</option><option value="SIM">Sim</option><option value="NAO">Não</option></select></div>
+          <div class="select-group"><label class="select-label">Status</label><select class="f-select" id="aetSem" onchange="renderAETAll()"><option value="TODOS">Todos</option><option value="VENCIDA">Vencidas</option><option value="C5">Crítico 5d</option><option value="C15">Atenção 15d</option><option value="C30">Vencendo 30d</option><option value="R">Regular</option><option value="SD">Sem Data</option></select></div>
+          <div class="select-group"><label class="select-label">Tipo</label><select class="f-select" id="aetTipo" onchange="renderAETAll()"><option value="TODOS">Todos</option></select></div>
+          <div class="select-group"><label class="select-label">Renovação</label><select class="f-select" id="aetRen" onchange="renderAETAll()"><option value="TODOS">Todos</option><option value="SIM">Sim</option><option value="NAO">Não</option></select></div>
           <div class="select-group">
             <label class="select-label">Ano</label>
             <select class="f-select" id="aetAnoTop" onchange="syncAETSelect(this,'aetAno')">
@@ -661,7 +661,7 @@ tbody tr:hover td{background:var(--surface2)}
                 <option value="11">Nov</option><option value="12">Dez</option>
               </select>
             </div>
-            <button class="clear-filters-btn" onclick="clearAETFilters()">
+            <button class="clear-filters-btn" onclick="clearMOBFilters()">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               Limpar
             </button>
@@ -1004,7 +1004,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778001492 -->
+<!-- v1778002124 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -1423,7 +1423,7 @@ function updateMOBFilterCount(){
   if(el){el.textContent=n;el.classList.toggle('show',n>0);}
 }
 function clearAETFilters(){
-  ['aetSem','aetSemTop','aetTipo','aetTipoTop','aetRen','aetRenTop','aetAno','aetAnoTop','aetMes','aetMesTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
+  ['aetSem','aetSemTop','aetSemBot','aetTipo','aetTipoTop','aetTipoBot','aetRen','aetRenTop','aetRenBot','aetAno','aetAnoTop','aetMes','aetMesTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
   ['aetSearch','aetSearchTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   updateAETFilterCount();
   renderAETtbl();
@@ -1438,6 +1438,10 @@ function clearMOBFilters(){
 }
 
 // ── EXTRACTED CHART RENDERS (called on filter change) ──
+function renderAETAll(){
+  renderAETtbl();
+  if(aetData.length)renderAETcharts();
+}
 function renderAETcharts(){
   const semMap={VENCIDA:'V',CRITICO5:'C5',CRITICO15:'C15',VENCENDO:'C30',REGULAR:'R'};
   const sem=(document.getElementById('aetSem')||{value:'TODOS'}).value;
@@ -1484,6 +1488,7 @@ function renderMOBcharts(){
   const crit=(document.getElementById('mobCrit')||{value:'TODOS'}).value;
   const tipo=(document.getElementById('mobTipo')||{value:'TODOS'}).value;
   const slaVal=(document.getElementById('mobSla')||{value:'TODOS'}).value;
+  const statV=(document.getElementById('mobStatus')||{value:'TODOS'}).value;
   const und=(document.getElementById('mobUnd')||{value:'TODOS'}).value;
   const q=(document.getElementById('mobSearch')||{value:''}).value.toLowerCase();
   const _ano=((document.getElementById('mobAno')||{}).value)||'TODOS';
@@ -1491,6 +1496,7 @@ function renderMOBcharts(){
   const d=mobData.filter(r=>{
     if(crit!=='TODOS'&&r.crit!==crit)return false;
     if(tipo!=='TODOS'&&r.tipo!==tipo)return false;
+    if(statV!=='TODOS'&&!String(r.status).toUpperCase().includes(statV.toUpperCase()))return false;
     if(slaV!=='TODOS'&&r.sla!==slaV)return false;
     if(und!=='TODOS'&&r.und!==und)return false;
     if(_ano!=='TODOS'){const y=getDateYear(r.dtIni)||getDateYear(r.prev);if(String(y)!==_ano)return false;}
