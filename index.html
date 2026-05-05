@@ -1004,7 +1004,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778002124 -->
+<!-- v1778002711 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -1207,7 +1207,7 @@ function renderAETtbl(){
   const ren=((document.getElementById('aetRen')||{}).value)||'TODOS';
   const ano=((document.getElementById('aetAno')||{}).value)||'TODOS';
   const mes=((document.getElementById('aetMes')||{}).value)||'TODOS';
-  const semMap={VENCIDA:'V',CRITICO5:'C5',CRITICO15:'C15',VENCENDO:'C30',REGULAR:'R'};
+  const semMap={'VENCIDA':'V','C5':'C5','C15':'C15','C30':'C30','R':'R','SD':'SD'};
   const f=aetData.filter(r=>{
     if(sem!=='TODOS'&&r.sem!==semMap[sem])return false;
     if(tipo!=='TODOS'&&r.tipo!==tipo)return false;
@@ -1443,7 +1443,7 @@ function renderAETAll(){
   if(aetData.length)renderAETcharts();
 }
 function renderAETcharts(){
-  const semMap={VENCIDA:'V',CRITICO5:'C5',CRITICO15:'C15',VENCENDO:'C30',REGULAR:'R'};
+  const semMap={'VENCIDA':'V','C5':'C5','C15':'C15','C30':'C30','R':'R','SD':'SD'};
   const sem=(document.getElementById('aetSem')||{value:'TODOS'}).value;
   const tipo=(document.getElementById('aetTipo')||{value:'TODOS'}).value;
   const ren=(document.getElementById('aetRen')||{value:'TODOS'}).value;
@@ -1497,7 +1497,7 @@ function renderMOBcharts(){
     if(crit!=='TODOS'&&r.crit!==crit)return false;
     if(tipo!=='TODOS'&&r.tipo!==tipo)return false;
     if(statV!=='TODOS'&&!String(r.status).toUpperCase().includes(statV.toUpperCase()))return false;
-    if(slaV!=='TODOS'&&r.sla!==slaV)return false;
+    if(slaVal!=='TODOS'&&r.sla!==slaVal)return false;
     if(und!=='TODOS'&&r.und!==und)return false;
     if(_ano!=='TODOS'){const y=getDateYear(r.dtIni)||getDateYear(r.prev);if(String(y)!==_ano)return false;}
     if(_mes!=='TODOS'){const m=getDateMonth(r.dtIni)||getDateMonth(r.prev);if(String(m)!==_mes)return false;}
