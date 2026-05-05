@@ -987,6 +987,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
+<!-- v20260505134138 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -2025,6 +2026,7 @@ function clearINEFFilters(){
 // ── MULTI-SELECT ENGINE ──
 const _msState={};
 const _ms=_msState;
+function msInit(id,opts,cb){_ms[id]={sel:new Set(['TODOS']),opts:[...opts],cb};_msRender(id);_msBind(id);}
 
 function _msRender(id){
   const w=document.getElementById('ms-wrap-'+id);if(!w)return;
