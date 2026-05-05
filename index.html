@@ -404,9 +404,9 @@ tbody tr:hover td{background:var(--surface2)}
             <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" class="search-input" id="aetSearchTop" placeholder="Buscar frota ou nº de licença..." oninput="syncAETSearch(this,'aetSearch')">
           </div>
-          <div class="select-group"><label class="select-label">Status</label><div class="ms-wrap" id="ms-wrap-aetSem"><button class="ms-btn">Todos</button><div class="ms-dropdown"></div></div></div>
-          <div class="select-group"><label class="select-label">Tipo</label><div class="ms-wrap" id="ms-wrap-aetTipo"><button class="ms-btn">Todos</button><div class="ms-dropdown"></div></div></div>
-          <div class="select-group"><label class="select-label">Renovação</label><div class="ms-wrap" id="ms-wrap-aetRen"><button class="ms-btn">Todos</button><div class="ms-dropdown"></div></div></div>
+          <div class="select-group"><label class="select-label">Status</label><select class="f-select" id="aetSem" onchange="renderAETtbl()"><option value="TODOS">Todos</option><option value="VENCIDA">Vencidas</option><option value="C5">Crítico 5d</option><option value="C15">Atenção 15d</option><option value="C30">Vencendo 30d</option><option value="R">Regular</option><option value="SD">Sem Data</option></select></div>
+          <div class="select-group"><label class="select-label">Tipo</label><select class="f-select" id="aetTipo" onchange="renderAETtbl()"><option value="TODOS">Todos</option></select></div>
+          <div class="select-group"><label class="select-label">Renovação</label><select class="f-select" id="aetRen" onchange="renderAETtbl()"><option value="TODOS">Todos</option><option value="SIM">Sim</option><option value="NAO">Não</option></select></div>
           <div class="select-group">
             <label class="select-label">Ano</label>
             <select class="f-select" id="aetAnoTop" onchange="syncAETSelect(this,'aetAno')">
@@ -667,8 +667,8 @@ tbody tr:hover td{background:var(--surface2)}
             <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" class="search-input" id="matSearch" placeholder="Buscar conjunto ou motorista..." oninput="renderMATtbl()">
           </div>
-          <div class="select-group"><label class="select-label">Tipo</label><div class="ms-wrap" id="ms-wrap-matTipo"><button class="ms-btn">Todos</button><div class="ms-dropdown"></div></div></div>
-          <div class="select-group"><label class="select-label">Status</label><div class="ms-wrap" id="ms-wrap-matStatus"><button class="ms-btn">Todos</button><div class="ms-dropdown"></div></div></div>
+          <div class="select-group"><label class="select-label">Tipo</label><select class="f-select" id="matTipo" onchange="renderMATtbl()"><option value="TODOS">Todos</option></select></div>
+          <div class="select-group"><label class="select-label">Status</label><select class="f-select" id="matStatus" onchange="renderMATtbl()"><option value="TODOS">Todos</option><option value="DEFICIT">Déficit</option><option value="REGULAR">Regular</option><option value="EXCESSO">Excesso</option></select></div>
           <button class="clear-filters-btn" onclick="clearMATFilters()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             Limpar
@@ -770,9 +770,9 @@ tbody tr:hover td{background:var(--surface2)}
             <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" class="search-input" id="patSearch" placeholder="Buscar atividade ou frota..." oninput="renderPATtbl()">
           </div>
-          <div class="select-group"><label class="select-label">Status</label><div class="ms-wrap" id="ms-wrap-patStatus"><button class="ms-btn">Todos</button><div class="ms-dropdown"></div></div></div>
-          <div class="select-group"><label class="select-label">Criticidade</label><div class="ms-wrap" id="ms-wrap-patCrit"><button class="ms-btn">Todos</button><div class="ms-dropdown"></div></div></div>
-          <div class="select-group"><label class="select-label">Setor</label><div class="ms-wrap" id="ms-wrap-patSetor"><button class="ms-btn">Todos</button><div class="ms-dropdown"></div></div></div>
+          <div class="select-group"><label class="select-label">Status</label><select class="f-select" id="patStatus" onchange="renderPATtbl()"><option value="TODOS">Todos</option><option value="CONCLUÍDO">Concluído</option><option value="PENDENTE">Pendente</option><option value="EM ANDAMENTO">Em Andamento</option><option value="CANCELADO">Cancelado</option></select></div>
+          <div class="select-group"><label class="select-label">Criticidade</label><select class="f-select" id="patCrit" onchange="renderPATtbl()"><option value="TODOS">Todos</option><option value="ALTA">Alta</option><option value="MÉDIA">Média</option><option value="BAIXA">Baixa</option></select></div>
+          <div class="select-group"><label class="select-label">Setor</label><select class="f-select" id="patSetor" onchange="renderPATtbl()"><option value="TODOS">Todos</option></select></div>
           <div class="select-group">
             <label class="select-label">Ano</label>
             <select class="f-select" id="patAno" onchange="renderPATtbl()">
@@ -908,11 +908,11 @@ tbody tr:hover td{background:var(--surface2)}
             <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" class="search-input" id="inefSearch" placeholder="Buscar frota, cliente ou motivo..." oninput="renderINEFtbl()">
           </div>
-          <div class="select-group"><label class="select-label">Mês</label><div class="ms-wrap" id="ms-wrap-inefMes"><button class="ms-btn">Todos</button><div class="ms-dropdown"></div></div></div>
-          <div class="select-group"><label class="select-label">Status</label><div class="ms-wrap" id="ms-wrap-inefStatus"><button class="ms-btn">Todos</button><div class="ms-dropdown"></div></div></div>
-          <div class="select-group"><label class="select-label">Cobrança</label><div class="ms-wrap" id="ms-wrap-inefCob"><button class="ms-btn">Todos</button><div class="ms-dropdown"></div></div></div>
-          <div class="select-group"><label class="select-label">Motivo</label><div class="ms-wrap" id="ms-wrap-inefMotivo"><button class="ms-btn">Todos</button><div class="ms-dropdown"></div></div></div>
-          <div class="select-group"><label class="select-label">Transportador</label><div class="ms-wrap" id="ms-wrap-inefTransp"><button class="ms-btn">Todos</button><div class="ms-dropdown"></div></div></div>
+          <div class="select-group"><label class="select-label">Mês</label><select class="f-select" id="inefMes" onchange="renderINEFtbl()"><option value="TODOS">Todos</option></select></div>
+          <div class="select-group"><label class="select-label">Status</label><select class="f-select" id="inefStatus" onchange="renderINEFtbl()"><option value="TODOS">Todos</option><option value="FINALIZADO">Finalizado</option><option value="EM ABERTO">Em Aberto</option></select></div>
+          <div class="select-group"><label class="select-label">Cobrança</label><select class="f-select" id="inefCob" onchange="renderINEFtbl()"><option value="TODOS">Todos</option><option value="FATURADO">Faturado</option><option value="PENDENTE">Pendente</option><option value="NAO COBRADO">Não Cobrado</option></select></div>
+          <div class="select-group"><label class="select-label">Motivo</label><select class="f-select" id="inefMotivo" onchange="renderINEFtbl()"><option value="TODOS">Todos</option></select></div>
+          <div class="select-group"><label class="select-label">Transportador</label><select class="f-select" id="inefTransp" onchange="renderINEFtbl()"><option value="TODOS">Todos</option></select></div>
           <button class="clear-filters-btn" onclick="clearINEFFilters()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             Limpar
@@ -987,6 +987,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
+<!-- v20260505134138 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -1128,10 +1129,7 @@ function processAET(rows){
     if(el)el.innerHTML='<option value="TODOS">Todos</option>'+aetYears.map(y=>`<option value="${y}">${y}</option>`).join('');
   });
   syncAETTipoTop();
-  msInit('aetSem',[{value:'VENCIDA',label:'Vencidas'},{value:'CRITICO5',label:'Crítico 5d'},{value:'CRITICO15',label:'Atenção 15d'},{value:'VENCENDO',label:'Vencendo 30d'},{value:'REGULAR',label:'Regular'},{value:'SD',label:'Sem Data'}],renderAETtbl);
   const tiposAET=[...new Set(aetData.map(r=>r.tipo).filter(t=>t))].sort();
-  msInit('aetTipo',tiposAET.map(t=>({value:t,label:t})),renderAETtbl);
-  msInit('aetRen',[{value:'SIM',label:'Sim'},{value:'NAO',label:'Não'},{value:'',label:'N/A'}],renderAETtbl);
   renderAET();
 }
 
@@ -1252,15 +1250,8 @@ function processMOB(rows){
   });
   syncMOBUndTop();
   // Init multi-select components for MOB top bar
-  msInit('mobCritMS',[{value:'ALTA',label:'Alta'},{value:'MÉDIA',label:'Média'},{value:'BAIXA',label:'Baixa'}],renderMOBtbl);
-  msInit('mobTipoMS',[{value:'MOBILIZAÇÃO',label:'Mobilização'},{value:'DESMOBILIZAÇÃO',label:'Desmobilização'}],renderMOBtbl);
-  msInit('mobSlaMS',[{value:'AT',label:'Atrasado'},{value:'OK',label:'No Prazo'},{value:'FP',label:'Finalizado'},{value:'SP',label:'Sem Prazo'},{value:'FF',label:'Fora do Prazo'}],renderMOBtbl);
   // Status multi-select - rebuild with actual values
   const statValsMS=[...new Set(mobData.map(r=>r.status).filter(s=>s&&s!==''))].sort();
-  msInit('mobStat',statValsMS.map(s=>({value:s,label:s})),function(){renderMOBtbl();renderMOBcharts();});
-  msInit('mobCrit',[{value:'ALTA',label:'Alta'},{value:'MÉDIA',label:'Média'},{value:'BAIXA',label:'Baixa'}],function(){renderMOBtbl();renderMOBcharts();});
-  msInit('mobTipo',[{value:'MOBILIZAÇÃO',label:'Mobilização'},{value:'DESMOBILIZAÇÃO',label:'Desmobilização'}],function(){renderMOBtbl();renderMOBcharts();});
-  msInit('mobSla',[{value:'AT',label:'Atrasado'},{value:'OK',label:'No Prazo'},{value:'FP',label:'Finalizado'},{value:'SP',label:'Sem Prazo'},{value:'FF',label:'Fora do Prazo'},{value:'FF',label:'Fora do Prazo'},{value:'CX',label:'Cancelado'}],function(){renderMOBtbl();renderMOBcharts();});
   renderMOB();
 }
 
@@ -1288,10 +1279,12 @@ function renderMOB(){
 function renderMOBtbl(){
   try{
     const q=((document.getElementById('mobSearch')||{}).value||'').toLowerCase().trim();
-    const critF=msGet('mobCrit');const tipoF=msGet('mobTipo');const slaF=msGet('mobSla');const statF=msGet('mobStat');
+    const crit=((document.getElementById('mobCrit')||{}).value)||'TODOS';
+    const tipo=((document.getElementById('mobTipo')||{}).value)||'TODOS';
+    const slaV=((document.getElementById('mobSla')||{}).value)||'TODOS';
+    const statV=((document.getElementById('mobStat')||{}).value)||'TODOS';
     const und=((document.getElementById('mobUnd')||{}).value)||'TODOS';
     const mobSt=((document.getElementById('mobStatus')||{}).value)||'TODOS';
-    const critMS=msGet('mobCritMS');const tipoMS=msGet('mobTipoMS');const slaMS=msGet('mobSlaMS');const stMS=msGet('mobStatMS');
     const ano=((document.getElementById('mobAno')||{}).value)||'TODOS';
     const mes=((document.getElementById('mobMes')||{}).value)||'TODOS';
     const f=mobData.filter(r=>{
@@ -1399,7 +1392,6 @@ function updateMOBFilterCount(){
   if(el){el.textContent=n;el.classList.toggle('show',n>0);}
 }
 function clearAETFilters(){
-  ['aetSem','aetTipo','aetRen'].forEach(id=>msReset(id));
   ['aetSem','aetSemTop','aetTipo','aetTipoTop','aetRen','aetRenTop','aetAno','aetAnoTop','aetMes','aetMesTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
   ['aetSearch','aetSearchTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   updateAETFilterCount();
@@ -1409,7 +1401,6 @@ function clearAETFilters(){
 function clearMOBFilters(){
   ['mobCrit','mobCritTop','mobTipo','mobTipoTop','mobStatus','mobStatusTop','mobSla','mobSlaTop','mobUnd','mobUndTop','mobAno','mobAnoTop','mobMes','mobMesTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
   ['mobSearch','mobSearchTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  ['mobCrit','mobTipo','mobSla','mobStat'].forEach(id=>msReset(id));
   updateMOBFilterCount();
   renderMOBtbl();
   renderMOBcharts();
@@ -1568,8 +1559,6 @@ function processMAT(rows){
   const tipoSel=document.getElementById('matTipo');
   if(tipoSel)tipoSel.innerHTML='<option value="TODOS">Todos</option>'+tipos.map(t=>`<option value="${t}">${t}</option>`).join('');
   const tiposMAT=[...new Set(matData.map(r=>r.tipo).filter(t=>t))].sort();
-  msInit('matTipo',tiposMAT.map(t=>({value:t,label:t})),renderMATtbl);
-  msInit('matStatus',[{value:'DEFICIT',label:'Déficit'},{value:'REGULAR',label:'Regular'},{value:'EXCESSO',label:'Excesso'}],renderMATtbl);
   renderMAT();
 }
 
@@ -1616,10 +1605,11 @@ function renderMAT(){
 function renderMATtbl(){
   try{
     const q=((document.getElementById('matSearch')||{}).value||'').toLowerCase().trim();
-    const tipoF=msGet('matTipo');const statusF=msGet('matStatus');
+    const tipo=((document.getElementById('matTipo')||{}).value)||'TODOS';
+    const status=((document.getElementById('matStatus')||{}).value)||'TODOS';
     const f=matData.filter(r=>{
-      if(!tipoF.includes('TODOS')&&!tipoF.includes(r.tipo))return false;
-      if(!statusF.includes('TODOS')&&!statusF.includes(r.status))return false;
+      if(tipo!=='TODOS'&&r.tipo!==tipo)return false;
+      if(status!=='TODOS'&&r.status!==status)return false;
       if(q&&!r.conj.toLowerCase().includes(q)&&!r.motorista.toLowerCase().includes(q))return false;
       return true;
     });
@@ -1682,7 +1672,6 @@ function renderMATtbl(){
 }
 
 function clearMATFilters(){
-  ['matTipo','matStatus'].forEach(id=>msReset(id));
   ['matTipo','matStatus'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
   const s=document.getElementById('matSearch');if(s)s.value='';
   renderMATtbl();
@@ -1724,9 +1713,6 @@ function processPAT(rows){
   if(anoEl)anoEl.innerHTML=anoHtml;
   if(anoBotEl)anoBotEl.innerHTML=anoHtml;
   const setoresP=[...new Set(patData.map(r=>r.setor).filter(s=>s))].sort();
-  msInit('patStatus',[{value:'CONCLUÍDO',label:'Concluído'},{value:'PENDENTE',label:'Pendente'},{value:'EM ANDAMENTO',label:'Em Andamento'},{value:'CANCELADO',label:'Cancelado'}],renderPATtbl);
-  msInit('patCrit',[{value:'ALTA',label:'Alta'},{value:'MÉDIA',label:'Média'},{value:'BAIXA',label:'Baixa'}],renderPATtbl);
-  msInit('patSetor',setoresP.map(s=>({value:s,label:s})),renderPATtbl);
   renderPAT();
 }
 
@@ -1738,13 +1724,15 @@ function renderPAT(){
 function renderPATtbl(){
   try{
     const q=((document.getElementById('patSearch')||{}).value||'').toLowerCase().trim();
-    const statusF=msGet('patStatus');const critF=msGet('patCrit');const setorF=msGet('patSetor');
+    const status=((document.getElementById('patStatus')||{}).value)||'TODOS';
+    const crit=((document.getElementById('patCrit')||{}).value)||'TODOS';
+    const setor=((document.getElementById('patSetor')||{}).value)||'TODOS';
     const ano=((document.getElementById('patAno')||{}).value)||'TODOS';
     const mes=((document.getElementById('patMes')||{}).value)||'TODOS';
     const f=patData.filter(r=>{
-      if(!statusF.includes('TODOS')&&!statusF.includes(r.status))return false;
-      if(!critF.includes('TODOS')&&!critF.includes(r.crit))return false;
-      if(!setorF.includes('TODOS')&&!setorF.includes(r.setor))return false;
+      if(status!=='TODOS'&&r.status!==status)return false;
+      if(crit!=='TODOS'&&r.crit!==crit)return false;
+      if(setor!=='TODOS'&&r.setor!==setor)return false;
       if(ano!=='TODOS'){const y=getDateYear(r.dtId);if(String(y)!==ano)return false;}
       if(mes!=='TODOS'){const m=getDateMonth(r.dtId);if(String(m)!==mes)return false;}
       if(q&&!r.ativ.toLowerCase().includes(q)&&!r.frota.toLowerCase().includes(q)&&!r.frotaMKT.toLowerCase().includes(q))return false;
@@ -1804,7 +1792,6 @@ function renderPATtbl(){
 }
 
 function clearPATFilters(){
-  ['patStatus','patCrit','patSetor'].forEach(id=>msReset(id));
   ['patStatus','patStatusBot','patCrit','patCritBot','patSetor','patSetorBot','patAno','patAnoBot','patMes','patMesBot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
   ['patSearch','patSearchBot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   renderPATtbl();
@@ -1866,13 +1853,8 @@ function processINEF(rows){
   const ib=document.getElementById('inefBody');
   if(il)il.style.display='none';if(ib)ib.style.display='block';
   const mesesINEF=[...new Set(inefData.map(r=>r.mes).filter(m=>m))];
-  msInit('inefMes',mesesINEF.map(m=>({value:m,label:m.charAt(0)+m.slice(1).toLowerCase()})),renderINEFtbl);
-  msInit('inefStatus',[{value:'FINALIZADO',label:'Finalizado'},{value:'EM ABERTO',label:'Em Aberto'}],renderINEFtbl);
-  msInit('inefCob',[{value:'FATURADO',label:'Faturado'},{value:'PENDENTE',label:'Pendente'},{value:'NAO COBRADO',label:'Não Cobrado'},{value:'NÃO COBRADO',label:'Não Cobrado'}],renderINEFtbl);
   const motivosINEF=[...new Set(inefData.map(r=>r.motivo).filter(m=>m))].sort();
-  msInit('inefMotivo',motivosINEF.map(m=>({value:m,label:m})),renderINEFtbl);
   const transpsINEF=[...new Set(inefData.map(r=>r.transp).filter(t=>t))].sort();
-  msInit('inefTransp',transpsINEF.map(t=>({value:t,label:t})),renderINEFtbl);
   renderINEFtbl();
 }
 
@@ -1886,7 +1868,11 @@ function renderINEF(){
 function renderINEFtbl(){
   try{
     const q=((document.getElementById('inefSearch')||{}).value||'').toLowerCase().trim();
-    const mesF=msGet('inefMes');const statusF=msGet('inefStatus');const cobF=msGet('inefCob');const motivoF=msGet('inefMotivo');const transpF=msGet('inefTransp');
+    const mes=((document.getElementById('inefMes')||{}).value)||'TODOS';
+    const status=((document.getElementById('inefStatus')||{}).value)||'TODOS';
+    const cob=((document.getElementById('inefCob')||{}).value)||'TODOS';
+    const motivo=((document.getElementById('inefMotivo')||{}).value)||'TODOS';
+    const transp=((document.getElementById('inefTransp')||{}).value)||'TODOS';
 
     const f=inefData.filter(r=>{
       if(!mesF.includes('TODOS')&&!mesF.includes(r.mes))return false;
@@ -2031,7 +2017,6 @@ function setInefView(v){
   renderINEFtbl();
 }
 function clearINEFFilters(){
-  ['inefMes','inefStatus','inefCob','inefMotivo','inefTransp'].forEach(id=>msReset(id));
   ['inefMes','inefStatus','inefCob','inefMotivo','inefTransp'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
   const s=document.getElementById('inefSearch');if(s)s.value='';
   renderINEFtbl();
@@ -2041,6 +2026,7 @@ function clearINEFFilters(){
 // ── MULTI-SELECT ENGINE ──
 const _msState={};
 const _ms=_msState;
+function msInit(id,opts,cb){_ms[id]={sel:new Set(['TODOS']),opts:[...opts],cb};_msRender(id);_msBind(id);}
 
 function _msRender(id){
   const w=document.getElementById('ms-wrap-'+id);if(!w)return;
