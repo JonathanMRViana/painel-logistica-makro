@@ -47,7 +47,7 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 
 .sb-section{padding:20px 20px 6px;font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.1em}
 
-.nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--radius-sm);cursor:pointer;transition:all .15s;margin:1px 10px;color:var(--text2);font-size:13px;font-weight:400;position:relative}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--radius-sm);cursor:pointer;transition:all .15s;margin:1px 10px;color:var(--text2);font-size:13px;font-weight:400;position:relative;min-width:0;overflow:hidden}
 .nav-item:hover{background:var(--surface2);color:var(--text)}
 .nav-item.active{background:var(--accent-dim);color:var(--accent);font-weight:500}
 .nav-item.active::before{content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);width:3px;height:18px;background:var(--accent);border-radius:0 3px 3px 0}
@@ -270,7 +270,7 @@ tbody tr:hover td{background:var(--surface2)}
 .sidebar.col .theme-icon-only{display:flex}
 .sidebar.col .upd-txt,.sidebar.col .sb-meta>span{display:none}
 .sidebar.col .sb-meta{justify-content:center}
-.nav-lbl{overflow:hidden;white-space:nowrap}
+.nav-lbl{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0;flex:1}
 .sb-nav-top{flex:1;overflow-y:auto}
 .theme-icon-only{display:none;align-items:center;justify-content:center;width:32px;height:32px;border-radius:var(--radius-sm);background:var(--surface2);border:1px solid var(--border);cursor:pointer;font-size:16px;transition:all .15s;position:relative}
 .theme-icon-only:hover{border-color:var(--accent)}
@@ -1047,7 +1047,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778004842 -->
+<!-- v1778005483 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
