@@ -1249,9 +1249,6 @@ function processMOB(rows){
   });
   syncMOBUndTop();
   // Init multi-select components for MOB top bar
-  msInit('mobCritMS',[{value:'ALTA',label:'Alta'},{value:'MÉDIA',label:'Média'},{value:'BAIXA',label:'Baixa'}],renderMOBtbl);
-  msInit('mobTipoMS',[{value:'MOBILIZAÇÃO',label:'Mobilização'},{value:'DESMOBILIZAÇÃO',label:'Desmobilização'}],renderMOBtbl);
-  msInit('mobSlaMS',[{value:'AT',label:'Atrasado'},{value:'OK',label:'No Prazo'},{value:'FP',label:'Finalizado'},{value:'SP',label:'Sem Prazo'},{value:'FF',label:'Fora do Prazo'}],renderMOBtbl);
   // Status multi-select - rebuild with actual values
   const statValsMS=[...new Set(mobData.map(r=>r.status).filter(s=>s&&s!==''))].sort();
   renderMOB();
@@ -1287,7 +1284,6 @@ function renderMOBtbl(){
     const statV=((document.getElementById('mobStat')||{}).value)||'TODOS';
     const und=((document.getElementById('mobUnd')||{}).value)||'TODOS';
     const mobSt=((document.getElementById('mobStatus')||{}).value)||'TODOS';
-    const critMS=msGet('mobCritMS');const tipoMS=msGet('mobTipoMS');const slaMS=msGet('mobSlaMS');const stMS=msGet('mobStatMS');
     const ano=((document.getElementById('mobAno')||{}).value)||'TODOS';
     const mes=((document.getElementById('mobMes')||{}).value)||'TODOS';
     const f=mobData.filter(r=>{
@@ -1608,7 +1604,8 @@ function renderMAT(){
 function renderMATtbl(){
   try{
     const q=((document.getElementById('matSearch')||{}).value||'').toLowerCase().trim();
-    const tipoF=msGet('matTipo');const statusF=msGet('matStatus');
+    const tipo=((document.getElementById('matTipo')||{}).value)||'TODOS';
+    const status=((document.getElementById('matStatus')||{}).value)||'TODOS';
     const f=matData.filter(r=>{
       if(tipo!=='TODOS'&&r.tipo!==tipo)return false;
       if(status!=='TODOS'&&r.status!==status)return false;
