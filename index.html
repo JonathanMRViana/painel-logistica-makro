@@ -513,15 +513,7 @@ tbody tr:hover td{background:var(--surface2)}
           <div id="ms-wrap-mobStatMS" class="select-group"><label class="select-label">Status</label><div class="ms-wrap"><button type="button" class="ms-btn" onclick="msOpen('mobStatMS')">Todos</button><div class="ms-dropdown"></div></div></div>
           <div id="ms-wrap-mobSlaMS" class="select-group"><label class="select-label">SLA</label><div class="ms-wrap"><button type="button" class="ms-btn" onclick="msOpen('mobSlaMS')">Todos</button><div class="ms-dropdown"></div></div></div>
           <!-- keep original selects hidden for sync -->
-          <div style="display:none">
-          <select class="f-select" id="mobStatusTop" onchange="syncMOBSelect(this,'mobStatus')">
-              <option value="TODOS">Todos</option>
-              <option value="A iniciar">A iniciar</option>
-              <option value="Em andamento">Em andamento</option>
-              <option value="Finalizado">Finalizado</option>
-              <option value="Cancelado">Cancelado</option>
-            </select>
-          </div>
+          
           <div class="select-group">
             <label class="select-label">SLA</label>
             <select class="f-select" id="mobSlaTop" onchange="syncMOBSelect(this,'mobSla')">
@@ -1265,7 +1257,10 @@ function processMOB(rows){
   msInit('mobSlaMS',[{value:'AT',label:'Atrasado'},{value:'OK',label:'No Prazo'},{value:'FP',label:'Finalizado'},{value:'SP',label:'Sem Prazo'},{value:'FF',label:'Fora do Prazo'}],renderMOBtbl);
   // Status multi-select - rebuild with actual values
   const statValsMS=[...new Set(mobData.map(r=>r.status).filter(s=>s&&s!==''))].sort();
-  msInit('mobStatMS',statValsMS.map(s=>({value:s,label:s})),renderMOBtbl);
+  msInit('mobStat',statValsMS.map(s=>({value:s,label:s})),function(){renderMOBtbl();renderMOBcharts();});
+  msInit('mobCrit',[{value:'ALTA',label:'Alta'},{value:'MÉDIA',label:'Média'},{value:'BAIXA',label:'Baixa'}],function(){renderMOBtbl();renderMOBcharts();});
+  msInit('mobTipo',[{value:'MOBILIZAÇÃO',label:'Mobilização'},{value:'DESMOBILIZAÇÃO',label:'Desmobilização'}],function(){renderMOBtbl();renderMOBcharts();});
+  msInit('mobSla',[{value:'AT',label:'Atrasado'},{value:'OK',label:'No Prazo'},{value:'FP',label:'Finalizado'},{value:'SP',label:'Sem Prazo'},{value:'FF',label:'Fora do Prazo'},{value:'FF',label:'Fora do Prazo'},{value:'CX',label:'Cancelado'}],function(){renderMOBtbl();renderMOBcharts();});
   renderMOB();
 }
 
