@@ -464,9 +464,9 @@ tbody tr:hover td{background:var(--surface2)}
               <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input type="text" class="search-input" id="aetSearch" placeholder="Buscar frota ou nº de licença..." oninput="syncAETSearch(this,'aetSearchTop')">
             </div>
-            <div class="select-group"><label class="select-label">Status</label><div class="ms-wrap" id="ms-wrap-aetSemB"><button class="ms-btn">Todos</button><div class="ms-dropdown"></div></div></div>
-            <div class="select-group"><label class="select-label">Tipo</label><div class="ms-wrap" id="ms-wrap-aetTipoB"><button class="ms-btn">Todos</button><div class="ms-dropdown"></div></div></div>
-            <div class="select-group"><label class="select-label">Renovação</label><div class="ms-wrap" id="ms-wrap-aetRenB"><button class="ms-btn">Todos</button><div class="ms-dropdown"></div></div></div>
+            <div class="select-group"><label class="select-label">Status</label><select class="f-select" id="aetSemBot" onchange="syncAETSelect(this,'aetSem')"><option value="TODOS">Todos</option><option value="VENCIDA">Vencidas</option><option value="C5">Crítico 5d</option><option value="C15">Atenção 15d</option><option value="C30">Vencendo 30d</option><option value="R">Regular</option><option value="SD">Sem Data</option></select></div>
+            <div class="select-group"><label class="select-label">Tipo</label><select class="f-select" id="aetTipoBot" onchange="syncAETSelect(this,'aetTipo')"><option value="TODOS">Todos</option></select></div>
+            <div class="select-group"><label class="select-label">Renovação</label><select class="f-select" id="aetRenBot" onchange="syncAETSelect(this,'aetRen')"><option value="TODOS">Todos</option><option value="SIM">Sim</option><option value="NAO">Não</option></select></div>
             <div class="select-group">
               <label class="select-label">Ano</label>
               <select class="f-select" id="aetAno" onchange="syncAETSelect(this,'aetAno')">
@@ -508,12 +508,29 @@ tbody tr:hover td{background:var(--surface2)}
             <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" class="search-input" id="mobSearchTop" placeholder="Buscar frota, modelo ou cliente..." oninput="syncMOBSearch(this,'mobSearch')">
           </div>
-          <div id="ms-wrap-mobCritMS" class="select-group"><label class="select-label">Criticidade</label><div class="ms-wrap"><button type="button" class="ms-btn" onclick="msOpen('mobCritMS')">Todos</button><div class="ms-dropdown"></div></div></div>
-          <div id="ms-wrap-mobTipoMS" class="select-group"><label class="select-label">Tipo</label><div class="ms-wrap"><button type="button" class="ms-btn" onclick="msOpen('mobTipoMS')">Todos</button><div class="ms-dropdown"></div></div></div>
-          <div id="ms-wrap-mobStatMS" class="select-group"><label class="select-label">Status</label><div class="ms-wrap"><button type="button" class="ms-btn" onclick="msOpen('mobStatMS')">Todos</button><div class="ms-dropdown"></div></div></div>
-          <div id="ms-wrap-mobSlaMS" class="select-group"><label class="select-label">SLA</label><div class="ms-wrap"><button type="button" class="ms-btn" onclick="msOpen('mobSlaMS')">Todos</button><div class="ms-dropdown"></div></div></div>
-          <!-- keep original selects hidden for sync -->
-          
+          <div class="select-group">
+            <label class="select-label">Criticidade</label>
+            <select class="f-select" id="mobCritTop" onchange="syncMOBSelect(this,'mobCrit')">
+              <option value="TODOS">Todos</option>
+              <option value="ALTA">Alta</option>
+              <option value="MÉDIA">Média</option>
+              <option value="BAIXA">Baixa</option>
+            </select>
+          </div>
+          <div class="select-group">
+            <label class="select-label">Tipo</label>
+            <select class="f-select" id="mobTipoTop" onchange="syncMOBSelect(this,'mobTipo')">
+              <option value="TODOS">Todos</option>
+              <option value="MOBILIZAÇÃO">Mobilização</option>
+              <option value="DESMOBILIZAÇÃO">Desmobilização</option>
+            </select>
+          </div>
+          <div class="select-group">
+            <label class="select-label">Status</label>
+            <select class="f-select" id="mobStatusTop" onchange="syncMOBSelect(this,'mobStatus')">
+              <option value="TODOS">Todos</option>
+            </select>
+          </div>
           <div class="select-group">
             <label class="select-label">SLA</label>
             <select class="f-select" id="mobSlaTop" onchange="syncMOBSelect(this,'mobSla')">
@@ -987,7 +1004,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v20260505134138 -->
+<!-- v1778001492 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -1129,7 +1146,9 @@ function processAET(rows){
     if(el)el.innerHTML='<option value="TODOS">Todos</option>'+aetYears.map(y=>`<option value="${y}">${y}</option>`).join('');
   });
   syncAETTipoTop();
-  const tiposAET=[...new Set(aetData.map(r=>r.tipo).filter(t=>t))].sort();
+  // Sync tipo to bot bar too
+  const tipoBot=document.getElementById('aetTipoBot');
+  if(tipoBot)tipoBot.innerHTML=document.getElementById('aetTipo').innerHTML;
   renderAET();
 }
 
@@ -1249,9 +1268,12 @@ function processMOB(rows){
     if(el)el.innerHTML='<option value="TODOS">Todos</option>'+mobYears.map(y=>`<option value="${y}">${y}</option>`).join('');
   });
   syncMOBUndTop();
-  // Init multi-select components for MOB top bar
-  // Status multi-select - rebuild with actual values
-  const statValsMS=[...new Set(mobData.map(r=>r.status).filter(s=>s&&s!==''))].sort();
+  // Populate mobStatusTop with actual status values from data
+  const statVals=[...new Set(mobData.map(r=>r.status).filter(s=>s&&s!==''))].sort();
+  const mobStatTop=document.getElementById('mobStatusTop');
+  if(mobStatTop)mobStatTop.innerHTML='<option value="TODOS">Todos</option>'+statVals.map(s=>'<option value="'+s+'">'+s+'</option>').join('');
+  const mobStatBot=document.getElementById('mobStatus');
+  if(mobStatBot)mobStatBot.innerHTML='<option value="TODOS">Todos</option>'+statVals.map(s=>'<option value="'+s+'">'+s+'</option>').join('');
   renderMOB();
 }
 
@@ -1282,15 +1304,15 @@ function renderMOBtbl(){
     const crit=((document.getElementById('mobCrit')||{}).value)||'TODOS';
     const tipo=((document.getElementById('mobTipo')||{}).value)||'TODOS';
     const slaV=((document.getElementById('mobSla')||{}).value)||'TODOS';
-    const statV=((document.getElementById('mobStat')||{}).value)||'TODOS';
+    const statV=((document.getElementById('mobStatus')||{}).value)||'TODOS';
     const und=((document.getElementById('mobUnd')||{}).value)||'TODOS';
-    const mobSt=((document.getElementById('mobStatus')||{}).value)||'TODOS';
     const ano=((document.getElementById('mobAno')||{}).value)||'TODOS';
     const mes=((document.getElementById('mobMes')||{}).value)||'TODOS';
     const f=mobData.filter(r=>{
       if(crit!=='TODOS'&&r.crit!==crit)return false;
       if(tipo!=='TODOS'&&r.tipo!==tipo)return false;
-      if(slaVal!=='TODOS'&&r.sla!==slaVal)return false;
+      if(statV!=='TODOS'&&!String(r.status).toUpperCase().includes(statV.toUpperCase()))return false;
+      if(slaV!=='TODOS'&&r.sla!==slaV)return false;
       if(und!=='TODOS'&&r.und!==und)return false;
       if(ano!=='TODOS'){const y=getDateYear(r.dtIni)||getDateYear(r.prev);if(String(y)!==ano)return false;}
       if(mes!=='TODOS'){const m=getDateMonth(r.dtIni)||getDateMonth(r.prev);if(String(m)!==mes)return false;}
@@ -1352,8 +1374,17 @@ function syncMOBSearch(src,targetId){
 function syncAETSelect(src,targetId){
   const t=document.getElementById(targetId);
   const top=document.getElementById(targetId+'Top');
-  if(t)t.value=src.value;
+  const bot=document.getElementById(targetId+'Bot');
+  if(t&&t!==src)t.value=src.value;
   if(top&&top!==src)top.value=src.value;
+  if(bot&&bot!==src)bot.value=src.value;
+  // sync sem specifically (top bar uses aetSem directly)
+  if(targetId==='aetSem'){
+    const semTop=document.getElementById('aetSem');
+    const semBot=document.getElementById('aetSemBot');
+    if(semTop&&semTop!==src)semTop.value=src.value;
+    if(semBot&&semBot!==src)semBot.value=src.value;
+  }
   updateAETFilterCount();
   renderAETtbl();
   if(aetData.length)renderAETcharts();
@@ -1361,7 +1392,7 @@ function syncAETSelect(src,targetId){
 function syncMOBSelect(src,targetId){
   const t=document.getElementById(targetId);
   const top=document.getElementById(targetId+'Top');
-  if(t)t.value=src.value;
+  if(t&&t!==src)t.value=src.value;
   if(top&&top!==src)top.value=src.value;
   updateMOBFilterCount();
   renderMOBtbl();
@@ -1460,7 +1491,7 @@ function renderMOBcharts(){
   const d=mobData.filter(r=>{
     if(crit!=='TODOS'&&r.crit!==crit)return false;
     if(tipo!=='TODOS'&&r.tipo!==tipo)return false;
-    if(slaVal!=='TODOS'&&r.sla!==slaVal)return false;
+    if(slaV!=='TODOS'&&r.sla!==slaV)return false;
     if(und!=='TODOS'&&r.und!==und)return false;
     if(_ano!=='TODOS'){const y=getDateYear(r.dtIni)||getDateYear(r.prev);if(String(y)!==_ano)return false;}
     if(_mes!=='TODOS'){const m=getDateMonth(r.dtIni)||getDateMonth(r.prev);if(String(m)!==_mes)return false;}
@@ -1875,11 +1906,11 @@ function renderINEFtbl(){
     const transp=((document.getElementById('inefTransp')||{}).value)||'TODOS';
 
     const f=inefData.filter(r=>{
-      if(!mesF.includes('TODOS')&&!mesF.includes(r.mes))return false;
-      if(!statusF.includes('TODOS')&&!statusF.some(s=>r.status.includes(s)))return false;
-      if(!cobF.includes('TODOS')&&!cobF.some(s=>r.cobr.includes(s)))return false;
-      if(!motivoF.includes('TODOS')&&!motivoF.includes(r.motivo))return false;
-      if(!transpF.includes('TODOS')&&!transpF.includes(r.transp))return false;
+      if(mes!=='TODOS'&&r.mes!==mes)return false;
+      if(status!=='TODOS'&&!r.status.includes(status))return false;
+      if(cob!=='TODOS'&&!r.cobr.includes(cob))return false;
+      if(motivo!=='TODOS'&&r.motivo!==motivo)return false;
+      if(transp!=='TODOS'&&r.transp!==transp)return false;
       if(q&&!r.frota.toLowerCase().includes(q)&&!r.cliente.toLowerCase().includes(q)&&!r.motivo.toLowerCase().includes(q)&&!r.conj.toLowerCase().includes(q))return false;
       return true;
     });
