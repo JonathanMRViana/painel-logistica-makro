@@ -37,7 +37,7 @@
 body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,sans-serif;min-height:100vh;display:flex;transition:background .25s,color .25s;font-size:14px;-webkit-font-smoothing:antialiased}
 
 /* ── SIDEBAR ── */
-.sidebar{width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:background .25s}
+.sidebar{width:var(--sbw);transition:width .3s cubic-bezier(.4,0,.2,1),background .25s;overflow:hidden;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:background .25s}
 
 .sb-brand{padding:24px 20px 20px;border-bottom:1px solid var(--border)}
 .sb-brand-mark{display:flex;align-items:center;gap:10px;margin-bottom:2px}
@@ -72,7 +72,7 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 .upd-txt{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace}
 
 /* ── MAIN ── */
-.main-wrap{margin-left:var(--sbw);flex:1;display:flex;flex-direction:column;min-height:100vh;overflow:hidden;transition:margin-left .3s cubic-bezier(.4,0,.2,1)}
+.main-wrap{margin-left:var(--sbw);flex:1;display:flex;flex-direction:column;min-height:100vh;overflow:hidden;transition:margin-left .3s cubic-bezier(.4,0,.2,1),background .25s}
 .main-wrap.col{margin-left:var(--sbm)}
 .topbar{overflow:hidden;background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:50;transition:background .25s}
 .topbar-info .title{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.2px;font-family:'Montserrat',sans-serif}
@@ -249,6 +249,7 @@ tbody tr:hover td{background:var(--surface2)}
 .sb-tog:hover{background:var(--accent);border-color:var(--accent)}
 .sb-tog:hover svg{stroke:#fff}
 .sb-tog svg{width:9px;height:9px;fill:none;stroke:var(--text3);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s}
+.sidebar.col{width:var(--sbm);overflow:hidden;}
 .sidebar.col .sb-tog svg{transform:rotate(180deg)}
 
 /* brand area */
@@ -1046,7 +1047,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778003944 -->
+<!-- v1778004661 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
