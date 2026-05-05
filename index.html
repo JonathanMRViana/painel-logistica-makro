@@ -289,50 +289,48 @@ tbody tr:hover td{background:var(--surface2)}
   .main{padding:16px}
 }
 
-/* ── SIDEBAR COLLAPSED TOOLTIP ── */
-.sidebar.col .nav-item[data-tip]{position:relative;}
-.sidebar.col .nav-item[data-tip]::after{
-  content:attr(data-tip);
-  position:absolute;
-  left:calc(100% + 14px);
-  top:50%;
-  transform:translateY(-50%);
-  background:var(--surface3);
+/* ── SIDEBAR TOOLTIP (body-level, no z-index trap) ── */
+#sb-tooltip{
+  position:fixed;
+  left:0;top:0;
+  background:var(--surface);
   color:var(--text);
   font-size:12px;
   font-family:'Nunito Sans',sans-serif;
   font-weight:500;
   white-space:nowrap;
-  padding:6px 12px;
-  border-radius:6px;
+  padding:7px 13px;
+  border-radius:7px;
   border:1px solid var(--border2);
-  box-shadow:0 4px 16px rgba(0,0,0,.25);
+  box-shadow:0 4px 20px rgba(0,0,0,.28);
   pointer-events:none;
+  z-index:99999;
   opacity:0;
-  transition:opacity .15s ease;
-  z-index:9999;
+  transform:translateX(6px);
+  transition:opacity .14s ease, transform .14s ease;
+  display:none;
 }
-.sidebar.col .nav-item[data-tip]::before{
-  content:'';
-  position:absolute;
-  left:calc(100% + 8px);
-  top:50%;
-  transform:translateY(-50%);
-  border:5px solid transparent;
-  border-right-color:var(--border2);
-  pointer-events:none;
-  opacity:0;
-  transition:opacity .15s ease;
-  z-index:9999;
-}
-.sidebar.col .nav-item[data-tip]:hover::after,
-.sidebar.col .nav-item[data-tip]:hover::before{
+#sb-tooltip.visible{
   opacity:1;
+  transform:translateX(0);
+}
+#sb-tooltip .tt-title{
+  font-weight:600;
+  font-size:12px;
+  color:var(--text);
+  display:block;
+}
+#sb-tooltip .tt-sub{
+  font-size:10px;
+  color:var(--text3);
+  display:block;
+  margin-top:2px;
 }
 </style>
 </head>
 <body>
 
+<div id="sb-tooltip"><span class="tt-title"></span><span class="tt-sub"></span></div>
 <aside class="sidebar">
   <div class="sb-brand-wrap">
     <div class="sb-tog" onclick="toggleSB()">
@@ -1045,7 +1043,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778003423 -->
+<!-- v1778003578 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -2163,6 +2161,35 @@ function toggleSB(){
   document.querySelector('.sidebar').classList.toggle('col');
   document.querySelector('.main-wrap').classList.toggle('col');
 }
+
+// ── SIDEBAR TOOLTIP ENGINE ──
+(function(){
+  const tip=document.getElementById('sb-tooltip');
+  const title=tip.querySelector('.tt-title');
+  const sub=tip.querySelector('.tt-sub');
+  let timer;
+
+  document.querySelector('.sidebar').addEventListener('mouseover',function(e){
+    const nav=e.target.closest('.nav-item[data-tip]');
+    if(!nav||!document.querySelector('.sidebar').classList.contains('col'))return;
+    clearTimeout(timer);
+    title.textContent=nav.dataset.tip||'';
+    sub.textContent=nav.dataset.sub||'';
+    const r=nav.getBoundingClientRect();
+    tip.style.display='block';
+    tip.style.left=(r.right+10)+'px';
+    tip.style.top=(r.top+r.height/2-tip.offsetHeight/2)+'px';
+    requestAnimationFrame(()=>tip.classList.add('visible'));
+  });
+
+  document.querySelector('.sidebar').addEventListener('mouseout',function(e){
+    const nav=e.target.closest('.nav-item[data-tip]');
+    if(!nav)return;
+    tip.classList.remove('visible');
+    timer=setTimeout(()=>{tip.style.display='none';},150);
+  });
+})();
+
 loadAll();
 setInterval(loadAll,5*60*1000);
 </script>
