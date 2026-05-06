@@ -510,7 +510,7 @@ tbody tr:hover td{background:var(--surface2)}
             </button>
           </div>
 
-          <div class="tbl-wrap"><table><thead><tr><th>Frota</th><th>Nº Licença</th><th>Tipo</th><th>Origem</th><th>Destino</th><th>Dt. Solicitada</th><th>Dt. Liberada</th><th>Validade</th><th>Dias</th><th>Status</th><th>Renovação</th></tr></thead><tbody id="aTbl"></tbody></table></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Frota</th><th>Nº Licença</th><th>Tipo</th><th>Origem</th><th>Destino</th><th>Dt. Solicitada</th><th>Dt. Liberada</th><th>Validade</th><th>Dias</th><th>Status</th><th>Renovação</th><th>Obs.</th></tr></thead><tbody id="aTbl"></tbody></table></div>
         </div>
       </div>
     </div>
@@ -1036,7 +1036,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778087352 -->
+<!-- v1778088228 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -1160,7 +1160,8 @@ function processAET(rows){
     const val=String(v[9]||'');
     const dtSol=String(v[7]||'');
     const dtLib=String(v[8]||'');
-    aetData.push({frota:String(v[0]||''),lic:String(v[1]||''),tipo:String(v[4]||'').toUpperCase(),orig:String(v[5]||''),dest:String(v[6]||''),dtSol,dtLib,val,d:diasN(val),sem:sem(val),ren:String(v[11]||'').toUpperCase()});
+    const obsAet=String(v[12]||'').replace(/"/g,'').trim();
+    aetData.push({frota:String(v[0]||''),lic:String(v[1]||''),tipo:String(v[4]||'').toUpperCase(),orig:String(v[5]||''),dest:String(v[6]||''),dtSol,dtLib,val,d:diasN(val),sem:sem(val),ren:String(v[11]||'').toUpperCase(),obs:obsAet});
   }
   // nb-aet removed
   // Build tipo select for AET dynamically
@@ -1263,6 +1264,7 @@ function renderAETtbl(){
       <td style="font-family:'DM Mono',monospace">${fD(r.val)}</td>
       <td style="font-family:'DM Mono',monospace;font-weight:500;color:${r.d!==null&&r.d<0?'var(--red)':r.d!==null&&r.d<=30?'var(--amber)':'var(--text3)'}">${r.d!==null?r.d+'d':'—'}</td>
       <td>${tagAET(r.sem)}</td><td>${tagRen(r.ren)}</td>
+      <td class="obs-cell">${r.obs?'<span class="obs-icon" data-frota="'+r.frota+'" data-obs="'+r.obs.replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")+'">☰</span>':'—'}</td>
     </tr>`).join('');
 }
 
