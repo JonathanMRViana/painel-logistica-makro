@@ -621,6 +621,19 @@ tbody tr:hover td{background:var(--surface2)}
           <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">SLA Atrasado</div><div class="kpi-value" id="m2">—</div><div class="kpi-sub">fora do prazo</div></div>
           <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Finalizadas no Prazo</div><div class="kpi-value" id="m3">—</div><div class="kpi-sub" id="m3s">—</div></div>
         </div>
+        <!-- CARGAS SECTION -->
+        <div style="margin-bottom:8px;margin-top:4px">
+          <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-family:'Montserrat',sans-serif;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+            <span>📦</span><span>Controle de Cargas</span>
+            <span style="font-size:10px;font-weight:400;color:var(--text3);background:var(--surface2);padding:2px 8px;border-radius:4px;border:1px solid var(--border)">por mobilização</span>
+          </div>
+          <div class="kpi-row" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px">
+            <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Total de Cargas</div><div class="kpi-value" id="mc0">—</div><div class="kpi-sub"> </div></div>
+            <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Carregadas</div><div class="kpi-value" id="mc1">—</div><div class="kpi-sub" id="mc1s"> </div></div>
+            <div class="kpi c-blue" style="--stripe-color:#2ab0b8"><div class="kpi-stripe" style="background:#2ab0b8"></div><div class="kpi-label" style="color:var(--teal)">Em Trânsito</div><div class="kpi-value" id="mc2" style="color:var(--teal)">—</div><div class="kpi-sub" id="mc2s"> </div></div>
+            <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Entregues</div><div class="kpi-value" id="mc3">—</div><div class="kpi-sub" id="mc3s"> </div></div>
+          </div>
+        </div>
         <div class="grid-2">
           <div class="card">
             <div class="card-head"><span class="card-title">Por Unidade</span></div>
@@ -710,7 +723,7 @@ tbody tr:hover td{background:var(--surface2)}
             </button>
           </div>
 
-          <div class="tbl-wrap"><table><thead><tr><th>Frota</th><th>Modelo</th><th>Cliente</th><th>Tipo</th><th>Criticidade</th><th>Dt. Início Real</th><th>Dt. Prev. Finalização</th><th>Dt. Finalização Real</th><th>Status</th><th>SLA</th><th>Unidade</th><th>%</th><th>Obs.</th></tr></thead><tbody id="mTbl"></tbody></table></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Frota</th><th>Modelo</th><th>Cliente</th><th>Tipo</th><th>Criticidade</th><th>Dt. Início Real</th><th>Dt. Prev. Finalização</th><th>Dt. Finalização Real</th><th>Status</th><th>SLA</th><th>Unidade</th><th>%</th><th>Cargas</th><th>Carregadas</th><th>Em Trânsito</th><th>Entregues</th><th>Obs.</th></tr></thead><tbody id="mTbl"></tbody></table></div>
         </div>
       </div>
     
@@ -1047,7 +1060,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778015293 -->
+<!-- v1778086745 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -1295,7 +1308,11 @@ function processMOB(rows){
     const _p=parseFloat(String(v[16]||'0').replace('%','').replace(',','.'))||0;
     const pct=_p>1?_p/100:_p;
     const obs=String(v[17]||'').replace(/"/g,'').trim();
-    mobData.push({frota:String(v[0]||''),modelo:String(v[1]||''),crit:crit(v[3]),tipo:nTipo(v[4]),cliente:String(v[5]||''),status:st,und:String(v[8]||''),dtIni,prev,dtFin,pct,sla:calcSLA(prev,st),obs});
+    const nCarg=parseInt(String(v[12]||'0').replace(/[^0-9]/g,''))||0;
+    const nCarreg=parseInt(String(v[13]||'0').replace(/[^0-9]/g,''))||0;
+    const nTransit=parseInt(String(v[14]||'0').replace(/[^0-9]/g,''))||0;
+    const nEntreg=parseInt(String(v[15]||'0').replace(/[^0-9]/g,''))||0;
+    mobData.push({frota:String(v[0]||''),modelo:String(v[1]||''),crit:crit(v[3]),tipo:nTipo(v[4]),cliente:String(v[5]||''),status:st,und:String(v[8]||''),dtIni,prev,dtFin,pct,sla:calcSLA(prev,st),obs,nCarg,nCarreg,nTransit,nEntreg});
   }
   // nb-mob removed
   // Build unidade select for MOB dynamically
@@ -1362,6 +1379,19 @@ function renderMOBtbl(){
       if(q&&!String(r.frota).toLowerCase().includes(q)&&!String(r.modelo).toLowerCase().includes(q)&&!String(r.cliente).toLowerCase().includes(q))return false;
       return true;
     });
+    // Update Carga KPIs
+    const totC=f.reduce((s,r)=>s+(r.nCarg||0),0);
+    const carrC=f.reduce((s,r)=>s+(r.nCarreg||0),0);
+    const transC=f.reduce((s,r)=>s+(r.nTransit||0),0);
+    const entC=f.reduce((s,r)=>s+(r.nEntreg||0),0);
+    const tot2C=totC||1;
+    const mc0=document.getElementById('mc0');if(mc0)mc0.textContent=totC;
+    const mc1=document.getElementById('mc1');if(mc1)mc1.textContent=carrC;
+    const mc1s=document.getElementById('mc1s');if(mc1s)mc1s.textContent=totC?Math.round(carrC/tot2C*100)+'% do total':'';
+    const mc2=document.getElementById('mc2');if(mc2)mc2.textContent=transC;
+    const mc2s=document.getElementById('mc2s');if(mc2s)mc2s.textContent=totC?Math.round(transC/tot2C*100)+'% do total':'';
+    const mc3=document.getElementById('mc3');if(mc3)mc3.textContent=entC;
+    const mc3s=document.getElementById('mc3s');if(mc3s)mc3s.textContent=totC?Math.round(entC/tot2C*100)+'% do total':'';
     const cnt=document.getElementById('mCnt');
     const tbl=document.getElementById('mTbl');
     if(cnt)cnt.textContent=f.length+' registros';
@@ -1389,6 +1419,10 @@ function renderMOBtbl(){
         +'<td>'+tagSLA(r.sla)+'</td>'
         +'<td style="font-family:\'DM Mono\',monospace">'+String(r.und||'')+'</td>'
         +'<td style="font-family:\'DM Mono\',monospace;font-weight:500">'+Math.round((r.pct||0)*100)+'%</td>'
+        +'<td style="font-family:\'DM Mono\',monospace;text-align:center">'+(r.nCarg||'—')+'</td>'
+        +'<td style="font-family:\'DM Mono\',monospace;text-align:center;color:var(--amber)">'+(r.nCarreg||'—')+'</td>'
+        +'<td style="font-family:\'DM Mono\',monospace;text-align:center;color:var(--teal)">'+(r.nTransit||'—')+'</td>'
+        +'<td style="font-family:\'DM Mono\',monospace;text-align:center;color:var(--green)">'+(r.nEntreg||'—')+'</td>'
         +'<td class="obs-cell">'+obsCell+'</td>'
         +'</tr>';
     }).join('');
