@@ -306,6 +306,9 @@ tbody tr:hover td{background:var(--surface2)}
   display:block;
   margin-top:2px;
 }
+
+/* ── TABLE: compact columns never wrap ── */
+.tbl-wrap td .tag{white-space:nowrap;}
 </style>
 </head>
 <body>
@@ -1036,7 +1039,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778088228 -->
+<!-- v1778605400 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -1396,7 +1399,7 @@ function renderMOBtbl(){
         +'<td>'+String(r.status||'')+'</td>'
         +'<td>'+tagSLA(r.sla)+'</td>'
         +'<td style="font-family:\'DM Mono\',monospace">'+String(r.und||'')+'</td>'
-        +'<td style="font-family:\'DM Mono\',monospace;font-weight:500">'+Math.round((r.pct||0)*100)+'%</td>'
+        +'<td style="font-family:\'DM Mono\',monospace;font-weight:500;white-space:nowrap;width:48px;text-align:center">'+Math.round((r.pct||0)*100)+'%</td>'
         +'<td style="font-family:\'DM Mono\',monospace;text-align:center">'+(r.nCarg||'—')+'</td>'
         +'<td style="font-family:\'DM Mono\',monospace;text-align:center;color:var(--amber)">'+(r.nCarreg||'—')+'</td>'
         +'<td style="font-family:\'DM Mono\',monospace;text-align:center;color:var(--teal)">'+(r.nTransit||'—')+'</td>'
