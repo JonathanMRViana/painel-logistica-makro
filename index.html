@@ -1180,7 +1180,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778609960 -->
+<!-- v1778610250 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -1279,22 +1279,21 @@ function parseCSV(text){
 async function loadAll(){
   document.getElementById('updTxt').textContent='atualizando...';
   try{
-    const [resAet,resMob,resMat,resPat,resInef,resRpd]=await Promise.all([
+    const [resAet,resMob,resMat,resPat,resInef,resEfl]=await Promise.all([
       fetch(CSV_AET+'&t='+Date.now()),
       fetch(CSV_MOB+'&t='+Date.now()),
       fetch(CSV_MAT+'&t='+Date.now()),
       fetch(CSV_PATIO+'&t='+Date.now()),
       fetch(CSV_INEF+'&t='+Date.now()),
-      fetch(CSV_RPD+'&t='+Date.now())
+      fetch(CSV_EFL+'&t='+Date.now())
     ]);
-    const [txtAet,txtMob,txtMat,txtPat,txtInef,txtRpd]=await Promise.all([resAet.text(),resMob.text(),resMat.text(),resPat.text(),resInef.text(),resRpd.text()]);
+    const [txtAet,txtMob,txtMat,txtPat,txtInef,txtEfl]=await Promise.all([resAet.text(),resMob.text(),resMat.text(),resPat.text(),resInef.text(),resEfl.text()]);
     try{processAET(parseCSV(txtAet));}catch(e2){console.error('processAET error:',e2.message);}
     try{processMOB(parseCSV(txtMob));}catch(e3){console.error('processMOB error:',e3.message);}
     try{processMAT(parseCSV(txtMat));}catch(e4){console.error('processMAT error:',e4.message);}
     try{processPAT(parseCSV(txtPat));}catch(e5){console.error('processPAT error:',e5.message);}
     try{processINEF(parseCSV(txtInef));}catch(e6){console.error('processINEF error:',e6.message);}
     try{processEFL(parseCSV(txtEfl));}catch(e7){console.error('processEFL error:',e7.message);}
-    try{processRPD(parseCSV(txtRpd));}catch(e7){console.error('processRPD error:',e7.message);}
     document.getElementById('updTxt').textContent=new Date().toLocaleTimeString('pt-BR');
   }catch(e){
     document.getElementById('updTxt').textContent='erro ao carregar';
