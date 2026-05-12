@@ -1121,7 +1121,6 @@ tbody tr:hover td{background:var(--surface2)}
 
     <!-- EFL PANEL -->
     <div id="panel-efl" class="panel">
-      <div id="eflLoad" class="loading" style="display:none"><div class="spinner"></div><div class="loading-txt">carregando · eficiência logística</div></div>
       <div id="eflBody">
 
         <div class="top-filter-bar">
@@ -1181,7 +1180,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778609697 -->
+<!-- v1778609960 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -1206,7 +1205,7 @@ function goTo(id){
     if(id==='mob'&&mobData.length>0){if(mC){mC.destroy();mC=null;}renderMOBcharts();}
     if(id==='pat'&&patData.length>0){if(pC){pC.destroy();pC=null;}renderPAT();}
     if(id==='inef'&&inefData.length>0){if(iC){iC.destroy();iC=null;}if(iC2){iC2.destroy();iC2=null;}renderINEF();}
-    if(id==='efl'&&eflData.length>0){if(eflChart){eflChart.destroy();eflChart=null;}renderEFL();}
+    if(id==='efl'){if(eflChart){eflChart.destroy();eflChart=null;}if(eflData.length>0)renderEFL();}
     if(id==='rpd'&&rpdData.length>0){if(rC){rC.destroy();rC=null;}renderRPD();}
     if(id==='mat'&&matData.length>0){if(mAC){mAC.destroy();mAC=null;}renderMAT();}
   },50);
@@ -1294,7 +1293,7 @@ async function loadAll(){
     try{processMAT(parseCSV(txtMat));}catch(e4){console.error('processMAT error:',e4.message);}
     try{processPAT(parseCSV(txtPat));}catch(e5){console.error('processPAT error:',e5.message);}
     try{processINEF(parseCSV(txtInef));}catch(e6){console.error('processINEF error:',e6.message);}
-    try{processEFL(parseCSV(txtEfl));}catch(e7){console.error('processEFL error:',e7.message);const el7=document.getElementById('eflLoad');const eb7=document.getElementById('eflBody');if(el7)el7.style.display='none';if(eb7)eb7.style.display='block';}
+    try{processEFL(parseCSV(txtEfl));}catch(e7){console.error('processEFL error:',e7.message);}
     try{processRPD(parseCSV(txtRpd));}catch(e7){console.error('processRPD error:',e7.message);}
     document.getElementById('updTxt').textContent=new Date().toLocaleTimeString('pt-BR');
   }catch(e){
@@ -2336,8 +2335,6 @@ function toggleSB(){
 let eflChart=null;
 
 function processEFL(rows){
-  const el=document.getElementById('eflLoad');const eb=document.getElementById('eflBody');
-  if(el)el.style.display='none';if(eb)eb.style.display='block';
   if(!rows||rows.length<2){console.warn('EFL: no data');return;}
   // Header row: A=Frota, B=FrotaAtend, C=Modelo, D=Motorista, E=Info, F=MêsTotal, G+=datas
   const hdr=rows[0];
