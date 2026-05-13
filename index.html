@@ -1123,24 +1123,25 @@ tbody tr:hover td{background:var(--surface2)}
     <div id="panel-efl" class="panel">
       <div id="eflBody">
 
+        <!-- TOP FILTER BAR -->
         <div class="top-filter-bar">
           <span class="top-filter-bar-title">Filtros</span>
           <div class="filter-divider"></div>
           <div class="search-wrap" style="flex:1;min-width:160px;margin-bottom:0">
             <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" class="search-input" id="eflSearch" placeholder="Buscar frota ou motorista..." oninput="renderEFL()">
+            <input type="text" class="search-input" id="eflSearchTop" placeholder="Buscar frota ou motorista..." oninput="syncEFLSearch(this,'eflSearch')">
           </div>
           <div class="select-group">
             <label class="select-label">Frota</label>
-            <select class="f-select" id="eflFrota" onchange="renderEFL()"><option value="TODOS">Todas</option></select>
+            <select class="f-select" id="eflFrotaTop" onchange="syncEFLSelect(this,'eflFrota')"><option value="TODOS">Todas</option></select>
           </div>
           <div class="select-group">
             <label class="select-label">Período De</label>
-            <select class="f-select" id="eflDe" onchange="renderEFL()"><option value="">Todas as datas</option></select>
+            <select class="f-select" id="eflDeTop" onchange="syncEFLSelect(this,'eflDe')"><option value="">Todas</option></select>
           </div>
           <div class="select-group">
             <label class="select-label">Período Até</label>
-            <select class="f-select" id="eflAte" onchange="renderEFL()"><option value="">Todas as datas</option></select>
+            <select class="f-select" id="eflAteTop" onchange="syncEFLSelect(this,'eflAte')"><option value="">Todas</option></select>
           </div>
           <button class="clear-filters-btn" onclick="clearEFLFilters()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -1155,15 +1156,47 @@ tbody tr:hover td{background:var(--surface2)}
           <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">KM Vazio</div><div class="kpi-value" id="ef2">—</div><div class="kpi-sub" id="ef2s"> </div></div>
         </div>
 
-        <!-- Chart -->
+        <!-- CHART with horizontal scroll + arrows -->
         <div class="card" style="margin-bottom:20px">
-          <div class="card-head"><span class="card-title">KM por Frota</span></div>
+          <div class="card-head" style="display:flex;justify-content:space-between;align-items:center">
+            <span class="card-title">KM por Frota</span>
+            <div style="display:flex;gap:6px;align-items:center">
+              <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace" id="eflChartInfo"></span>
+              <button onclick="scrollEFLChart(-1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);width:26px;height:26px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1">‹</button>
+              <button onclick="scrollEFLChart(1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);width:26px;height:26px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1">›</button>
+            </div>
+          </div>
           <div style="position:relative;height:280px"><canvas id="eflBar"></canvas></div>
         </div>
 
-        <!-- Table -->
+        <!-- TABLE -->
         <div class="tbl-card">
           <div class="tbl-head"><span class="tbl-title">Detalhamento por Frota</span><span class="count-tag" id="eflCnt">0 frotas</span></div>
+
+          <!-- BOTTOM FILTER BAR -->
+          <div class="filter-bar-row">
+            <div class="search-wrap" style="flex:1;min-width:160px;margin-bottom:0">
+              <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="search-input" id="eflSearch" placeholder="Buscar frota ou motorista..." oninput="syncEFLSearch(this,'eflSearchTop')">
+            </div>
+            <div class="select-group">
+              <label class="select-label">Frota</label>
+              <select class="f-select" id="eflFrota" onchange="syncEFLSelect(this,'eflFrotaTop')"><option value="TODOS">Todas</option></select>
+            </div>
+            <div class="select-group">
+              <label class="select-label">Período De</label>
+              <select class="f-select" id="eflDe" onchange="syncEFLSelect(this,'eflDeTop')"><option value="">Todas</option></select>
+            </div>
+            <div class="select-group">
+              <label class="select-label">Período Até</label>
+              <select class="f-select" id="eflAte" onchange="syncEFLSelect(this,'eflAteTop')"><option value="">Todas</option></select>
+            </div>
+            <button class="clear-filters-btn" onclick="clearEFLFilters()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Limpar
+            </button>
+          </div>
+
           <div class="tbl-wrap">
             <table>
               <thead><tr>
@@ -1180,7 +1213,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778610250 -->
+<!-- v1778677664 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -2335,9 +2368,7 @@ let eflChart=null;
 
 function processEFL(rows){
   if(!rows||rows.length<2){console.warn('EFL: no data');return;}
-  // Header row: A=Frota, B=FrotaAtend, C=Modelo, D=Motorista, E=Info, F=MêsTotal, G+=datas
   const hdr=rows[0];
-  // Collect date columns (index 6 onwards, skip index 5 = month total)
   const dateCols=[];
   for(let c=6;c<hdr.length;c++){
     const v=String(hdr[c]||'').trim();
@@ -2352,19 +2383,13 @@ function processEFL(rows){
     const frotaAt=String(r0[1]||'').trim();
     const modelo=String(r0[2]||'').trim();
     const motor=String(r0[3]||'').trim();
-    const rdeTotal=String(r0[5]||'').trim(); // col F = % total mês
-
-    // Next 3 rows: Km Rodado, Condição, Carregado/Descarregado
-    const r1=rows[i+1]||[];  // Km Rodado
-    const r2=rows[i+2]||[];  // Condição
-    const r3=rows[i+3]||[];  // Carregado/Descarregado
-
-    // Check if rows belong to same frota
+    const rdeTotal=String(r0[5]||'').trim();
+    const r1=rows[i+1]||[];
+    const r2=rows[i+2]||[];
+    const r3=rows[i+3]||[];
     const info1=String(r1[4]||'').toLowerCase();
     const info3=String(r3[4]||'').toLowerCase();
     if(!info1.includes('km')&&!info3.includes('carregad')){i++;continue;}
-
-    // Build daily data
     const days=[];
     let kmTotal=0,kmCarreg=0,kmVazio=0;
     for(const dc of dateCols){
@@ -2378,26 +2403,23 @@ function processEFL(rows){
       if(isCarreg)kmCarreg+=km;
       if(isVazio)kmVazio+=km;
     }
-
     const pctCarreg=kmTotal>0?Math.round(kmCarreg/kmTotal*100):0;
     eflData.push({frota,frotaAt,modelo,motor,rdeTotal,kmTotal:Math.round(kmTotal),kmCarreg:Math.round(kmCarreg),kmVazio:Math.round(kmVazio),pctCarreg,days});
     i+=4;
   }
-
-  // Populate frota select
-  const fs=document.getElementById('eflFrota');
-  if(fs){
-    const frotas=[...new Set(eflData.map(r=>r.frota).filter(f=>f))].sort();
-    fs.innerHTML='<option value="TODOS">Todas</option>'+frotas.map(f=>'<option value="'+f+'">'+f+'</option>').join('');
-  }
-  // Populate date selects
+  // Populate selects - both top and bottom
+  const frotas=[...new Set(eflData.map(r=>r.frota).filter(f=>f))].sort();
+  const frotaHtml='<option value="TODOS">Todas</option>'+frotas.map(f=>'<option value="'+f+'">'+f+'</option>').join('');
+  ['eflFrota','eflFrotaTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=frotaHtml;});
   if(dateCols.length>0){
     const opts='<option value="">Todas as datas</option>'+dateCols.map(d=>'<option value="'+d.label+'">'+d.label+'</option>').join('');
-    const de=document.getElementById('eflDe');const ate=document.getElementById('eflAte');
-    if(de)de.innerHTML=opts;if(ate)ate.innerHTML=opts;
+    ['eflDe','eflDeTop','eflAte','eflAteTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
   }
   renderEFL();
 }
+
+let eflChartPage=0;
+const EFL_PAGE_SIZE=12;
 
 function getEFLFiltered(){
   const q=((document.getElementById('eflSearch')||{}).value||'').toLowerCase().trim();
@@ -2407,7 +2429,6 @@ function getEFLFiltered(){
   return eflData.map(r=>{
     if(frota!=='TODOS'&&r.frota!==frota)return null;
     if(q&&!r.frota.toLowerCase().includes(q)&&!r.motor.toLowerCase().includes(q)&&!r.modelo.toLowerCase().includes(q))return null;
-    // Filter days by period
     let days=r.days;
     if(de||ate){
       days=days.filter(d=>{
@@ -2424,13 +2445,59 @@ function getEFLFiltered(){
   }).filter(Boolean);
 }
 
+function syncEFLSearch(src,targetId){
+  const t=document.getElementById(targetId);if(t)t.value=src.value;
+  renderEFL();
+}
+function syncEFLSelect(src,targetId){
+  const t=document.getElementById(targetId);if(t&&t!==src)t.value=src.value;
+  renderEFL();
+}
+function clearEFLFilters(){
+  ['eflFrota','eflFrotaTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
+  ['eflDe','eflDeTop','eflAte','eflAteTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['eflSearch','eflSearchTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  eflChartPage=0;
+  renderEFL();
+}
+
+function scrollEFLChart(dir){
+  const f=getEFLFiltered().sort((a,b)=>b.kmTotal-a.kmTotal);
+  const pages=Math.ceil(f.length/EFL_PAGE_SIZE);
+  eflChartPage=Math.max(0,Math.min(pages-1,eflChartPage+dir));
+  renderEFLChart(f);
+}
+
+function renderEFLChart(f){
+  const pages=Math.ceil(f.length/EFL_PAGE_SIZE)||1;
+  const slice=f.slice(eflChartPage*EFL_PAGE_SIZE,(eflChartPage+1)*EFL_PAGE_SIZE);
+  const info=document.getElementById('eflChartInfo');
+  if(info)info.textContent=f.length>EFL_PAGE_SIZE?`${eflChartPage+1}/${pages} páginas · ${f.length} frotas`:`${f.length} frotas`;
+  const ctx=document.getElementById('eflBar');
+  if(!ctx)return;
+  if(eflChart){eflChart.destroy();eflChart=null;}
+  eflChart=new Chart(ctx,{type:'bar',
+    data:{labels:slice.map(r=>r.frota),
+      datasets:[
+        {label:'KM Carregado',data:slice.map(r=>r.kmCarreg),backgroundColor:'rgba(45,184,122,0.85)',borderRadius:4},
+        {label:'KM Vazio',data:slice.map(r=>r.kmVazio),backgroundColor:'rgba(232,148,58,0.75)',borderRadius:4},
+      ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{font:{family:'Montserrat',size:11},color:'var(--text3)',boxWidth:12}},
+        tooltip:{callbacks:{label:ctx2=>` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},
+      scales:{
+        x:{stacked:true,grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11}}},
+        y:{stacked:true,grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11},callback:v=>v.toLocaleString('pt-BR')+'km'}}
+      }}});
+}
+
 function renderEFL(){
+  eflChartPage=0;
   const f=getEFLFiltered();
   const totKm=f.reduce((s,r)=>s+r.kmTotal,0);
   const totCarreg=f.reduce((s,r)=>s+r.kmCarreg,0);
   const totVazio=f.reduce((s,r)=>s+r.kmVazio,0);
   const pct=totKm>0?Math.round(totCarreg/totKm*100):0;
-
   const e0=document.getElementById('ef0');const e0s=document.getElementById('ef0s');
   const e1=document.getElementById('ef1');const e1s=document.getElementById('ef1s');
   const e2=document.getElementById('ef2');const e2s=document.getElementById('ef2s');
@@ -2440,28 +2507,8 @@ function renderEFL(){
   if(e1s)e1s.textContent=pct+'% do total';
   if(e2)e2.textContent=totVazio.toLocaleString('pt-BR')+'km';
   if(e2s)e2s.textContent=(totKm>0?Math.round(totVazio/totKm*100):0)+'% do total';
-
-  // ── Bar chart ──
-  const top=f.sort((a,b)=>b.kmTotal-a.kmTotal).slice(0,15);
-  const ctx=document.getElementById('eflBar');
-  if(ctx){
-    if(eflChart){eflChart.destroy();eflChart=null;}
-    eflChart=new Chart(ctx,{type:'bar',
-      data:{labels:top.map(r=>r.frota),
-        datasets:[
-          {label:'KM Carregado',data:top.map(r=>r.kmCarreg),backgroundColor:'rgba(45,184,122,0.85)',borderRadius:4},
-          {label:'KM Vazio',data:top.map(r=>r.kmVazio),backgroundColor:'rgba(232,148,58,0.75)',borderRadius:4},
-        ]},
-      options:{responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{position:'top',labels:{font:{family:'Montserrat',size:11},color:'var(--text3)',boxWidth:12}},
-          tooltip:{callbacks:{label:ctx2=>` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},
-        scales:{
-          x:{stacked:true,grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11}}},
-          y:{stacked:true,grid:{color:'var(--border)'},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11},callback:v=>v.toLocaleString('pt-BR')+'km'}}
-        }}});
-  }
-
-  // ── Table ──
+  renderEFLChart(f.sort((a,b)=>b.kmTotal-a.kmTotal));
+  // Table
   const cnt=document.getElementById('eflCnt');const tbl=document.getElementById('eflTbl');
   if(cnt)cnt.textContent=f.length+' frotas';
   if(!tbl)return;
@@ -2480,11 +2527,6 @@ function renderEFL(){
     </tr>`).join('');
 }
 
-function clearEFLFilters(){
-  ['eflFrota','eflDe','eflAte'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=el.tagName==='SELECT'?el.options[0].value:'';});
-  const s=document.getElementById('eflSearch');if(s)s.value='';
-  renderEFL();
-}
 
 // ── SIDEBAR TOOLTIP ENGINE ──
 (function(){
