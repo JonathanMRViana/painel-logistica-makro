@@ -1213,7 +1213,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778677664 -->
+<!-- v1778678482 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -2366,6 +2366,30 @@ function toggleSB(){
 // ── EFL: EFICIÊNCIA LOGÍSTICA ──
 let eflChart=null;
 
+// ── FERIADOS NACIONAIS BR (fixos) ──
+const _feriadosBR=new Set(['01/01','21/04','01/05','07/09','12/10','02/11','15/11','25/12','20/11']);
+function isUtilDate(label){
+  // label pode ser "3/1/2026" ou "01/03/2026" etc
+  const parts=String(label||'').trim().split(/[\/\-]/);
+  if(parts.length<3)return true; // se nao parsear, assume util
+  let d,m,y;
+  // detecta formato MM/DD/YYYY (americano) vs DD/MM/YYYY (br)
+  if(parseInt(parts[0])>12){// dia/mes/ano BR
+    d=parseInt(parts[0]);m=parseInt(parts[1]);y=parseInt(parts[2]);
+  } else if(parseInt(parts[1])>12){// mes/dia/ano US
+    m=parseInt(parts[0]);d=parseInt(parts[1]);y=parseInt(parts[2]);
+  } else {// assume mes/dia/ano (formato google sheets US)
+    m=parseInt(parts[0]);d=parseInt(parts[1]);y=parseInt(parts[2]);
+  }
+  const dt=new Date(y,m-1,d);
+  if(isNaN(dt.getTime()))return true;
+  const dow=dt.getDay();
+  if(dow===0||dow===6)return false; // sabado/domingo
+  const mmdd=String(m).padStart(2,'0')+'/'+String(d).padStart(2,'0');
+  if(_feriadosBR.has(mmdd))return false;
+  return true;
+}
+
 function processEFL(rows){
   if(!rows||rows.length<2){console.warn('EFL: no data');return;}
   const hdr=rows[0];
@@ -2392,19 +2416,28 @@ function processEFL(rows){
     if(!info1.includes('km')&&!info3.includes('carregad')){i++;continue;}
     const days=[];
     let kmTotal=0,kmCarreg=0,kmVazio=0;
+    let diasUteis=0,diasOp=0;
     for(const dc of dateCols){
       const km=parseFloat(String(r1[dc.idx]||'0').replace(',','.'))||0;
-      const cond=String(r2[dc.idx]||'').trim();
+      const cond=String(r2[dc.idx]||'').trim().toUpperCase();
       const cargd=String(r3[dc.idx]||'').trim().toUpperCase();
       const isCarreg=cargd.includes('CARREGADO')&&!cargd.includes('DESCARRE');
       const isVazio=cargd.includes('VAZIO');
-      days.push({date:dc.label,km,cond,cargd,isCarreg,isVazio});
+      // Premissa 1: desconsiderar MC (Manut. Corretiva), RF (Reforma), MP (Manut. Preventiva)
+      const isManut=cond.includes('MC')||cond.includes('RF')||cond.includes('MP');
+      // Premissa 2: apenas dias úteis (não sáb/dom)
+      const dUtil=isUtilDate(dc.label);
+      const countable=dUtil&&!isManut;
+      if(countable)diasUteis++;
+      if(countable&&(cond.includes('OP')||km>0))diasOp++;
+      days.push({date:dc.label,km,cond,cargd,isCarreg,isVazio,isManut,dUtil});
       kmTotal+=km;
       if(isCarreg)kmCarreg+=km;
       if(isVazio)kmVazio+=km;
     }
     const pctCarreg=kmTotal>0?Math.round(kmCarreg/kmTotal*100):0;
-    eflData.push({frota,frotaAt,modelo,motor,rdeTotal,kmTotal:Math.round(kmTotal),kmCarreg:Math.round(kmCarreg),kmVazio:Math.round(kmVazio),pctCarreg,days});
+    const rdeCalc=diasUteis>0?Math.round(diasOp/diasUteis*100):null;
+    eflData.push({frota,frotaAt,modelo,motor,rdeTotal,rdeCalc,diasUteis,diasOp,kmTotal:Math.round(kmTotal),kmCarreg:Math.round(kmCarreg),kmVazio:Math.round(kmVazio),pctCarreg,days});
     i+=4;
   }
   // Populate selects - both top and bottom
@@ -2523,7 +2556,7 @@ function renderEFL(){
       <td style="font-family:'DM Mono',monospace;color:var(--green)">${r.kmCarreg.toLocaleString('pt-BR')}</td>
       <td style="font-family:'DM Mono',monospace;color:var(--amber)">${r.kmVazio.toLocaleString('pt-BR')}</td>
       <td style="font-family:'DM Mono',monospace;font-weight:600;color:${r.pctCarreg>=50?'var(--green)':'var(--amber)'}">${r.pctCarreg}%</td>
-      <td style="font-family:'DM Mono',monospace">${r.rdeTotal||'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-weight:600;color:${r.rdeCalc!==null?(r.rdeCalc>=80?'var(--green)':r.rdeCalc>=60?'var(--amber)':'var(--red)'):'var(--text3)'}">${r.rdeCalc!==null?r.rdeCalc+'% ('+r.diasOp+'/'+r.diasUteis+'d)':'—'}</td>
     </tr>`).join('');
 }
 
