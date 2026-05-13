@@ -1201,7 +1201,7 @@ tbody tr:hover td{background:var(--surface2)}
             <table>
               <thead><tr>
                 <th>Frota</th><th>Frota Atendida</th><th>Modelo</th><th>Motorista</th>
-                <th>KM Total</th><th>KM Carregado</th><th>KM Vazio</th><th>% Carregado</th><th>Eficiência RDE</th>
+                <th>KM Total</th><th>KM Carregado</th><th>KM Vazio</th><th>% Carregado</th><th>Eficiência (DF)</th>
               </tr></thead>
               <tbody id="eflTbl"></tbody>
             </table>
@@ -1213,7 +1213,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778678482 -->
+<!-- v1778680357 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -2416,7 +2416,7 @@ function processEFL(rows){
     if(!info1.includes('km')&&!info3.includes('carregad')){i++;continue;}
     const days=[];
     let kmTotal=0,kmCarreg=0,kmVazio=0;
-    let diasUteis=0,diasOp=0;
+    let diasUteis=0,diasOp=0,diasAgDesc=0;
     for(const dc of dateCols){
       const km=parseFloat(String(r1[dc.idx]||'0').replace(',','.'))||0;
       const cond=String(r2[dc.idx]||'').trim().toUpperCase();
@@ -2427,17 +2427,23 @@ function processEFL(rows){
       const isManut=cond.includes('MC')||cond.includes('RF')||cond.includes('MP');
       // Premissa 2: apenas dias úteis (não sáb/dom)
       const dUtil=isUtilDate(dc.label);
+      // Premissa 3: Ag. Carregamento/Descarregamento = 3 fretes x 2 dias = 6 dias/mês de DF
+      const isAgDesc=cond.includes('AG')||cond.includes('AGU')||cond.includes('AGUARD');
       const countable=dUtil&&!isManut;
       if(countable)diasUteis++;
+      if(countable&&isAgDesc)diasAgDesc++;
       if(countable&&(cond.includes('OP')||km>0))diasOp++;
-      days.push({date:dc.label,km,cond,cargd,isCarreg,isVazio,isManut,dUtil});
+      days.push({date:dc.label,km,cond,cargd,isCarreg,isVazio,isManut,dUtil,isAgDesc});
       kmTotal+=km;
       if(isCarreg)kmCarreg+=km;
       if(isVazio)kmVazio+=km;
     }
     const pctCarreg=kmTotal>0?Math.round(kmCarreg/kmTotal*100):0;
-    const rdeCalc=diasUteis>0?Math.round(diasOp/diasUteis*100):null;
-    eflData.push({frota,frotaAt,modelo,motor,rdeTotal,rdeCalc,diasUteis,diasOp,kmTotal:Math.round(kmTotal),kmCarreg:Math.round(kmCarreg),kmVazio:Math.round(kmVazio),pctCarreg,days});
+    // DF = Dias Úteis - 6 dias fixos de Ag. Desc/Carreg (3 fretes x 2 dias)
+    const diasDF=Math.max(0,diasUteis-6);
+    // RDE: dias operados / DF (já com desconto dos 6 dias de aguardo)
+    const rdeCalc=diasDF>0?Math.round(diasOp/diasDF*100):null;
+    eflData.push({frota,frotaAt,modelo,motor,rdeTotal,rdeCalc,diasUteis,diasDF,diasOp,diasAgDesc,kmTotal:Math.round(kmTotal),kmCarreg:Math.round(kmCarreg),kmVazio:Math.round(kmVazio),pctCarreg,days});
     i+=4;
   }
   // Populate selects - both top and bottom
@@ -2556,7 +2562,7 @@ function renderEFL(){
       <td style="font-family:'DM Mono',monospace;color:var(--green)">${r.kmCarreg.toLocaleString('pt-BR')}</td>
       <td style="font-family:'DM Mono',monospace;color:var(--amber)">${r.kmVazio.toLocaleString('pt-BR')}</td>
       <td style="font-family:'DM Mono',monospace;font-weight:600;color:${r.pctCarreg>=50?'var(--green)':'var(--amber)'}">${r.pctCarreg}%</td>
-      <td style="font-family:'DM Mono',monospace;font-weight:600;color:${r.rdeCalc!==null?(r.rdeCalc>=80?'var(--green)':r.rdeCalc>=60?'var(--amber)':'var(--red)'):'var(--text3)'}">${r.rdeCalc!==null?r.rdeCalc+'% ('+r.diasOp+'/'+r.diasUteis+'d)':'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-weight:600;color:${r.rdeCalc!==null?(r.rdeCalc>=80?'var(--green)':r.rdeCalc>=60?'var(--amber)':'var(--red)'):'var(--text3)'}">${r.rdeCalc!==null?r.rdeCalc+'% ('+r.diasOp+'/'+r.diasDF+'d DF)':'—'}</td>
     </tr>`).join('');
 }
 
