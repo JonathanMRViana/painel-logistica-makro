@@ -1213,7 +1213,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778680357 -->
+<!-- v1778681927 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -2562,7 +2562,7 @@ function renderEFL(){
       <td style="font-family:'DM Mono',monospace;color:var(--green)">${r.kmCarreg.toLocaleString('pt-BR')}</td>
       <td style="font-family:'DM Mono',monospace;color:var(--amber)">${r.kmVazio.toLocaleString('pt-BR')}</td>
       <td style="font-family:'DM Mono',monospace;font-weight:600;color:${r.pctCarreg>=50?'var(--green)':'var(--amber)'}">${r.pctCarreg}%</td>
-      <td style="font-family:'DM Mono',monospace;font-weight:600;color:${r.rdeCalc!==null?(r.rdeCalc>=80?'var(--green)':r.rdeCalc>=60?'var(--amber)':'var(--red)'):'var(--text3)'}">${r.rdeCalc!==null?r.rdeCalc+'% ('+r.diasOp+'/'+r.diasDF+'d DF)':'—'}</td>
+      <td style="font-family:'DM Mono',monospace;font-weight:600;color:${r.rdeCalc!==null?(r.rdeCalc>=80?'var(--green)':r.rdeCalc>=60?'var(--amber)':'var(--red)'):'var(--text3)'}">${r.rdeCalc!==null?r.rdeCalc+'%':'—'}</td>
     </tr>`).join('');
 }
 
