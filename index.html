@@ -1040,84 +1040,6 @@ tbody tr:hover td{background:var(--surface2)}
       </div>
     </div>
 
-    <!-- RPD PANEL -->
-    <div id="panel-rpd" class="panel">
-      <div id="rpdBody">
-
-        <div class="top-filter-bar">
-          <span class="top-filter-bar-title">Filtros</span>
-          <div class="filter-divider"></div>
-          <div class="search-wrap" style="flex:1;min-width:160px;margin-bottom:0">
-            <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" class="search-input" id="rpdSearch" placeholder="Buscar frota ou motorista..." oninput="renderRPDtbl()">
-          </div>
-          <div class="select-group">
-            <label class="select-label">Mês</label>
-            <select class="f-select" id="rpdMes" onchange="renderRPDtbl()">
-              <option value="TODOS">Todos</option>
-            </select>
-          </div>
-          <div class="select-group">
-            <label class="select-label">Condição</label>
-            <select class="f-select" id="rpdCond" onchange="renderRPDtbl()">
-              <option value="TODOS">Todos</option>
-              <option value="MOB">Em Operação (MOB)</option>
-              <option value="MNT">Em Manutenção (MNT)</option>
-            </select>
-          </div>
-          <button class="clear-filters-btn" onclick="clearRPDFilters()">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            Limpar
-          </button>
-        </div>
-
-        <div class="kpi-row" style="grid-template-columns:repeat(5,minmax(0,1fr))">
-          <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Total de Frotas</div><div class="kpi-value" id="rp0">—</div><div class="kpi-sub"> </div></div>
-          <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Em Operação</div><div class="kpi-value" id="rp1">—</div><div class="kpi-sub" id="rp1s"> </div></div>
-          <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Em Manutenção</div><div class="kpi-value" id="rp2">—</div><div class="kpi-sub" id="rp2s"> </div></div>
-          <div class="kpi c-teal" style="--stripe-color:var(--teal)"><div class="kpi-stripe" style="background:var(--teal)"></div><div class="kpi-label">KM Total Rodado</div><div class="kpi-value" id="rp3" style="font-size:22px;color:var(--teal)">—</div><div class="kpi-sub" id="rp3s"> </div></div>
-          <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">% Médio Eficiência</div><div class="kpi-value" id="rp4">—</div><div class="kpi-sub">status RDE médio</div></div>
-        </div>
-
-        <div class="grid-2" style="margin-bottom:20px">
-          <div class="card">
-            <div class="card-head"><span class="card-title">Eficiência por Frota (% RDE)</span></div>
-            <div style="overflow-y:auto;max-height:260px"><div class="bars" id="rpdBars"></div></div>
-          </div>
-          <div class="card">
-            <div class="card-head"><span class="card-title">Condição de Operação</span></div>
-            <div style="display:flex;gap:0;align-items:stretch;min-height:200px">
-              <div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="position:relative;width:180px;height:180px"><canvas id="rpdDonut"></canvas></div></div>
-              <div style="width:1px;background:var(--border);margin:0 16px;flex-shrink:0"></div>
-              <div class="legend" id="rpdLeg" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="tbl-card">
-          <div class="tbl-head"><span class="tbl-title">Detalhamento por Frota</span><span class="count-tag" id="rpdCnt">0 registros</span></div>
-          <div class="tbl-wrap">
-            <table style="table-layout:auto">
-              <thead><tr>
-                <th>Frota (Cavalo)</th>
-                <th>Frota Atendida</th>
-                <th>Modelo</th>
-                <th>Motorista</th>
-                <th>Mês</th>
-                <th>% RDE</th>
-                <th>KM Total</th>
-                <th>% Carregado</th>
-                <th>Condição Predominante</th>
-              </tr></thead>
-              <tbody id="rpdTbl"></tbody>
-            </table>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-
     <!-- EFL PANEL -->
     <div id="panel-efl" class="panel">
       <div id="eflBody">
@@ -1326,7 +1248,7 @@ const pages={aet:{t:'Gestão de AET\'s',s:'licenças especiais de trânsito'},mo
   mat:{t:'Mat. de Amarração & Segurança',s:'controle de materiais por frota'},
   pat:{t:'Gestão de Pátio',s:'controle de atividades e operações de pátio'},
   inef:{t:'Controle de Ineficiências Op. (Diárias)',s:'monitoramento de equipamentos parados e diárias'},
-  rpd:{t:'Relatório de Eficiência Logística',s:'eficiência de KM por frota · operação diária'}};
+  rpd:{t:'Relatório de Frotas em Manutenção (RPD)',s:'controle de frotas paradas · manutenção e impacto cliente'}};
 
 function goTo(id){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -1342,8 +1264,7 @@ function goTo(id){
     if(id==='pat'&&patData.length>0){if(pC){pC.destroy();pC=null;}renderPAT();}
     if(id==='inef'&&inefData.length>0){if(iC){iC.destroy();iC=null;}if(iC2){iC2.destroy();iC2=null;}renderINEF();}
     if(id==='efl'){if(eflChart){eflChart.destroy();eflChart=null;}if(eflData.length>0)renderEFL();}
-    if(id==='rpd'){if(typeof rpdChart!=='undefined'&&rpdChart){rpdChart.destroy();rpdChart=null;}if(rpdData.length>0)renderRPD();}
-    if(id==='rpd'&&rpdData.length>0){if(rC){rC.destroy();rC=null;}renderRPD();}
+    if(id==='rpd'&&rpdData.length>0){if(rpdChart){rpdChart.destroy();rpdChart=null;}if(rpdBarChart){rpdBarChart.destroy();rpdBarChart=null;}renderRPD();}
     if(id==='mat'&&matData.length>0){if(mAC){mAC.destroy();mAC=null;}renderMAT();}
   },50);
 }
@@ -2823,166 +2744,6 @@ function renderRPD(){
   });
 })();
 
-
-function processRPD(rows){
-  // Find header row
-  let hi=-1;
-  for(let i=0;i<rows.length;i++){
-    if(rows[i].some(c=>String(c).toLowerCase().includes('frota')&&String(c).toLowerCase().includes('cavalo'))){hi=i;break;}
-  }
-  if(hi<0)hi=0;
-
-  // Get date headers (cols 6+)
-  const hdr=rows[hi]||[];
-  const dates=[];
-  let mesNome='';
-  for(let c=6;c<hdr.length;c++){
-    const v=String(hdr[c]||'').trim();
-    if(v&&v!=='')dates.push({col:c,label:v});
-  }
-  // Get month name from col 5
-  mesNome=String(hdr[5]||'').trim().toUpperCase();
-
-  rpdData=[];
-  let i=hi+1;
-  while(i<rows.length){
-    const r0=rows[i]||[];
-    const frota=String(r0[0]||'').trim();
-    if(!frota){i++;continue;}
-
-    const r1=rows[i+1]||[];
-    const r2=rows[i+2]||[];
-    const r3=rows[i+3]||[];
-
-    // Parse % RDE from col 5 of row 0
-    const rdeStr=String(r0[5]||'').replace('%','').replace(',','.').trim();
-    const rde=parseFloat(rdeStr)||0;
-
-    // Parse KM total from col 5 of row 1 (Km Rodado summary)
-    const kmStr=String(r1[5]||'').replace(',','.').trim();
-    const kmTotal=parseFloat(kmStr)||0;
-
-    // Parse % Carregado from col 5 of row 3
-    const cargStr=String(r3[5]||'').replace('%','').replace(',','.').trim();
-    const cargPct=parseFloat(cargStr)||0;
-
-    // Dominant condition from row 2 (Condição) - count MOB vs MNT
-    let mobCount=0,mntCount=0;
-    for(let c=6;c<r2.length;c++){
-      const v=String(r2[c]||'').trim().toUpperCase();
-      if(v==='MOB')mobCount++;
-      else if(v==='MNT')mntCount++;
-    }
-    const cond=mntCount>mobCount?'MNT':'MOB';
-
-    // Daily data
-    const daily=dates.map(d=>({
-      date:d.label,
-      status:String(r0[d.col]||'').trim().toUpperCase(),
-      km:parseFloat(String(r1[d.col]||'0').replace(',','.'))||0,
-      cond:String(r2[d.col]||'').trim().toUpperCase(),
-      cargo:String(r3[d.col]||'').trim()
-    }));
-
-    rpdData.push({
-      frota,frotaAt:String(r0[1]||'').trim(),
-      modelo:String(r0[2]||'').trim(),
-      motorista:String(r0[3]||'').trim(),
-      mes:mesNome,
-      rde,kmTotal,cargPct,cond,daily,
-      mobDays:mobCount,mntDays:mntCount
-    });
-    i+=4;
-  }
-
-  // Build mes select
-  const meses=[...new Set(rpdData.map(r=>r.mes).filter(m=>m))].sort();
-  const mesEl=document.getElementById('rpdMes');
-  if(mesEl)mesEl.innerHTML='<option value="TODOS">Todos</option>'+meses.map(m=>'<option value="'+m+'">'+m+'</option>').join('');
-
-  
-  renderRPD();
-}
-
-function renderRPD(){
-  renderRPDtbl();
-}
-
-function renderRPDtbl(){
-  try{
-    const q=((document.getElementById('rpdSearch')||{}).value||'').toLowerCase().trim();
-    const mes=((document.getElementById('rpdMes')||{}).value)||'TODOS';
-    const cond=((document.getElementById('rpdCond')||{}).value)||'TODOS';
-
-    const f=rpdData.filter(r=>{
-      if(mes!=='TODOS'&&r.mes!==mes)return false;
-      if(cond!=='TODOS'&&r.cond!==cond)return false;
-      if(q&&!r.frota.toLowerCase().includes(q)&&!r.frotaAt.toLowerCase().includes(q)&&!r.motorista.toLowerCase().includes(q))return false;
-      return true;
-    });
-
-    const tot=f.length||1;
-    const op=f.filter(r=>r.cond==='MOB').length;
-    const mnt=f.filter(r=>r.cond==='MNT').length;
-    const kmTot=f.reduce((s,r)=>s+r.kmTotal,0);
-    const rdeMedia=f.length?f.reduce((s,r)=>s+r.rde,0)/f.length:0;
-
-    const rp0=document.getElementById('rp0');if(rp0)rp0.textContent=f.length;
-    const rp1=document.getElementById('rp1');if(rp1)rp1.textContent=op;
-    const rp1s=document.getElementById('rp1s');if(rp1s)rp1s.textContent=Math.round(op/tot*100)+'% da base';
-    const rp2=document.getElementById('rp2');if(rp2)rp2.textContent=mnt;
-    const rp2s=document.getElementById('rp2s');if(rp2s)rp2s.textContent=Math.round(mnt/tot*100)+'% da base';
-    const rp3=document.getElementById('rp3');if(rp3)rp3.textContent=kmTot.toLocaleString('pt-BR',{maximumFractionDigits:0});
-    const rp3s=document.getElementById('rp3s');if(rp3s)rp3s.textContent='média: '+Math.round(kmTot/(f.length||1)).toLocaleString('pt-BR')+' km/frota';
-    const rp4=document.getElementById('rp4');if(rp4)rp4.textContent=Math.round(rdeMedia)+'%';
-
-    // Bars - efficiency per frota
-    const sorted=[...f].sort((a,b)=>b.rde-a.rde).slice(0,10);
-    const mx=sorted[0]?sorted[0].rde:1;
-    const bEl=document.getElementById('rpdBars');
-    if(bEl)bEl.innerHTML=sorted.map(r=>{
-      const col=r.rde>=80?'#2db87a':r.rde>=60?'#e8943a':'#c81428';
-      return '<div class="bar-row"><span class="bar-lbl" style="width:80px;font-family:monospace">'+r.frota+'</span><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(r.rde/mx*100)+'%;background:'+col+'"></div></div><span class="bar-num">'+Math.round(r.rde)+'%</span></div>';
-    }).join('');
-
-    // Donut - MOB vs MNT
-    const mobTotal=f.reduce((s,r)=>s+r.mobDays,0);
-    const mntTotal=f.reduce((s,r)=>s+r.mntDays,0);
-    const lEl=document.getElementById('rpdLeg');
-    if(lEl)lEl.innerHTML=[['#2db87a','Em Operação (MOB)',mobTotal],['#c81428','Em Manutenção (MNT)',mntTotal]].map(([c,l,v])=>'<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:'+c+'"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">'+l+'</span></span><span style="font-family:monospace;font-weight:600;font-size:11px;color:var(--text2)">('+v+' dias)</span></span>').join('');
-    const dEl=document.getElementById('rpdDonut');
-    if(dEl){if(rC){rC.destroy();rC=null;}rC=new Chart(dEl,{type:'doughnut',data:{labels:['MOB','MNT'],datasets:[{data:[mobTotal,mntTotal],backgroundColor:['#2db87a','#c81428'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' dias ('+pct+'%)';}}}},cutout:'72%'}});}
-
-    // Table
-    const cnt=document.getElementById('rpdCnt');
-    const tbl=document.getElementById('rpdTbl');
-    if(cnt)cnt.textContent=f.length+' registros';
-    if(!tbl)return;
-
-    const condTag=(c)=>c==='MOB'?'<span class="tag tag-green">OPERAÇÃO</span>':'<span class="tag tag-red">MANUTENÇÃO</span>';
-    const rdeTag=(v)=>{const col=v>=80?'tag-green':v>=60?'tag-amber':'tag-red';return '<span class="tag '+col+'">'+Math.round(v)+'%</span>';};
-
-    tbl.innerHTML=f.length===0
-      ?'<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro encontrado</td></tr>'
-      :f.map(r=>'<tr>'
-        +'<td style="font-family:monospace;font-weight:600">'+r.frota+'</td>'
-        +'<td style="font-family:monospace">'+r.frotaAt+'</td>'
-        +'<td>'+r.modelo+'</td>'
-        +'<td>'+r.motorista+'</td>'
-        +'<td style="font-family:monospace">'+r.mes+'</td>'
-        +'<td>'+rdeTag(r.rde)+'</td>'
-        +'<td style="font-family:monospace;font-weight:500">'+r.kmTotal.toLocaleString('pt-BR',{maximumFractionDigits:1})+' km</td>'
-        +'<td style="font-family:monospace">'+Math.round(r.cargPct)+'%</td>'
-        +'<td>'+condTag(r.cond)+'</td>'
-        +'</tr>').join('');
-  }catch(e){console.error('renderRPDtbl:',e);}
-}
-
-function clearRPDFilters(){
-  ['rpdMes','rpdCond'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
-  const s=document.getElementById('rpdSearch');if(s)s.value='';
-  renderRPDtbl();
-}
 
 loadAll();
 setInterval(loadAll,5*60*1000);
