@@ -1180,19 +1180,19 @@ tbody tr:hover td{background:var(--surface2)}
           <div class="card"><div class="card-head"><span class="card-title" id="rpdStatusTitle">Por Status de Manutenção</span></div><div style="display:flex;gap:0;align-items:stretch;min-height:200px"><div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="position:relative;width:180px;height:180px"><canvas id="rpdDonut"></canvas></div></div><div style="width:1px;background:var(--border);margin:0 16px;flex-shrink:0"></div><div class="legend" id="rpdLeg" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px"></div></div></div>
           <div class="card"><div class="card-head"><span class="card-title" id="rpdBarTitle">Dias Parado por Frota (Top 10)</span></div><div style="position:relative;height:200px"><canvas id="rpdBar"></canvas></div></div>
         </div>
-        <!-- DETALHE: Quebras por Frota -->
-        <div class="card" id="rpdQbCard" style="display:none">
-          <div class="card-head"><span class="card-title">Quantidade de Quebras por Frota</span></div>
-          <div style="position:relative;height:260px"><canvas id="rpdQbBar"></canvas></div>
-        </div>
-        <!-- DETALHE: Dias Parados por Frota -->
-        <div class="card" id="rpdDiasCard" style="display:none">
-          <div class="card-head"><span class="card-title">Total de Dias Parados por Frota</span></div>
-          <div style="position:relative;height:260px"><canvas id="rpdDiasBar"></canvas></div>
+        <!-- DETALHE: grid com 2 gráficos -->
+        <div class="grid-2" id="rpdDetailGrid" style="display:none;margin-bottom:20px">
+          <div class="card">
+            <div class="card-head"><span class="card-title">Quantidade de Quebras por Frota</span></div>
+            <div style="position:relative;height:260px"><canvas id="rpdQbBar"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Total de Dias Parados por Frota</span></div>
+            <div style="position:relative;height:260px"><canvas id="rpdDiasBar"></canvas></div>
+          </div>
         </div>
         
-        <div class="grid-2" style="margin-bottom:20px">
-          <div class="card" id="rpdImpactCard"><div class="card-head"><span class="card-title">Frotas por Cliente Impactado</span></div><div style="display:flex;gap:0;align-items:stretch;min-height:200px"><div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="position:relative;width:180px;height:180px"><canvas id="rpdImpactPie"></canvas></div></div><div style="width:1px;background:var(--border);margin:0 16px;flex-shrink:0"></div><div class="legend" id="rpdImpactLeg" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px"></div></div></div>
+        <div class="card" id="rpdImpactCard" style="margin-bottom:20px"><div class="card-head"><span class="card-title">Frotas por Cliente Impactado</span></div><div style="display:flex;gap:0;align-items:stretch;min-height:200px"><div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="position:relative;width:180px;height:180px"><canvas id="rpdImpactPie"></canvas></div></div><div style="width:1px;background:var(--border);margin:0 16px;flex-shrink:0"></div><div class="legend" id="rpdImpactLeg" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px"></div></div></div>
           
         </div>
 
@@ -1210,16 +1210,15 @@ tbody tr:hover td{background:var(--surface2)}
             <button class="clear-filters-btn" onclick="clearRPDFilters()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Limpar</button>
           </div>
           <div class="tbl-wrap"><table><thead><tr><th>Frota</th><th>Tipo</th><th>Dt. Parada</th><th>Dias Parado</th><th>Status</th><th>Prazo Lib. 1</th><th>Prazo Lib. 2</th><th>Prazo Lib. 3</th><th>Falha Primária</th><th>Status Atual</th><th>Fornecedor</th><th>Localização</th><th>Programação</th><th>Impacto Cliente</th><th>Dt. Liberação</th></tr></thead><tbody id="rpdTbl"></tbody></table></div>
-        </div>
       </div>
     </div>
 
   </div>
 </div>
 
-<!-- v1778783841 -->
+<!-- v1778784388 -->
 <script>
-let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],rpdData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
+let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],rpdData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false,rpdQbChart=null,rpdDiasChart=null;
 window._aet=()=>aetData;
 window._mob=()=>mobData;
 
@@ -2766,7 +2765,7 @@ function renderRPD(){
   }
   // ── Show/hide cards by mode ──
   const isDetail=rpdViewMode==='detail';
-  ['rpdQbCard','rpdDiasCard'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=isDetail?'':'none';});
+  const rdg=document.getElementById('rpdDetailGrid');if(rdg)rdg.style.display=isDetail?'':'none';
   const rpOPC=document.getElementById('rpOPCard');if(rpOPC)rpOPC.style.display=isDetail?'':'none';
   const impC=document.getElementById('rpdImpactCard');if(impC)impC.style.display=isDetail?'none':'';
 
