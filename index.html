@@ -1317,7 +1317,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778768175 -->
+<!-- v1778768344 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],rpdData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -1416,29 +1416,19 @@ function parseCSV(text){
 
 async function loadAll(){
   document.getElementById('updTxt').textContent='atualizando...';
-  try{
-    const [resAet,resMob,resMat,resPat,resInef,resEfl,resRpd]=await Promise.all([
-      fetch(CSV_AET+'&t='+Date.now()),
-      fetch(CSV_MOB+'&t='+Date.now()),
-      fetch(CSV_MAT+'&t='+Date.now()),
-      fetch(CSV_PATIO+'&t='+Date.now()),
-      fetch(CSV_INEF+'&t='+Date.now()),
-      fetch(CSV_EFL+'&t='+Date.now()),
-      fetch(CSV_RPD+'&t='+Date.now())
-    ]);
-    const [txtAet,txtMob,txtMat,txtPat,txtInef,txtEfl,txtRpd]=await Promise.all([resAet.text(),resMob.text(),resMat.text(),resPat.text(),resInef.text(),resEfl.text(),resRpd.text()]);
-    try{processAET(parseCSV(txtAet));}catch(e2){console.error('processAET error:',e2.message);}
-    try{processMOB(parseCSV(txtMob));}catch(e3){console.error('processMOB error:',e3.message);}
-    try{processMAT(parseCSV(txtMat));}catch(e4){console.error('processMAT error:',e4.message);}
-    try{processPAT(parseCSV(txtPat));}catch(e5){console.error('processPAT error:',e5.message);}
-    try{processINEF(parseCSV(txtInef));}catch(e6){console.error('processINEF error:',e6.message);}
-    try{processEFL(parseCSV(txtEfl));}catch(e7){console.error('processEFL error:',e7.message);}
-    try{processRPD(parseCSV(txtRpd));}catch(e8){console.error('processRPD error:',e8.message);}
-    document.getElementById('updTxt').textContent=new Date().toLocaleTimeString('pt-BR');
-  }catch(e){
-    document.getElementById('updTxt').textContent='erro ao carregar';
-    console.error('loadAll error:',e);
-  }
+  const safeFetch=async(url)=>{try{const r=await fetch(url+'&t='+Date.now());return await r.text();}catch(e){console.warn('fetch failed:',url,e.message);return '';}};
+  const [txtAet,txtMob,txtMat,txtPat,txtInef,txtEfl,txtRpd]=await Promise.all([
+    safeFetch(CSV_AET),safeFetch(CSV_MOB),safeFetch(CSV_MAT),
+    safeFetch(CSV_PATIO),safeFetch(CSV_INEF),safeFetch(CSV_EFL),safeFetch(CSV_RPD)
+  ]);
+  try{processAET(parseCSV(txtAet));}catch(e){console.error('processAET error:',e.message);}
+  try{processMOB(parseCSV(txtMob));}catch(e){console.error('processMOB error:',e.message);}
+  try{processMAT(parseCSV(txtMat));}catch(e){console.error('processMAT error:',e.message);}
+  try{processPAT(parseCSV(txtPat));}catch(e){console.error('processPAT error:',e.message);}
+  try{processINEF(parseCSV(txtInef));}catch(e){console.error('processINEF error:',e.message);}
+  try{processEFL(parseCSV(txtEfl));}catch(e){console.error('processEFL error:',e.message);}
+  try{processRPD(parseCSV(txtRpd));}catch(e){console.error('processRPD error:',e.message);}
+  document.getElementById('updTxt').textContent=new Date().toLocaleTimeString('pt-BR');
 }
 
 function processAET(rows){
