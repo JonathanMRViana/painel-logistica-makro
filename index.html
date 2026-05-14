@@ -102,6 +102,8 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 .kpi.c-red .kpi-value{color:var(--red)}
 .kpi.c-amber .kpi-value{color:var(--amber)}
 .kpi.c-green .kpi-value{color:var(--green)}
+.kpi.c-teal .kpi-stripe{background:var(--teal)}
+.kpi.c-teal .kpi-value{color:var(--teal)}
 .kpi-sub{font-size:11px;color:var(--text3);margin-top:6px;font-family:'DM Mono',monospace}
 
 /* ── CARDS ── */
@@ -1166,10 +1168,17 @@ tbody tr:hover td{background:var(--surface2)}
 
         <!-- KPIs -->
         <div class="kpi-row" style="grid-template-columns:repeat(4,minmax(0,1fr))">
-          <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Frotas em Manutenção</div><div class="kpi-value" id="rp0">—</div><div class="kpi-sub" id="rp0s"> </div></div>
+          <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Frotas em Manutenção</div><div class="kpi-value" id="rp0">—</div><div class="kpi-sub" id="rp0s">status ≠ OP</div></div>
+          <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Cavalos Parados</div><div class="kpi-value" id="rpCavalos">—</div><div class="kpi-sub">tipo cavalo</div></div>
+          <div class="kpi c-teal"><div class="kpi-stripe"></div><div class="kpi-label">Implementos Parados</div><div class="kpi-value" id="rpImplementos">—</div><div class="kpi-sub">carreta/prancha/etc.</div></div>
           <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Média Dias Parado</div><div class="kpi-value" id="rp1">—</div><div class="kpi-sub">dias</div></div>
+        </div>
+        <div class="kpi-row" style="grid-template-columns:repeat(5,minmax(0,1fr));margin-top:-6px">
           <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Total Dias Parado</div><div class="kpi-value" id="rp2">—</div><div class="kpi-sub">dias acumulados</div></div>
           <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Com Impacto Cliente</div><div class="kpi-value" id="rp3">—</div><div class="kpi-sub" id="rp3s"> </div></div>
+          <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Manutenção Corretiva (MC)</div><div class="kpi-value" id="rpMC">—</div><div class="kpi-sub">por status</div></div>
+          <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Manutenção Preventiva (MP)</div><div class="kpi-value" id="rpMP">—</div><div class="kpi-sub">por status</div></div>
+          <div class="kpi c-teal"><div class="kpi-stripe"></div><div class="kpi-label">Reforma/Funilaria (RF)</div><div class="kpi-value" id="rpRF">—</div><div class="kpi-sub" id="rpOutros">outros: 0</div></div>
         </div>
 
         <!-- CHARTS -->
@@ -1183,9 +1192,17 @@ tbody tr:hover td{background:var(--surface2)}
             </div>
           </div>
           <div class="card">
-            <div class="card-head"><span class="card-title">Dias Parado por Frota (Top 10)</span></div>
-            <div style="position:relative;height:200px"><canvas id="rpdBar"></canvas></div>
+            <div class="card-head"><span class="card-title">Cliente Impactado por Tipo</span></div>
+            <div style="display:flex;gap:0;align-items:stretch;min-height:200px">
+              <div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="position:relative;width:180px;height:180px"><canvas id="rpdClientPie"></canvas></div></div>
+              <div style="width:1px;background:var(--border);margin:0 16px;flex-shrink:0"></div>
+              <div class="legend" id="rpdClientLeg" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px"></div>
+            </div>
           </div>
+        </div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-head"><span class="card-title">Dias Parado por Frota (Top 10)</span></div>
+          <div style="position:relative;height:220px"><canvas id="rpdBar"></canvas></div>
         </div>
 
         <!-- TABLE -->
@@ -2586,39 +2603,90 @@ function renderEFL(){
 
 
 // ── RPD: FROTAS EM MANUTENÇÃO ──
-let rpdChart=null, rpdBarChart=null;
+let rpdChart=null, rpdBarChart=null, rpdClientChart=null;
+
+function normRPD(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase();}
+function pickRPDIndex(headers, names, fallback){
+  const H=headers.map(normRPD);
+  for(const n of names){
+    const nn=normRPD(n);
+    const exact=H.findIndex(h=>h===nn); if(exact>=0)return exact;
+    const partial=H.findIndex(h=>h.includes(nn)); if(partial>=0)return partial;
+  }
+  return fallback;
+}
+function parseRPDDays(v){
+  const m=String(v||'').replace(',', '.').match(/-?\d+(\.\d+)?/);
+  return m?Math.max(0,Math.round(Number(m[0]))):0;
+}
+function isRPDImpactYes(v){
+  const n=normRPD(v);
+  return n==='SIM'||n==='S'||n==='YES'||n==='Y'||n==='COM IMPACTO'||n.includes('SIM');
+}
+function classifyRPDAssetType(tipo, frota){
+  const t=normRPD(tipo), f=normRPD(frota);
+  if(t.includes('CAVALO')||t==='CV'||t==='CAV'||t.includes('TRATOR')||t.includes('CAMINHAO')||t.includes('CAMINHÃO'))return 'CAVALO';
+  if(t.includes('IMPLEMENT')||t.includes('CARRETA')||t.includes('PRANCHA')||t.includes('REBOQUE')||t.includes('SEMI')||t.includes('DOLLY')||t.includes('BITREM'))return 'IMPLEMENTO';
+  if(/^[0-9]{3,4}$/.test(f))return 'CAVALO';
+  return 'IMPLEMENTO';
+}
+function shortRPDStatus(v){
+  const s=normRPD(v);
+  if(s.includes('MC'))return 'MC';
+  if(s.includes('MP'))return 'MP';
+  if(s.includes('RF'))return 'RF';
+  return s||'N/I';
+}
 
 function processRPD(rows){
   if(!rows||rows.length<2){console.warn('RPD: no data');return;}
   rpdData=[];
-  // col: 0=FROTA,1=TIPO,2=DATA PARADA,3=DIAS PARADO,4=STATUS,5=PRAZO1,6=PRAZO2,7=PRAZO3
-  //      8=FALHA,9=STATUS ATUAL,10=FORNECEDOR,11=LOCALIZAÇÃO,12=PROGRAMAÇÃO,13=IMPACTO,14=DATA LIBERAÇÃO
+  const headers=rows[0]||[];
+  const idx={
+    frota:pickRPDIndex(headers,['FROTA','FROTA (CAVALO)','CAVALO','PLACA'],0),
+    tipo:pickRPDIndex(headers,['TIPO','TIPO FROTA','TIPO DO EQUIPAMENTO','EQUIPAMENTO'],1),
+    dtParada:pickRPDIndex(headers,['DATA PARADA','DT PARADA','DATA DE PARADA'],2),
+    diasParado:pickRPDIndex(headers,['DIAS PARADO','DIAS PARADOS','DIAS EM MANUTENCAO','DIAS EM MANUTENÇÃO'],3),
+    status:pickRPDIndex(headers,['STATUS','STATUS MANUTENCAO','STATUS MANUTENÇÃO'],4),
+    prazo1:pickRPDIndex(headers,['PRAZO LIB 1','PRAZO LIB. 1','PRAZO 1'],5),
+    prazo2:pickRPDIndex(headers,['PRAZO LIB 2','PRAZO LIB. 2','PRAZO 2'],6),
+    prazo3:pickRPDIndex(headers,['PRAZO LIB 3','PRAZO LIB. 3','PRAZO 3'],7),
+    falha:pickRPDIndex(headers,['FALHA PRIMARIA','FALHA PRIMÁRIA','FALHA','MOTIVO'],8),
+    statusAtual:pickRPDIndex(headers,['STATUS ATUAL','SITUACAO ATUAL','SITUAÇÃO ATUAL'],9),
+    fornecedor:pickRPDIndex(headers,['FORNECEDOR','OFICINA','PRESTADOR'],10),
+    local:pickRPDIndex(headers,['LOCALIZACAO','LOCALIZAÇÃO','LOCAL'],11),
+    prog:pickRPDIndex(headers,['PROGRAMACAO','PROGRAMAÇÃO','PROG'],12),
+    impacto:pickRPDIndex(headers,['IMPACTO CLIENTE','IMPACTO NO CLIENTE','CLIENTE IMPACTADO'],13),
+    clienteTipo:pickRPDIndex(headers,['TIPO CLIENTE IMPACTADO','TIPO DE CLIENTE IMPACTADO','CLIENTE IMPACTADO','TIPO CLIENTE'],13),
+    dtLib:pickRPDIndex(headers,['DATA LIBERACAO','DATA LIBERAÇÃO','DT LIBERACAO','DT LIBERAÇÃO'],14)
+  };
   for(let i=1;i<rows.length;i++){
-    const v=rows[i];
-    if(!v[0]||!String(v[0]).trim())continue;
-    const status=String(v[4]||'').trim().toUpperCase();
-    // Apenas frotas NÃO em OP
-    if(status==='OP')continue;
+    const v=rows[i]||[];
+    if(!v[idx.frota]||!String(v[idx.frota]).trim())continue;
+    const status=shortRPDStatus(v[idx.status]);
+    if(status==='OP')continue; // regra de negócio: apenas STATUS diferente de OP
+    const tipo=String(v[idx.tipo]||'').trim().toUpperCase();
     rpdData.push({
-      frota:String(v[0]||'').trim(),
-      tipo:String(v[1]||'').trim().toUpperCase(),
-      dtParada:String(v[2]||'').trim(),
-      diasParado:parseInt(String(v[3]||'0'))||0,
+      frota:String(v[idx.frota]||'').trim(),
+      tipo:tipo,
+      assetType:classifyRPDAssetType(tipo,v[idx.frota]),
+      dtParada:String(v[idx.dtParada]||'').trim(),
+      diasParado:parseRPDDays(v[idx.diasParado]),
       status:status,
-      prazo1:String(v[5]||'').trim(),
-      prazo2:String(v[6]||'').trim(),
-      prazo3:String(v[7]||'').trim(),
-      falha:String(v[8]||'').trim(),
-      statusAtual:String(v[9]||'').trim(),
-      fornecedor:String(v[10]||'').trim(),
-      local:String(v[11]||'').trim(),
-      prog:String(v[12]||'').trim(),
-      impacto:String(v[13]||'').trim().toUpperCase(),
-      dtLib:String(v[14]||'').trim()
+      prazo1:String(v[idx.prazo1]||'').trim(),
+      prazo2:String(v[idx.prazo2]||'').trim(),
+      prazo3:String(v[idx.prazo3]||'').trim(),
+      falha:String(v[idx.falha]||'').trim(),
+      statusAtual:String(v[idx.statusAtual]||'').trim(),
+      fornecedor:String(v[idx.fornecedor]||'').trim(),
+      local:String(v[idx.local]||'').trim(),
+      prog:String(v[idx.prog]||'').trim(),
+      impacto:String(v[idx.impacto]||'').trim(),
+      clienteTipo:String(v[idx.clienteTipo]||v[idx.impacto]||'').trim(),
+      dtLib:String(v[idx.dtLib]||'').trim()
     });
   }
-  // Populate dynamic selects
-  const tipos=[...new Set(rpdData.map(r=>r.tipo).filter(t=>t))].sort();
+  const tipos=[...new Set(rpdData.map(r=>r.assetType).filter(t=>t))].sort();
   const tipoHtml='<option value="TODOS">Todos</option>'+tipos.map(t=>'<option value="'+t+'">'+t+'</option>').join('');
   ['rpdTipo','rpdTipoTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=tipoHtml;});
 
@@ -2635,11 +2703,12 @@ function getRPDFiltered(){
   const status=((document.getElementById('rpdStatus')||{}).value)||'TODOS';
   const impacto=((document.getElementById('rpdImpacto')||{}).value)||'TODOS';
   return rpdData.filter(r=>{
-    if(tipo!=='TODOS'&&r.tipo!==tipo)return false;
+    if(tipo!=='TODOS'&&r.assetType!==tipo)return false;
     if(status!=='TODOS'&&r.status!==status)return false;
-    if(impacto==='SIM'&&!r.impacto.includes('SIM'))return false;
-    if(impacto==='NAO'&&r.impacto.includes('SIM'))return false;
-    if(q&&!r.frota.toLowerCase().includes(q)&&!r.fornecedor.toLowerCase().includes(q)&&!r.local.toLowerCase().includes(q)&&!r.falha.toLowerCase().includes(q))return false;
+    if(impacto==='SIM'&&!isRPDImpactYes(r.impacto))return false;
+    if(impacto==='NAO'&&isRPDImpactYes(r.impacto))return false;
+    const hay=[r.frota,r.tipo,r.assetType,r.status,r.fornecedor,r.local,r.falha,r.statusAtual,r.clienteTipo].join(' ').toLowerCase();
+    if(q&&!hay.includes(q))return false;
     return true;
   });
 }
@@ -2661,30 +2730,45 @@ function renderRPD(){
   const tot=f.length,tot2=tot||1;
   const totalDias=f.reduce((s,r)=>s+r.diasParado,0);
   const mediaDias=tot>0?Math.round(totalDias/tot):0;
-  const comImpacto=f.filter(r=>r.impacto.includes('SIM')).length;
+  const comImpacto=f.filter(r=>isRPDImpactYes(r.impacto)).length;
+  const cavalos=f.filter(r=>r.assetType==='CAVALO').length;
+  const implementos=f.filter(r=>r.assetType==='IMPLEMENTO').length;
+  const byStatus={};f.forEach(r=>{byStatus[r.status]=(byStatus[r.status]||0)+1;});
 
-  const e0=document.getElementById('rp0');const e0s=document.getElementById('rp0s');
-  const e1=document.getElementById('rp1');const e2=document.getElementById('rp2');
-  const e3=document.getElementById('rp3');const e3s=document.getElementById('rp3s');
-  if(e0)e0.textContent=tot;
-  if(e0s)e0s.textContent='frotas paradas';
-  if(e1)e1.textContent=mediaDias;
-  if(e2)e2.textContent=totalDias;
-  if(e3)e3.textContent=comImpacto;
-  if(e3s)e3s.textContent=Math.round(comImpacto/tot2*100)+'% do total';
+  const setTxt=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val;};
+  setTxt('rp0',tot);setTxt('rp0s','status ≠ OP');
+  setTxt('rpCavalos',cavalos);setTxt('rpImplementos',implementos);
+  setTxt('rp1',mediaDias);setTxt('rp2',totalDias);setTxt('rp3',comImpacto);setTxt('rp3s',Math.round(comImpacto/tot2*100)+'% do total');
+  setTxt('rpMC',byStatus.MC||0);setTxt('rpMP',byStatus.MP||0);setTxt('rpRF',byStatus.RF||0);
+  const outros=Math.max(0,tot-(byStatus.MC||0)-(byStatus.MP||0)-(byStatus.RF||0));setTxt('rpOutros','outros: '+outros);
 
   // ── Donut: por status ──
-  const sc={};f.forEach(r=>{sc[r.status]=(sc[r.status]||0)+1;});
-  const skeys=Object.keys(sc);
-  const sColors={'MC':'#c81428','MP':'#e8943a','RF':'#2ab0b8','OT':'#6366f1','EM REPARO':'#e05454','AGUARDANDO':'#f39c12'};
-  const getC=k=>sColors[k]||'#6b7280';
+  const sc=byStatus;
+  const skeys=Object.keys(sc).sort((a,b)=>sc[b]-sc[a]);
+  const palette=['#c81428','#e8943a','#2ab0b8','#1b3f7a','#15803d','#6b7280','#9333ea','#0f766e'];
+  const sColors={'MC':'#c81428','MP':'#e8943a','RF':'#2ab0b8','MNT':'#c81428'};
+  const getC=k=>sColors[k]||palette[Math.abs(k.split('').reduce((a,c)=>a+c.charCodeAt(0),0))%palette.length];
   const legEl=document.getElementById('rpdLeg');
-  if(legEl)legEl.innerHTML=skeys.map(s=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${getC(s)}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${s}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${sc[s]})</span></span>`).join('');
+  if(legEl)legEl.innerHTML=skeys.length?skeys.map(s=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${getC(s)}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${s}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${sc[s]})</span></span>`).join(''):'<span class="leg">Sem dados</span>';
   const dEl=document.getElementById('rpdDonut');
-  if(dEl){if(rpdChart){rpdChart.destroy();rpdChart=null;}rpdChart=new Chart(dEl,{type:'doughnut',data:{labels:skeys,datasets:[{data:skeys.map(k=>sc[k]),backgroundColor:skeys.map(k=>getC(k)),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx2=>{const t2=ctx2.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return ' '+ctx2.label+': '+ctx2.raw+' ('+Math.round(ctx2.raw/t2*100)+'%)';}}}},cutout:'72%'}});}
+  if(dEl){if(rpdChart){rpdChart.destroy();rpdChart=null;}rpdChart=new Chart(dEl,{type:'doughnut',data:{labels:skeys,datasets:[{data:skeys.map(k=>sc[k]),backgroundColor:skeys.map(k=>getC(k)),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx2=>{const t2=ctx2.chart.data.datasets[0].data.reduce((a,b)=>a+b,0)||1;return ' '+ctx2.label+': '+ctx2.raw+' ('+Math.round(ctx2.raw/t2*100)+'%)';}}}},cutout:'72%'}});}
+
+  // ── Pizza: quantidade de cavalos por tipo de cliente impactado ──
+  const cc={};
+  f.filter(r=>r.assetType==='CAVALO'&&isRPDImpactYes(r.impacto)).forEach(r=>{
+    let k=normRPD(r.clienteTipo);
+    if(!k||k==='SIM'||k==='S'||k==='YES'||k==='COM IMPACTO')k='CLIENTE IMPACTADO';
+    if(k==='NAO'||k==='N'||k==='NÃO')return;
+    cc[k]=(cc[k]||0)+1;
+  });
+  const ckeys=Object.keys(cc).sort((a,b)=>cc[b]-cc[a]);
+  const cLeg=document.getElementById('rpdClientLeg');
+  if(cLeg)cLeg.innerHTML=ckeys.length?ckeys.map((s,i)=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${palette[i%palette.length]}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${s}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${cc[s]})</span></span>`).join(''):'<span class="leg">Sem cavalos com impacto</span>';
+  const cEl=document.getElementById('rpdClientPie');
+  if(cEl){if(rpdClientChart){rpdClientChart.destroy();rpdClientChart=null;}rpdClientChart=new Chart(cEl,{type:'pie',data:{labels:ckeys,datasets:[{data:ckeys.map(k=>cc[k]),backgroundColor:ckeys.map((_,i)=>palette[i%palette.length]),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx2=>{const t2=ctx2.chart.data.datasets[0].data.reduce((a,b)=>a+b,0)||1;return ' '+ctx2.label+': '+ctx2.raw+' ('+Math.round(ctx2.raw/t2*100)+'%)';}}}}}});}
 
   // ── Bar: top 10 por dias parado ──
-  const top10=f.sort((a,b)=>b.diasParado-a.diasParado).slice(0,10);
+  const top10=[...f].sort((a,b)=>b.diasParado-a.diasParado).slice(0,10);
   const bEl=document.getElementById('rpdBar');
   if(bEl){if(rpdBarChart){rpdBarChart.destroy();rpdBarChart=null;}rpdBarChart=new Chart(bEl,{type:'bar',data:{labels:top10.map(r=>r.frota),datasets:[{label:'Dias Parado',data:top10.map(r=>r.diasParado),backgroundColor:top10.map(r=>r.diasParado>60?'rgba(200,20,40,0.85)':r.diasParado>30?'rgba(232,148,58,0.85)':'rgba(42,176,184,0.85)'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx2=>` ${ctx2.raw} dias`}}},scales:{x:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11}}},y:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11}}}}}});}
 
@@ -2693,13 +2777,13 @@ function renderRPD(){
   if(cnt)cnt.textContent=f.length+' registros';
   if(!tbl)return;
   const stTag=s=>{const c=s==='MC'?'tag-red':s==='MP'?'tag-amber':s==='RF'?'tag-teal':'tag-dim';return`<span class="tag ${c}">${s}</span>`;};
-  const impTag=v=>v.includes('SIM')?'<span class="tag tag-red">SIM</span>':'<span class="tag tag-green">NÃO</span>';
+  const impTag=v=>isRPDImpactYes(v)?'<span class="tag tag-red">SIM</span>':'<span class="tag tag-green">NÃO</span>';
   const diasColor=d=>d>60?'var(--red)':d>30?'var(--amber)':'var(--text)';
   tbl.innerHTML=f.length===0
     ?'<tr><td colspan="15" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro</td></tr>'
-    :f.sort((a,b)=>b.diasParado-a.diasParado).map(r=>`<tr>
+    :[...f].sort((a,b)=>b.diasParado-a.diasParado).map(r=>`<tr>
       <td style="font-family:'DM Mono',monospace;font-weight:600">${r.frota}</td>
-      <td>${r.tipo}</td>
+      <td>${r.tipo||r.assetType}</td>
       <td style="font-family:'DM Mono',monospace;white-space:nowrap">${r.dtParada}</td>
       <td style="font-family:'DM Mono',monospace;font-weight:700;color:${diasColor(r.diasParado)}">${r.diasParado}d</td>
       <td>${stTag(r.status)}</td>
