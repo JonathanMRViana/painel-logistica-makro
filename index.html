@@ -472,7 +472,7 @@ tbody tr:hover td{background:var(--surface2)}
           <div class="kpi c-amber" style="opacity:.85"><div class="kpi-stripe"></div><div class="kpi-label">📋 Vencendo — 30 dias</div><div class="kpi-value" id="a2">—</div><div class="kpi-sub">vence em até 30 dias</div></div>
         </div>
         <div class="grid-2">
-          <div class="card">
+          <div class="card" id="rpdBarCard">
             <div class="card-head"><span class="card-title">Semáforo de Validade</span></div>
             <div style="display:flex;gap:0;align-items:stretch;min-height:200px">
               <div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="position:relative;width:180px;height:180px"><canvas id="aDonut"></canvas></div></div>
@@ -1166,7 +1166,7 @@ tbody tr:hover td{background:var(--surface2)}
           <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Total Dias Parado</div><div class="kpi-value" id="rp2">—</div><div class="kpi-sub">dias acumulados</div></div>
           <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Com Impacto Cliente</div><div class="kpi-value" id="rp3">—</div><div class="kpi-sub" id="rp3s"> </div></div>
         </div>
-        <div class="kpi-row" style="grid-template-columns:repeat(6,minmax(0,1fr));margin-top:-6px">
+        <div class="kpi-row" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr));margin-top:-6px">
           <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">MC</div><div class="kpi-value" id="rpMC">—</div><div class="kpi-sub">manutenção corretiva</div></div>
           <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">MP</div><div class="kpi-value" id="rpMP">—</div><div class="kpi-sub">manutenção preventiva</div></div>
           <div class="kpi c-blue"><div class="kpi-stripe"></div><div class="kpi-label">RF</div><div class="kpi-value" id="rpRF">—</div><div class="kpi-sub">reforma</div></div>
@@ -1180,19 +1180,19 @@ tbody tr:hover td{background:var(--surface2)}
           <div class="card"><div class="card-head"><span class="card-title" id="rpdStatusTitle">Por Status de Manutenção</span></div><div style="display:flex;gap:0;align-items:stretch;min-height:200px"><div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="position:relative;width:180px;height:180px"><canvas id="rpdDonut"></canvas></div></div><div style="width:1px;background:var(--border);margin:0 16px;flex-shrink:0"></div><div class="legend" id="rpdLeg" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px"></div></div></div>
           <div class="card"><div class="card-head"><span class="card-title" id="rpdBarTitle">Dias Parado por Frota (Top 10)</span></div><div style="position:relative;height:200px"><canvas id="rpdBar"></canvas></div></div>
         </div>
-        <!-- DETALHE: grid com 2 gráficos -->
+        <!-- DETALHE: dois gráficos separados -->
         <div class="grid-2" id="rpdDetailGrid" style="display:none;margin-bottom:20px">
           <div class="card">
-            <div class="card-head"><span class="card-title">Quantidade de Quebras por Frota</span></div>
+            <div class="card-head" style="display:flex;justify-content:space-between;align-items:center"><span class="card-title">Quantidade de Quebras por Frota</span><div style="display:flex;gap:6px;align-items:center"><span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace" id="rpdQbInfo"></span><button onclick="scrollRPD('qb',-1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);width:26px;height:26px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1">‹</button><button onclick="scrollRPD('qb',1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);width:26px;height:26px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1">›</button></div></div>
             <div style="position:relative;height:260px"><canvas id="rpdQbBar"></canvas></div>
           </div>
           <div class="card">
-            <div class="card-head"><span class="card-title">Total de Dias Parados por Frota</span></div>
+            <div class="card-head" style="display:flex;justify-content:space-between;align-items:center"><span class="card-title">Total de Dias Parados por Frota</span><div style="display:flex;gap:6px;align-items:center"><span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace" id="rpdDiasInfo"></span><button onclick="scrollRPD('dias',-1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);width:26px;height:26px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1">‹</button><button onclick="scrollRPD('dias',1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);width:26px;height:26px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1">›</button></div></div>
             <div style="position:relative;height:260px"><canvas id="rpdDiasBar"></canvas></div>
           </div>
         </div>
-        
-        <div class="card" id="rpdImpactCard" style="margin-bottom:20px"><div class="card-head"><span class="card-title">Frotas por Cliente Impactado</span></div><div style="display:flex;gap:0;align-items:stretch;min-height:200px"><div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="position:relative;width:180px;height:180px"><canvas id="rpdImpactPie"></canvas></div></div><div style="width:1px;background:var(--border);margin:0 16px;flex-shrink:0"></div><div class="legend" id="rpdImpactLeg" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px"></div></div></div>
+        <div class="grid-2" style="margin-bottom:20px">
+          <div class="card" id="rpdImpactCard"><div class="card-head"><span class="card-title">Frotas por Cliente Impactado</span></div><div style="display:flex;gap:0;align-items:stretch;min-height:200px"><div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="position:relative;width:180px;height:180px"><canvas id="rpdImpactPie"></canvas></div></div><div style="width:1px;background:var(--border);margin:0 16px;flex-shrink:0"></div><div class="legend" id="rpdImpactLeg" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px"></div></div></div>
           
         </div>
 
@@ -1210,15 +1210,16 @@ tbody tr:hover td{background:var(--surface2)}
             <button class="clear-filters-btn" onclick="clearRPDFilters()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Limpar</button>
           </div>
           <div class="tbl-wrap"><table><thead><tr><th>Frota</th><th>Tipo</th><th>Dt. Parada</th><th>Dias Parado</th><th>Status</th><th>Prazo Lib. 1</th><th>Prazo Lib. 2</th><th>Prazo Lib. 3</th><th>Falha Primária</th><th>Status Atual</th><th>Fornecedor</th><th>Localização</th><th>Programação</th><th>Impacto Cliente</th><th>Dt. Liberação</th></tr></thead><tbody id="rpdTbl"></tbody></table></div>
+        </div>
       </div>
     </div>
 
   </div>
 </div>
 
-<!-- v1778784388 -->
+<!-- v1778785643 -->
 <script>
-let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],rpdData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false,rpdQbChart=null,rpdDiasChart=null;
+let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],rpdData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
 window._mob=()=>mobData;
 
@@ -2565,7 +2566,7 @@ function renderEFL(){
 
 
 // ── RPD: FROTAS EM MANUTENÇÃO ──
-let rpdChart=null, rpdBarChart=null, rpdImpactChart=null, rpdViewMode='current';
+let rpdChart=null, rpdBarChart=null, rpdImpactChart=null, rpdViewMode='current', rpdQbChart=null, rpdDiasChart=null, rpdQbPage=0, rpdDiasPage=0;
 
 function rpdTxt(v){return String(v==null?'':v).trim();}
 function rpdKey(v){return rpdTxt(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]/g,'');}
@@ -2696,42 +2697,65 @@ function getRPDFiltered(){
 }
 function syncRPDSearch(src,targetId){const t=document.getElementById(targetId);if(t)t.value=src.value;renderRPD();}
 function syncRPDSelect(src,targetId){const t=document.getElementById(targetId);if(t&&t!==src)t.value=src.value;renderRPD();}
-
+function syncRPDDate(src,targetId){const t=document.getElementById(targetId);if(t&&t!==src)t.value=src.value;renderRPD();}
 function clearRPDFilters(){
   ['rpdTipo','rpdTipoTop','rpdStatus','rpdStatusTop','rpdImpacto','rpdImpactoTop','rpdAno','rpdAnoTop','rpdMes','rpdMesTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
-  ['rpdDataDe','rpdDataDeTop','rpdDataAte','rpdDataAteTop','rpdSearch','rpdSearchTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['rpdData','rpdDataTop','rpdSearch','rpdSearchTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   renderRPD();
 }
-function syncRPDDate(src,targetId){const t=document.getElementById(targetId);if(t&&t!==src)t.value=src.value;renderRPD();}
 
+const RPD_PAGE_SIZE=15;
+function renderRPDChart(key){
+  const isQb=key==='qb';
+  const data=isQb?window._rpdByQb:window._rpdByDias;
+  if(!data)return;
+  const page=isQb?rpdQbPage:rpdDiasPage;
+  const pages=Math.ceil(data.length/RPD_PAGE_SIZE)||1;
+  const slice=data.slice(page*RPD_PAGE_SIZE,(page+1)*RPD_PAGE_SIZE);
+  const infoEl=document.getElementById(isQb?'rpdQbInfo':'rpdDiasInfo');
+  if(infoEl)infoEl.textContent=data.length>RPD_PAGE_SIZE?`${page+1}/${pages} · ${data.length} frotas`:`${data.length} frotas`;
+  const canvasId=isQb?'rpdQbBar':'rpdDiasBar';
+  const el=document.getElementById(canvasId);
+  if(!el)return;
+  if(isQb){if(rpdQbChart){rpdQbChart.destroy();rpdQbChart=null;}}
+  else{if(rpdDiasChart){rpdDiasChart.destroy();rpdDiasChart=null;}}
+  const opts={responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>isQb?` ${Math.round(ctx.raw)} quebras`:` ${ctx.raw} dias`}}},
+    scales:{
+      x:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:10}}},
+      y:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11},...(isQb?{stepSize:1,callback:v=>Number.isInteger(v)?v:null}:{})}}}};
+  const chart=new Chart(el,{type:'bar',data:{labels:slice.map(x=>x[0]),datasets:[{data:slice.map(x=>isQb?x[1].quebras:x[1].dias),backgroundColor:isQb?'rgba(232,148,58,0.85)':'rgba(200,20,40,0.85)',borderRadius:4}]},options:opts});
+  if(isQb)rpdQbChart=chart; else rpdDiasChart=chart;
+}
+function scrollRPD(key,dir){
+  const data=key==='qb'?window._rpdByQb:window._rpdByDias;
+  if(!data)return;
+  const pages=Math.ceil(data.length/RPD_PAGE_SIZE)||1;
+  if(key==='qb')rpdQbPage=Math.max(0,Math.min(pages-1,rpdQbPage+dir));
+  else rpdDiasPage=Math.max(0,Math.min(pages-1,rpdDiasPage+dir));
+  renderRPDChart(key);
+}
 
 function renderRPD(){
   const f=getRPDFiltered();
-  // maint = apenas registros não-OP (frotas efetivamente paradas)
   const maint=f.filter(r=>!rpdIsOP(r.status));
   const opRows=f.filter(r=>rpdIsOP(r.status));
-  // Cenário Atual: f já vem filtrado (não-OP) via getRPDBase
-  // Detalhamento:  f tem todos; métricas de dias usam só maint para não distorcer
-  const baseMetric=maint; // sempre calcula métricas sobre frotas em manutenção
+  const totalReg=f.length;
+  const totalMaint=maint.length;
+  const baseMetric=maint;
   const metricTotal=baseMetric.length||1;
   const totalDias=baseMetric.reduce((s,r)=>s+r.diasParado,0);
   const mediaDias=baseMetric.length?Math.round(totalDias/baseMetric.length):0;
   const comImpacto=baseMetric.filter(r=>r.impacto==='SIM').length;
-  // Cavalos e Implementos: contar por equipKind no baseMetric
   const cav=baseMetric.filter(r=>r.equipKind==='CAVALO').length;
   const imp=baseMetric.filter(r=>r.equipKind==='IMPLEMENTO').length;
   const byStatus={};f.forEach(r=>{byStatus[r.status]=(byStatus[r.status]||0)+1;});
-  const byStatusMaint={};maint.forEach(r=>{byStatusMaint[r.status]=(byStatusMaint[r.status]||0)+1;});
+  const byStatusMaint={};baseMetric.forEach(r=>{byStatusMaint[r.status]=(byStatusMaint[r.status]||0)+1;});
   const breaksByFrota={};opRows.forEach(r=>{const k=r.frota||'N/I';breaksByFrota[k]=(breaksByFrota[k]||0)+1;});
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-  // KPI rp0 = sempre frotas em manutenção (não-OP)
-  set('rp0',maint.length);
-  set('rp1',mediaDias);
-  set('rp2',totalDias);
-  set('rp3',comImpacto);
-  set('rp3s',Math.round(comImpacto/metricTotal*100)+'% da manutenção');
+  set('rp0',totalMaint);set('rp1',mediaDias);set('rp2',totalDias);set('rp3',comImpacto);set('rp3s',Math.round(comImpacto/metricTotal*100)+'% da manutenção');
   set('rpMC',byStatusMaint.MC||0);set('rpMP',byStatusMaint.MP||0);set('rpRF',byStatusMaint.RF||0);set('rpOP',opRows.length);set('rpCav',cav);set('rpImp',imp);
-  set('rp0s',rpdViewMode==='detail'?`${f.length} registros (incl. OP)`:'status diferente de OP');
+  set('rp0s',rpdViewMode==='detail'?`${totalReg} registros no detalhamento`:'status diferente de OP');
   set('rp0Label','Frotas em Manutenção');
   set('rpOPLabel',rpdViewMode==='detail'?'Quebras OP':'OP no Período');
   set('rpOPSub',rpdViewMode==='detail'?'cada linha OP = 1 quebra':'não conta como manutenção');
@@ -2763,38 +2787,31 @@ function renderRPD(){
       rpdBarChart=new Chart(bEl,{type:'bar',data:{labels:top10.map(r=>r.frota),datasets:[{label:'Dias Parado',data:top10.map(r=>r.diasParado),backgroundColor:top10.map(r=>r.diasParado>60?'rgba(200,20,40,0.85)':r.diasParado>30?'rgba(232,148,58,0.85)':'rgba(42,176,184,0.85)'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw} dias`}}},scales:{x:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11}}},y:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11}}}}}});
     }
   }
-  // ── Show/hide cards by mode ──
+
+  // ── Show/hide by mode ──
   const isDetail=rpdViewMode==='detail';
   const rdg=document.getElementById('rpdDetailGrid');if(rdg)rdg.style.display=isDetail?'':'none';
+  const rbc=document.getElementById('rpdBarCard');if(rbc)rbc.style.display=isDetail?'none':'';
   const rpOPC=document.getElementById('rpOPCard');if(rpOPC)rpOPC.style.display=isDetail?'':'none';
-  const impC=document.getElementById('rpdImpactCard');if(impC)impC.style.display=isDetail?'none':'';
 
-  // ── Detail charts: Quebras por Frota + Dias Parados por Frota ──
-  if(rpdQbChart){rpdQbChart.destroy();rpdQbChart=null;}
-  if(rpdDiasChart){rpdDiasChart.destroy();rpdDiasChart=null;}
+  // ── Detail charts (paginated) ──
   if(isDetail){
-    // Build per-frota map from ALL filtered records (f)
     const frotaMap={};
     f.forEach(r=>{
       const k=r.frota||'N/I';
       if(!frotaMap[k])frotaMap[k]={dias:0,quebras:0};
-      if(!rpdIsOP(r.status))frotaMap[k].dias+=r.diasParado;
+      frotaMap[k].dias+=r.diasParado;
       frotaMap[k].quebras++;
     });
-    const byQb=Object.entries(frotaMap).sort((a,b)=>b[1].quebras-a[1].quebras);
-    const byDias=Object.entries(frotaMap).sort((a,b)=>b[1].dias-a[1].dias);
-    const chartOpts=(color)=>({responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw}${color==='#c81428'?' dias':' quebras'}` }}},
-      scales:{x:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:10}}},
-              y:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11}}}}});
-    const qbEl=document.getElementById('rpdQbBar');
-    if(qbEl)rpdQbChart=new Chart(qbEl,{type:'bar',data:{labels:byQb.map(x=>x[0]),datasets:[{data:byQb.map(x=>x[1].quebras),backgroundColor:'rgba(232,148,58,0.85)',borderRadius:4}]},options:chartOpts('#e8943a')});
-    const dEl2=document.getElementById('rpdDiasBar');
-    if(dEl2)rpdDiasChart=new Chart(dEl2,{type:'bar',data:{labels:byDias.map(x=>x[0]),datasets:[{data:byDias.map(x=>x[1].dias),backgroundColor:'rgba(200,20,40,0.85)',borderRadius:4}]},options:chartOpts('#c81428')});
+    rpdQbPage=0;rpdDiasPage=0;
+    window._rpdByQb=Object.entries(frotaMap).filter(x=>x[1].quebras>0).sort((a,b)=>b[1].quebras-a[1].quebras);
+    window._rpdByDias=Object.entries(frotaMap).filter(x=>x[1].dias>0).sort((a,b)=>b[1].dias-a[1].dias);
+    renderRPDChart('qb');
+    renderRPDChart('dias');
   }
 
   const clientMap={};
-  maint.filter(r=>r.impacto==='SIM').forEach(r=>{const k=(r.prog||r.clienteImpactado||'CLIENTE N/I').toUpperCase();clientMap[k]=(clientMap[k]||0)+1;});
+  baseMetric.filter(r=>r.impacto==='SIM').forEach(r=>{const k=(r.prog||r.clienteImpactado||'CLIENTE N/I').toUpperCase();clientMap[k]=(clientMap[k]||0)+1;});
   const clientKeys=Object.keys(clientMap).sort((a,b)=>clientMap[b]-clientMap[a]).slice(0,8);
   const clientColors=['#c81428','#1b3f7a','#2ab0b8','#e8943a','#2db87a','#6b7280','#8b5cf6','#ec4899'];
   const impLeg=document.getElementById('rpdImpactLeg');
