@@ -94,8 +94,6 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 .kpi.c-red .kpi-stripe{background:var(--red)}
 .kpi.c-amber .kpi-stripe{background:var(--amber)}
 .kpi.c-green .kpi-stripe{background:var(--green)}
-.kpi.c-teal .kpi-stripe{background:var(--teal)}
-.kpi.c-teal .kpi-value{color:var(--teal)}
 .kpi-label{font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.06em;margin-bottom:10px;text-transform:uppercase;font-family:'Montserrat',sans-serif}
 .kpi-value{font-size:28px;font-weight:300;line-height:1;letter-spacing:-1px;font-family:'Montserrat',sans-serif}
 .kpi.c-blue .kpi-value{color:var(--accent)}
@@ -1042,99 +1040,17 @@ tbody tr:hover td{background:var(--surface2)}
       </div>
     </div>
 
-    <!-- EFL PANEL -->
-    <div id="panel-efl" class="panel">
-      <div id="eflBody">
-
-        <!-- TOP FILTER BAR -->
-        <div class="top-filter-bar">
-          <span class="top-filter-bar-title">Filtros</span>
-          <div class="filter-divider"></div>
-          <div class="search-wrap" style="flex:1;min-width:160px;margin-bottom:0">
-            <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" class="search-input" id="eflSearchTop" placeholder="Buscar frota ou motorista..." oninput="syncEFLSearch(this,'eflSearch')">
-          </div>
-          <div class="select-group">
-            <label class="select-label">Frota</label>
-            <select class="f-select" id="eflFrotaTop" onchange="syncEFLSelect(this,'eflFrota')"><option value="TODOS">Todas</option></select>
-          </div>
-          <div class="select-group">
-            <label class="select-label">Período De</label>
-            <select class="f-select" id="eflDeTop" onchange="syncEFLSelect(this,'eflDe')"><option value="">Todas</option></select>
-          </div>
-          <div class="select-group">
-            <label class="select-label">Período Até</label>
-            <select class="f-select" id="eflAteTop" onchange="syncEFLSelect(this,'eflAte')"><option value="">Todas</option></select>
-          </div>
-          <button class="clear-filters-btn" onclick="clearEFLFilters()">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            Limpar
-          </button>
-        </div>
-
-        <!-- KPIs -->
-        <div class="kpi-row" style="grid-template-columns:repeat(3,minmax(0,1fr))">
-          <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Total KM Rodado</div><div class="kpi-value" id="ef0">—</div><div class="kpi-sub" id="ef0s"> </div></div>
-          <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">KM Carregado</div><div class="kpi-value" id="ef1">—</div><div class="kpi-sub" id="ef1s"> </div></div>
-          <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">KM Vazio</div><div class="kpi-value" id="ef2">—</div><div class="kpi-sub" id="ef2s"> </div></div>
-        </div>
-
-        <!-- CHART with horizontal scroll + arrows -->
-        <div class="card" style="margin-bottom:20px">
-          <div class="card-head" style="display:flex;justify-content:space-between;align-items:center">
-            <span class="card-title">KM por Frota</span>
-            <div style="display:flex;gap:6px;align-items:center">
-              <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace" id="eflChartInfo"></span>
-              <button onclick="scrollEFLChart(-1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);width:26px;height:26px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1">‹</button>
-              <button onclick="scrollEFLChart(1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);width:26px;height:26px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1">›</button>
-            </div>
-          </div>
-          <div style="position:relative;height:280px"><canvas id="eflBar"></canvas></div>
-        </div>
-
-        <!-- TABLE -->
-        <div class="tbl-card">
-          <div class="tbl-head"><span class="tbl-title">Detalhamento por Frota</span><span class="count-tag" id="eflCnt">0 frotas</span></div>
-
-          <!-- BOTTOM FILTER BAR -->
-          <div class="filter-bar-row">
-            <div class="search-wrap" style="flex:1;min-width:160px;margin-bottom:0">
-              <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" class="search-input" id="eflSearch" placeholder="Buscar frota ou motorista..." oninput="syncEFLSearch(this,'eflSearchTop')">
-            </div>
-            <div class="select-group">
-              <label class="select-label">Frota</label>
-              <select class="f-select" id="eflFrota" onchange="syncEFLSelect(this,'eflFrotaTop')"><option value="TODOS">Todas</option></select>
-            </div>
-            <div class="select-group">
-              <label class="select-label">Período De</label>
-              <select class="f-select" id="eflDe" onchange="syncEFLSelect(this,'eflDeTop')"><option value="">Todas</option></select>
-            </div>
-            <div class="select-group">
-              <label class="select-label">Período Até</label>
-              <select class="f-select" id="eflAte" onchange="syncEFLSelect(this,'eflAteTop')"><option value="">Todas</option></select>
-            </div>
-            <button class="clear-filters-btn" onclick="clearEFLFilters()">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              Limpar
-            </button>
-          </div>
-
-          <div class="tbl-wrap">
-            <table>
-              <thead><tr>
-                <th>Frota</th><th>Frota Atendida</th><th>Modelo</th><th>Motorista</th>
-                <th>KM Total</th><th>KM Carregado</th><th>KM Vazio</th><th>% Carregado</th><th>Eficiência (DF)</th>
-              </tr></thead>
-              <tbody id="eflTbl"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
     <!-- RPD PANEL -->
     <div id="panel-rpd" class="panel">
       <div id="rpdBody">
+
+        <!-- RPD VIEW MODE -->
+        <div class="top-filter-bar" style="align-items:center;margin-bottom:12px">
+          <span class="top-filter-bar-title">Visualizacao</span>
+          <div class="filter-divider"></div>
+          <button class="ftag on" id="rpdViewCurrent" onclick="setRPDView('current')">Cenario Atual</button>
+          <button class="ftag" id="rpdViewDetail" onclick="setRPDView('detail')">Detalhamento - Todos os Status</button>
+        </div>
 
         <!-- TOP FILTER BAR -->
         <div class="top-filter-bar">
@@ -1160,6 +1076,18 @@ tbody tr:hover td{background:var(--surface2)}
               <option value="NAO">Não</option>
             </select>
           </div>
+          <div class="select-group" style="min-width:110px">
+            <label class="select-label">Ano</label>
+            <select class="f-select" id="rpdAnoTop" onchange="syncRPDSelect(this,'rpdAno')"><option value="TODOS">Todos</option></select>
+          </div>
+          <div class="select-group" style="min-width:120px">
+            <label class="select-label">Mes</label>
+            <select class="f-select" id="rpdMesTop" onchange="syncRPDSelect(this,'rpdMes')"><option value="TODOS">Todos</option></select>
+          </div>
+          <div class="select-group" style="min-width:135px">
+            <label class="select-label">Data</label>
+            <input class="f-select" type="date" id="rpdDataTop" onchange="syncRPDDate(this,'rpdData')">
+          </div>
           <button class="clear-filters-btn" onclick="clearRPDFilters()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             Limpar
@@ -1173,13 +1101,6 @@ tbody tr:hover td{background:var(--surface2)}
           <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Total Dias Parado</div><div class="kpi-value" id="rp2">—</div><div class="kpi-sub">dias acumulados</div></div>
           <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Com Impacto Cliente</div><div class="kpi-value" id="rp3">—</div><div class="kpi-sub" id="rp3s"> </div></div>
         </div>
-        <div class="kpi-row" style="grid-template-columns:repeat(5,minmax(0,1fr));margin-top:-6px">
-          <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Status MC</div><div class="kpi-value" id="rpMC">—</div><div class="kpi-sub">manutenção corretiva</div></div>
-          <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Status MP</div><div class="kpi-value" id="rpMP">—</div><div class="kpi-sub">manutenção preventiva</div></div>
-          <div class="kpi c-teal"><div class="kpi-stripe"></div><div class="kpi-label">Status RF</div><div class="kpi-value" id="rpRF">—</div><div class="kpi-sub">reforma/retorno</div></div>
-          <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Cavalos Parados</div><div class="kpi-value" id="rpCav">—</div><div class="kpi-sub">tipo de frota</div></div>
-          <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Implementos Parados</div><div class="kpi-value" id="rpImp">—</div><div class="kpi-sub">tipo de frota</div></div>
-        </div>
 
         <!-- CHARTS -->
         <div class="grid-2" style="margin-bottom:20px">
@@ -1192,16 +1113,16 @@ tbody tr:hover td{background:var(--surface2)}
             </div>
           </div>
           <div class="card">
+            <div class="card-head"><span class="card-title">Cavalos por Cliente Impactado</span></div>
+            <div style="display:flex;gap:0;align-items:stretch;min-height:200px">
+              <div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="position:relative;width:180px;height:180px"><canvas id="rpdClienteChart"></canvas></div></div>
+              <div style="width:1px;background:var(--border);margin:0 16px;flex-shrink:0"></div>
+              <div class="legend" id="rpdClienteLeg" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px"></div>
+            </div>
+          </div>
+          <div class="card">
             <div class="card-head"><span class="card-title">Dias Parado por Frota (Top 10)</span></div>
             <div style="position:relative;height:200px"><canvas id="rpdBar"></canvas></div>
-          </div>
-        </div>
-        <div class="card" style="margin-bottom:20px">
-          <div class="card-head"><span class="card-title">Cavalos por Cliente Impactado</span></div>
-          <div style="display:flex;gap:0;align-items:stretch;min-height:220px">
-            <div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="position:relative;width:190px;height:190px"><canvas id="rpdImpactPie"></canvas></div></div>
-            <div style="width:1px;background:var(--border);margin:0 16px;flex-shrink:0"></div>
-            <div class="legend" id="rpdImpactLeg" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px"></div>
           </div>
         </div>
 
@@ -1230,6 +1151,18 @@ tbody tr:hover td{background:var(--surface2)}
                 <option value="SIM">Sim</option>
                 <option value="NAO">Não</option>
               </select>
+            </div>
+            <div class="select-group" style="min-width:110px">
+              <label class="select-label">Ano</label>
+              <select class="f-select" id="rpdAno" onchange="syncRPDSelect(this,'rpdAnoTop')"><option value="TODOS">Todos</option></select>
+            </div>
+            <div class="select-group" style="min-width:120px">
+              <label class="select-label">Mes</label>
+              <select class="f-select" id="rpdMes" onchange="syncRPDSelect(this,'rpdMesTop')"><option value="TODOS">Todos</option></select>
+            </div>
+            <div class="select-group" style="min-width:135px">
+              <label class="select-label">Data</label>
+              <input class="f-select" type="date" id="rpdData" onchange="syncRPDDate(this,'rpdDataTop')">
             </div>
             <button class="clear-filters-btn" onclick="clearRPDFilters()">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -1265,7 +1198,7 @@ const pages={aet:{t:'Gestão de AET\'s',s:'licenças especiais de trânsito'},mo
   mat:{t:'Mat. de Amarração & Segurança',s:'controle de materiais por frota'},
   pat:{t:'Gestão de Pátio',s:'controle de atividades e operações de pátio'},
   inef:{t:'Controle de Ineficiências Op. (Diárias)',s:'monitoramento de equipamentos parados e diárias'},
-  rpd:{t:'Relatório de Frotas em Manutenção (RPD)',s:'controle de frotas paradas · manutenção e impacto cliente'}};
+  rpd:{t:'Relatório de Frotas em Manutenção (RPD)',s:'cenário atual · detalhamento de status e impacto cliente'}};
 
 function goTo(id){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -1281,7 +1214,8 @@ function goTo(id){
     if(id==='pat'&&patData.length>0){if(pC){pC.destroy();pC=null;}renderPAT();}
     if(id==='inef'&&inefData.length>0){if(iC){iC.destroy();iC=null;}if(iC2){iC2.destroy();iC2=null;}renderINEF();}
     if(id==='efl'){if(eflChart){eflChart.destroy();eflChart=null;}if(eflData.length>0)renderEFL();}
-    if(id==='rpd'&&rpdData.length>0){if(rpdChart){rpdChart.destroy();rpdChart=null;}if(rpdBarChart){rpdBarChart.destroy();rpdBarChart=null;}renderRPD();}
+    if(id==='rpd'){if(typeof rpdChart!=='undefined'&&rpdChart){rpdChart.destroy();rpdChart=null;}if(rpdData.length>0)renderRPD();}
+    if(id==='rpd'&&rpdData.length>0){if(rC){rC.destroy();rC=null;}renderRPD();}
     if(id==='mat'&&matData.length>0){if(mAC){mAC.destroy();mAC=null;}renderMAT();}
   },50);
 }
@@ -2602,235 +2536,223 @@ function renderEFL(){
 
 
 
-// ── RPD: FROTAS EM MANUTENÇÃO ──
-let rpdChart=null, rpdBarChart=null, rpdImpactChart=null;
+// RPD: FROTAS EM MANUTENCAO
+let rpdChart=null, rpdBarChart=null, rpdClienteChart=null;
+let rpdView='current';
 
-function _normKey(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]/g,'');}
-function _txt(v){return String(v==null?'':v).trim();}
-function _cell(row, idx){return idx>=0 && idx<row.length ? _txt(row[idx]) : '';}
-function _num(v){
-  const raw=String(v||'').trim();
-  if(!raw)return 0;
-  const cleaned=raw.replace(/\./g,'').replace(',', '.').replace(/[^0-9.-]/g,'');
-  const n=parseFloat(cleaned);
-  return isNaN(n)?0:Math.round(n);
+function normRPD(v){
+  return String(v||'').trim();
 }
-function _impactNorm(v){
-  const raw=_txt(v);
-  const t=_normKey(raw);
-  if(!t||['NAO','NÃO','N','NO','0','NI','N/I','NAOINFORMADO','SEMIMPACTO'].includes(t))return 'NAO';
-  return 'SIM';
+function normKeyRPD(v){
+  return normRPD(v).toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]/g,'');
 }
-function _clienteImpactado(v){
-  const raw=_txt(v);
-  const t=_normKey(raw);
-  if(!raw||['NAO','NÃO','N','NO','0','NI','N/I','NAOINFORMADO','SEMIMPACTO'].includes(t))return '';
-  if(['SIM','S','YES','1'].includes(t))return 'CLIENTE N/I';
-  return raw.toUpperCase();
+function parseRPDDate(v){
+  const s=normRPD(v);
+  if(!s)return null;
+  let m=s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);
+  if(m){
+    let y=parseInt(m[3],10); if(y<100)y+=2000;
+    const d=new Date(y,parseInt(m[2],10)-1,parseInt(m[1],10));
+    if(!isNaN(d))return d;
+  }
+  m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if(m){
+    const d=new Date(parseInt(m[1],10),parseInt(m[2],10)-1,parseInt(m[3],10));
+    if(!isNaN(d))return d;
+  }
+  return null;
 }
-function _isOp(v){return _normKey(v)==='OP';}
-function _equipKind(tipo){
-  const t=_normKey(tipo);
-  if(!t)return 'N/I';
-  if(t.includes('CAVALO')||t==='CAV'||t.includes('TRATOR')||t.includes('CAMINHAO'))return 'CAVALO';
-  if(t.includes('IMPLEMENTO')||t==='IMP'||t.includes('CARRETA')||t.includes('PRANCHA')||t.includes('DOLLY')||t.includes('REBOQUE')||t.includes('SEMIRREBOQUE')||t.includes('SEMI'))return 'IMPLEMENTO';
-  return _txt(tipo).toUpperCase();
+function rpdDateISO(v){
+  const d=parseRPDDate(v);
+  if(!d)return '';
+  const mm=String(d.getMonth()+1).padStart(2,'0');
+  const dd=String(d.getDate()).padStart(2,'0');
+  return d.getFullYear()+'-'+mm+'-'+dd;
 }
-function _esc(v){return String(v==null?'':v).replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]));}
-
+function rpdMonthName(m){
+  const names=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return names[(parseInt(m,10)||1)-1]||m;
+}
+function rpdByHeader(v,map){
+  for(const k of map){
+    const idx=v.__idx[k];
+    if(idx!==undefined)return v.row[idx];
+  }
+  return '';
+}
 function processRPD(rows){
+  if(!rows||rows.length<2){console.warn('RPD: no data');return;}
   rpdData=[];
-  if(!rows||rows.length<2){console.warn('RPD: sem dados');renderRPD();return;}
+  const headerIdx=rows.findIndex(r=>r.some(c=>normKeyRPD(c)==='FROTA'));
+  if(headerIdx<0){console.warn('RPD: header not found');return;}
+  const header=rows[headerIdx].map(normKeyRPD);
+  const idx={};
+  header.forEach((h,i)=>{if(h)idx[h]=i;});
 
-  // Cabeçalho real da aba RPD: FROTA, TIPO, DATA DE PARADA, DIAS PARADO, STATUS,
-  // PRAZO DE LIBERAÇÃO, PRAZO DE LIBERAÇÃO 2, PRAZO DE LIBERAÇÃO 3, FALHA PRIMÁRIA,
-  // STATUS ATUAL, FORNECEDOR, LOCALIZAÇÃO, PROGRAMAÇÃO, IMPACTO CLIENTE, DATA LIBERAÇÃO.
-  let hRow=-1, headers=[];
-  for(let i=0;i<Math.min(rows.length,40);i++){
-    const keys=rows[i].map(_normKey);
-    const hasMain=keys.includes('FROTA') && keys.includes('TIPO') && keys.some(k=>k==='STATUS') && keys.some(k=>k==='DIASPARADO'||k==='DIASPARADOS');
-    const hasRpd=keys.some(k=>k==='DATADEPARADA'||k==='DATAPARADA'||k==='DTPARADA') && keys.some(k=>k==='IMPACTOCLIENTE');
-    if(hasMain && hasRpd){hRow=i;headers=keys;break;}
+  for(let i=headerIdx+1;i<rows.length;i++){
+    const row=rows[i];
+    const ctx={row:row,__idx:idx};
+    const frota=normRPD(rpdByHeader(ctx,['FROTA']));
+    if(!frota||frota.toUpperCase()==='FROTA')continue;
+    const tipo=normRPD(rpdByHeader(ctx,['TIPO'])).toUpperCase();
+    const dtParada=normRPD(rpdByHeader(ctx,['DATADEPARADA','DTPARADA','DATAPARADA']));
+    const diasRaw=normRPD(rpdByHeader(ctx,['DIASPARADO','DIASPARADOS']));
+    const status=normRPD(rpdByHeader(ctx,['STATUS'])).toUpperCase();
+    const impacto=normRPD(rpdByHeader(ctx,['IMPACTOCLIENTE'])).toUpperCase();
+    const prog=normRPD(rpdByHeader(ctx,['PROGRAMACAO','PROGRAMACAOCLIENTE']));
+    const d=parseRPDDate(dtParada);
+    const dias=parseInt(diasRaw.replace(/[^0-9-]/g,''),10);
+    rpdData.push({
+      frota:frota,
+      tipo:tipo,
+      dtParada:dtParada,
+      dataISO:rpdDateISO(dtParada),
+      ano:d?String(d.getFullYear()):'',
+      mes:d?String(d.getMonth()+1).padStart(2,'0'):'',
+      diasParado:isNaN(dias)?0:dias,
+      status:status||'N/I',
+      prazo1:normRPD(rpdByHeader(ctx,['PRAZODELIBERACAO','PRAZOLIBERACAO'])),
+      prazo2:normRPD(rpdByHeader(ctx,['PRAZODELIBERACAO2','PRAZOLIBERACAO2'])),
+      prazo3:normRPD(rpdByHeader(ctx,['PRAZODELIBERACAO3','PRAZOLIBERACAO3'])),
+      falha:normRPD(rpdByHeader(ctx,['FALHAPRIMARIA','FALHA'])),
+      statusAtual:normRPD(rpdByHeader(ctx,['STATUSATUAL'])),
+      fornecedor:normRPD(rpdByHeader(ctx,['FORNECEDOR'])),
+      local:normRPD(rpdByHeader(ctx,['LOCALIZACAO','LOCAL'])),
+      prog:prog,
+      impacto:impacto,
+      dtLib:normRPD(rpdByHeader(ctx,['DATALIBERACAO','DTLIBERACAO']))
+    });
   }
-  if(hRow<0){
-    for(let i=0;i<Math.min(rows.length,40);i++){
-      const keys=rows[i].map(_normKey);
-      if(keys.includes('FROTA') && keys.includes('TIPO')){hRow=i;headers=keys;break;}
-    }
-  }
-  if(hRow<0){
-    console.warn('RPD: cabeçalho não encontrado. Verifique se o gid publicado é da aba ResumoRPD.');
-    renderRPD();
-    return;
-  }
-
-  const find=(aliases)=>{
-    const want=aliases.map(_normKey);
-    for(const w of want){const ix=headers.indexOf(w);if(ix>=0)return ix;}
-    for(const w of want){const ix=headers.findIndex(h=>h && (h===w || h.includes(w) || w.includes(h)));if(ix>=0)return ix;}
-    return -1;
-  };
-
-  const C={
-    frota:find(['FROTA']),
-    tipo:find(['TIPO']),
-    dtParada:find(['DATA DE PARADA','DATA PARADA','DT PARADA','DTPARADA']),
-    diasParado:find(['DIAS PARADO','DIAS PARADOS','DIASPARADO']),
-    status:find(['STATUS']),
-    prazo1:find(['PRAZO DE LIBERAÇÃO','PRAZO DE LIBERACAO','PRAZO LIBERAÇÃO','PRAZO LIBERACAO','PRAZO LIB. 1','PRAZO LIB 1']),
-    prazo2:find(['PRAZO DE LIBERAÇÃO 2','PRAZO DE LIBERACAO 2','PRAZO LIBERAÇÃO 2','PRAZO LIBERACAO 2','PRAZO LIB. 2','PRAZO LIB 2']),
-    prazo3:find(['PRAZO DE LIBERAÇÃO 3','PRAZO DE LIBERACAO 3','PRAZO LIBERAÇÃO 3','PRAZO LIBERACAO 3','PRAZO LIB. 3','PRAZO LIB 3']),
-    falha:find(['FALHA PRIMÁRIA','FALHA PRIMARIA','FALHA','MOTIVO']),
-    statusAtual:find(['STATUS ATUAL','ANDAMENTO','OBSERVAÇÃO','OBSERVACAO']),
-    fornecedor:find(['FORNECEDOR','OFICINA','PRESTADOR']),
-    local:find(['LOCALIZAÇÃO','LOCALIZACAO','LOCAL','BASE']),
-    prog:find(['PROGRAMAÇÃO','PROGRAMACAO','PROGRAMA','PREVISÃO','PREVISAO']),
-    impacto:find(['IMPACTO CLIENTE','IMPACTOCLIENTE','IMPACTO','CLIENTE IMPACTADO']),
-    dtLib:find(['DATA LIBERAÇÃO','DATA LIBERACAO','DT LIBERAÇÃO','DT LIBERACAO','DATA DE LIBERAÇÃO','DATA DE LIBERACAO'])
-  };
-
-  // Fallback pela ordem real confirmada no print, para o caso de cabeçalho vir com ícones/quebras.
-  const fallback={frota:0,tipo:1,dtParada:2,diasParado:3,status:4,prazo1:5,prazo2:6,prazo3:7,falha:8,statusAtual:9,fornecedor:10,local:11,prog:12,impacto:13,dtLib:14};
-  Object.keys(fallback).forEach(k=>{if(C[k]<0)C[k]=fallback[k];});
-
-  for(let i=hRow+1;i<rows.length;i++){
-    const v=rows[i];
-    if(!v||v.every(x=>!_txt(x)))continue;
-    const frota=_cell(v,C.frota);
-    const tipo=_cell(v,C.tipo).toUpperCase();
-    const status=_cell(v,C.status).toUpperCase();
-    if(!frota || _normKey(frota)==='FROTA')continue;
-    if(!tipo && !status)continue;
-    if(_isOp(status))continue; // regra do RPD: considerar somente STATUS diferente de OP.
-
-    const rec={
-      frota,
-      tipo:tipo || 'N/I',
-      dtParada:_cell(v,C.dtParada),
-      diasParado:_num(_cell(v,C.diasParado)),
-      status:status || 'N/I',
-      prazo1:_cell(v,C.prazo1),
-      prazo2:_cell(v,C.prazo2),
-      prazo3:_cell(v,C.prazo3),
-      falha:_cell(v,C.falha),
-      statusAtual:_cell(v,C.statusAtual),
-      fornecedor:_cell(v,C.fornecedor),
-      local:_cell(v,C.local),
-      prog:_cell(v,C.prog),
-      impacto:_impactNorm(_cell(v,C.impacto)),
-      clienteImpactado:_clienteImpactado(_cell(v,C.impacto)),
-      impactoRaw:_cell(v,C.impacto),
-      dtLib:_cell(v,C.dtLib)
-    };
-    rec.equipKind=_equipKind(rec.tipo);
-    rpdData.push(rec);
-  }
-
-  rpdData.sort((a,b)=>b.diasParado-a.diasParado || String(a.frota).localeCompare(String(b.frota),'pt-BR',{numeric:true}));
-
-  const tipos=[...new Set(rpdData.map(r=>r.tipo).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
-  const tipoHtml='<option value="TODOS">Todos</option>'+tipos.map(t=>'<option value="'+_esc(t)+'">'+_esc(t)+'</option>').join('');
-  ['rpdTipo','rpdTipoTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=tipoHtml;});
-
-  const statuses=[...new Set(rpdData.map(r=>r.status).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
-  const statHtml='<option value="TODOS">Todos</option>'+statuses.map(s=>'<option value="'+_esc(s)+'">'+_esc(s)+'</option>').join('');
-  ['rpdStatus','rpdStatusTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=statHtml;});
-
+  populateRPDFilters();
   renderRPD();
 }
-
+function getRPDBase(){
+  return rpdView==='detail'?rpdData:rpdData.filter(r=>r.status!=='OP');
+}
+function populateRPDFilters(){
+  const base=getRPDBase();
+  const tipos=[...new Set(base.map(r=>r.tipo).filter(Boolean))].sort();
+  const tipoHtml='<option value="TODOS">Todos</option>'+tipos.map(t=>'<option value="'+t+'">'+t+'</option>').join('');
+  ['rpdTipo','rpdTipoTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=tipoHtml;});
+  const statuses=[...new Set(base.map(r=>r.status).filter(Boolean))].sort();
+  const statHtml='<option value="TODOS">Todos</option>'+statuses.map(st=>'<option value="'+st+'">'+st+'</option>').join('');
+  ['rpdStatus','rpdStatusTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=statHtml;});
+  const anos=[...new Set(base.map(r=>r.ano).filter(Boolean))].sort((a,b)=>b.localeCompare(a));
+  const anoHtml='<option value="TODOS">Todos</option>'+anos.map(a=>'<option value="'+a+'">'+a+'</option>').join('');
+  ['rpdAno','rpdAnoTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=anoHtml;});
+  const meses=[...new Set(base.map(r=>r.mes).filter(Boolean))].sort();
+  const mesHtml='<option value="TODOS">Todos</option>'+meses.map(m=>'<option value="'+m+'">'+rpdMonthName(m)+'</option>').join('');
+  ['rpdMes','rpdMesTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=mesHtml;});
+}
+function setRPDView(mode){
+  rpdView=mode==='detail'?'detail':'current';
+  const a=document.getElementById('rpdViewCurrent'),b=document.getElementById('rpdViewDetail');
+  if(a)a.classList.toggle('on',rpdView==='current');
+  if(b)b.classList.toggle('on',rpdView==='detail');
+  populateRPDFilters();
+  renderRPD();
+}
 function getRPDFiltered(){
   const q=((document.getElementById('rpdSearch')||{}).value||'').toLowerCase().trim();
   const tipo=((document.getElementById('rpdTipo')||{}).value)||'TODOS';
   const status=((document.getElementById('rpdStatus')||{}).value)||'TODOS';
   const impacto=((document.getElementById('rpdImpacto')||{}).value)||'TODOS';
-  return rpdData.filter(r=>{
+  const ano=((document.getElementById('rpdAno')||{}).value)||'TODOS';
+  const mes=((document.getElementById('rpdMes')||{}).value)||'TODOS';
+  const data=((document.getElementById('rpdData')||{}).value)||'';
+  return getRPDBase().filter(r=>{
     if(tipo!=='TODOS'&&r.tipo!==tipo)return false;
     if(status!=='TODOS'&&r.status!==status)return false;
-    if(impacto==='SIM'&&r.impacto!=='SIM')return false;
-    if(impacto==='NAO'&&r.impacto==='SIM')return false;
-    if(q){
-      const hay=[r.frota,r.tipo,r.tipoFrota,r.modelo,r.fornecedor,r.local,r.falha,r.statusAtual,r.prog,r.clienteImpactado].join(' ').toLowerCase();
-      if(!hay.includes(q))return false;
-    }
+    if(impacto==='SIM'&&!r.impacto.includes('SIM'))return false;
+    if(impacto==='NAO'&&r.impacto.includes('SIM'))return false;
+    if(ano!=='TODOS'&&r.ano!==ano)return false;
+    if(mes!=='TODOS'&&r.mes!==mes)return false;
+    if(data&&r.dataISO!==data)return false;
+    if(q&&!r.frota.toLowerCase().includes(q)&&!r.fornecedor.toLowerCase().includes(q)&&!r.local.toLowerCase().includes(q)&&!r.falha.toLowerCase().includes(q)&&!r.prog.toLowerCase().includes(q))return false;
     return true;
   });
 }
-
-function syncRPDSearch(src,targetId){const t=document.getElementById(targetId);if(t)t.value=src.value;renderRPD();}
-function syncRPDSelect(src,targetId){const t=document.getElementById(targetId);if(t&&t!==src)t.value=src.value;renderRPD();}
+function syncRPDSearch(src,targetId){
+  const t=document.getElementById(targetId);if(t)t.value=src.value;renderRPD();
+}
+function syncRPDSelect(src,targetId){
+  const t=document.getElementById(targetId);if(t&&t!==src)t.value=src.value;renderRPD();
+}
+function syncRPDDate(src,targetId){
+  const t=document.getElementById(targetId);if(t&&t!==src)t.value=src.value;renderRPD();
+}
 function clearRPDFilters(){
-  ['rpdTipo','rpdTipoTop','rpdStatus','rpdStatusTop','rpdImpacto','rpdImpactoTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
-  ['rpdSearch','rpdSearchTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['rpdTipo','rpdTipoTop','rpdStatus','rpdStatusTop','rpdImpacto','rpdImpactoTop','rpdAno','rpdAnoTop','rpdMes','rpdMesTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
+  ['rpdSearch','rpdSearchTop','rpdData','rpdDataTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   renderRPD();
 }
-
+function rpdLegendHtml(keys,counts,colorFn){
+  return keys.map(k=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${colorFn(k)}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${k}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${counts[k]})</span></span>`).join('');
+}
 function renderRPD(){
   const f=getRPDFiltered();
   const tot=f.length,tot2=tot||1;
   const totalDias=f.reduce((s,r)=>s+r.diasParado,0);
   const mediaDias=tot>0?Math.round(totalDias/tot):0;
-  const comImpacto=f.filter(r=>r.impacto==='SIM').length;
-  const cav=f.filter(r=>r.equipKind==='CAVALO').length;
-  const imp=f.filter(r=>r.equipKind==='IMPLEMENTO').length;
-
-  const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
-  set('rp0',tot); set('rp1',mediaDias); set('rp2',totalDias); set('rp3',comImpacto);
-  const e0s=document.getElementById('rp0s'),e3s=document.getElementById('rp3s');
-  if(e0s)e0s.textContent='status ≠ OP';
+  const comImpacto=f.filter(r=>r.impacto.includes('SIM')).length;
+  const e0=document.getElementById('rp0'),e0s=document.getElementById('rp0s'),e1=document.getElementById('rp1'),e2=document.getElementById('rp2'),e3=document.getElementById('rp3'),e3s=document.getElementById('rp3s');
+  if(e0)e0.textContent=tot;
+  if(e0s)e0s.textContent=rpdView==='detail'?'frotas no detalhamento':'frotas paradas';
+  if(e1)e1.textContent=mediaDias;
+  if(e2)e2.textContent=totalDias;
+  if(e3)e3.textContent=comImpacto;
   if(e3s)e3s.textContent=Math.round(comImpacto/tot2*100)+'% do total';
-  const byStatus={};f.forEach(r=>{byStatus[r.status]=(byStatus[r.status]||0)+1;});
-  set('rpMC',byStatus.MC||0); set('rpMP',byStatus.MP||0); set('rpRF',byStatus.RF||0); set('rpCav',cav); set('rpImp',imp);
 
-  const sc={};f.forEach(r=>{const k=r.status||r.tipo||'N/I';sc[k]=(sc[k]||0)+1;});
+  const palette=['#c81428','#e8943a','#2ab0b8','#1b3f7a','#15803d','#6366f1','#6b7280','#a855f7','#0891b2','#b45309'];
+  const sc={};f.forEach(r=>{sc[r.status]=(sc[r.status]||0)+1;});
   const skeys=Object.keys(sc).sort((a,b)=>sc[b]-sc[a]);
-  const sColors={'MC':'#c81428','MP':'#e8943a','RF':'#2ab0b8','OP':'#2db87a','AGUARDANDO':'#f39c12'};
-  const getC=k=>sColors[k]||'#6b7280';
+  const getStatusColor=k=>({'MC':'#c81428','MP':'#e8943a','RF':'#2ab0b8','OP':'#15803d'}[k]||palette[Math.max(0,skeys.indexOf(k))%palette.length]);
   const legEl=document.getElementById('rpdLeg');
-  if(legEl)legEl.innerHTML=skeys.map(s=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${getC(s)}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${s}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${sc[s]})</span></span>`).join('')||'<span class="leg">Sem dados</span>';
+  if(legEl)legEl.innerHTML=rpdLegendHtml(skeys,sc,getStatusColor)||'<span class="leg">Sem dados</span>';
   const dEl=document.getElementById('rpdDonut');
-  if(dEl){if(rpdChart){rpdChart.destroy();rpdChart=null;}rpdChart=new Chart(dEl,{type:'doughnut',data:{labels:skeys,datasets:[{data:skeys.map(k=>sc[k]),backgroundColor:skeys.map(k=>getC(k)),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx2=>{const t2=ctx2.chart.data.datasets[0].data.reduce((a,b)=>a+b,0)||1;return ' '+ctx2.label+': '+ctx2.raw+' ('+Math.round(ctx2.raw/t2*100)+'%)';}}}},cutout:'72%'}});}
+  if(dEl){if(rpdChart){rpdChart.destroy();rpdChart=null;}rpdChart=new Chart(dEl,{type:'doughnut',data:{labels:skeys,datasets:[{data:skeys.map(k=>sc[k]),backgroundColor:skeys.map(k=>getStatusColor(k)),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0)||1;return ' '+ctx.label+': '+ctx.raw+' ('+Math.round(ctx.raw/t*100)+'%)';}}}},cutout:'72%'}});}
+
+  const clientes={};
+  f.filter(r=>r.impacto.includes('SIM')&&r.tipo.includes('CAVALO')).forEach(r=>{
+    const cli=(r.prog||'N/I').trim()||'N/I';
+    clientes[cli]=(clientes[cli]||0)+1;
+  });
+  const ckeys=Object.keys(clientes).sort((a,b)=>clientes[b]-clientes[a]).slice(0,10);
+  const getClienteColor=k=>palette[Math.max(0,ckeys.indexOf(k))%palette.length];
+  const cLeg=document.getElementById('rpdClienteLeg');
+  if(cLeg)cLeg.innerHTML=rpdLegendHtml(ckeys,clientes,getClienteColor)||'<span class="leg">Sem cavalos com impacto</span>';
+  const cEl=document.getElementById('rpdClienteChart');
+  if(cEl){if(rpdClienteChart){rpdClienteChart.destroy();rpdClienteChart=null;}rpdClienteChart=new Chart(cEl,{type:'doughnut',data:{labels:ckeys,datasets:[{data:ckeys.map(k=>clientes[k]),backgroundColor:ckeys.map(k=>getClienteColor(k)),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0)||1;return ' '+ctx.label+': '+ctx.raw+' cavalo(s) ('+Math.round(ctx.raw/t*100)+'%)';}}}},cutout:'72%'}});}
 
   const top10=[...f].sort((a,b)=>b.diasParado-a.diasParado).slice(0,10);
   const bEl=document.getElementById('rpdBar');
-  if(bEl){if(rpdBarChart){rpdBarChart.destroy();rpdBarChart=null;}rpdBarChart=new Chart(bEl,{type:'bar',data:{labels:top10.map(r=>r.frota),datasets:[{label:'Dias Parado',data:top10.map(r=>r.diasParado),backgroundColor:top10.map(r=>r.diasParado>60?'rgba(200,20,40,0.85)':r.diasParado>30?'rgba(232,148,58,0.85)':'rgba(42,176,184,0.85)'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx2=>` ${ctx2.raw} dias`}}},scales:{x:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11}}},y:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11}}}}}});}
+  if(bEl){if(rpdBarChart){rpdBarChart.destroy();rpdBarChart=null;}rpdBarChart=new Chart(bEl,{type:'bar',data:{labels:top10.map(r=>r.frota),datasets:[{label:'Dias Parado',data:top10.map(r=>r.diasParado),backgroundColor:top10.map(r=>r.diasParado>60?'rgba(200,20,40,0.85)':r.diasParado>30?'rgba(232,148,58,0.85)':'rgba(42,176,184,0.85)'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw} dias`}}},scales:{x:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11}}},y:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11}}}}}});}
 
-  const cavsImpactados=f.filter(r=>r.equipKind==='CAVALO'&&r.impacto==='SIM');
-  const cliSc={};
-  cavsImpactados.forEach(r=>{const k=r.clienteImpactado||'CLIENTE N/I';cliSc[k]=(cliSc[k]||0)+1;});
-  let cliKeys=Object.keys(cliSc).sort((a,b)=>cliSc[b]-cliSc[a]||a.localeCompare(b,'pt-BR')).slice(0,8);
-  if(cliKeys.length===0){cliKeys=['SEM IMPACTO'];cliSc['SEM IMPACTO']=0;}
-  const cliColors=['#c81428','#e8943a','#2ab0b8','#2db87a','#1b3f7a','#6366f1','#7a7a7a','#3d4559'];
-  const impLeg=document.getElementById('rpdImpactLeg');
-  if(impLeg)impLeg.innerHTML=cliKeys.map((k,i)=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${cliColors[i%cliColors.length]}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${_esc(k)}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${cliSc[k]})</span></span>`).join('');
-  const ip=document.getElementById('rpdImpactPie');
-  if(ip){if(rpdImpactChart){rpdImpactChart.destroy();rpdImpactChart=null;}rpdImpactChart=new Chart(ip,{type:'doughnut',data:{labels:cliKeys,datasets:[{data:cliKeys.map(k=>cliSc[k]),backgroundColor:cliKeys.map((k,i)=>cliColors[i%cliColors.length]),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0)||1;const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});}
-  const cnt=document.getElementById('rpdCnt');const tbl=document.getElementById('rpdTbl');
+  const cnt=document.getElementById('rpdCnt'),tbl=document.getElementById('rpdTbl');
   if(cnt)cnt.textContent=f.length+' registros';
   if(!tbl)return;
-  const stTag=s=>{const c=s==='MC'?'tag-red':s==='MP'?'tag-amber':s==='RF'?'tag-teal':'tag-dim';return`<span class="tag ${c}">${s||'N/I'}</span>`;};
-  const impTag=r=>r.impacto==='SIM'?'<span class="tag tag-red">'+_esc(r.clienteImpactado||'SIM')+'</span>':'<span class="tag tag-green">NÃO</span>';
+  const stTag=s=>{const c=s==='MC'?'tag-red':s==='MP'?'tag-amber':s==='RF'?'tag-teal':s==='OP'?'tag-green':'tag-dim';return`<span class="tag ${c}">${s}</span>`;};
+  const impTag=v=>v.includes('SIM')?'<span class="tag tag-red">SIM</span>':'<span class="tag tag-green">NAO</span>';
   const diasColor=d=>d>60?'var(--red)':d>30?'var(--amber)':'var(--text)';
-  tbl.innerHTML=f.length===0
-    ?'<tr><td colspan="15" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro</td></tr>'
-    :[...f].sort((a,b)=>b.diasParado-a.diasParado).map(r=>`<tr>
+  tbl.innerHTML=f.length===0?'<tr><td colspan="15" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro</td></tr>':[...f].sort((a,b)=>b.diasParado-a.diasParado).map(r=>`<tr>
       <td style="font-family:'DM Mono',monospace;font-weight:600">${r.frota}</td>
-      <td>${r.tipo||r.equipKind||'—'}</td>
-      <td style="font-family:'DM Mono',monospace;white-space:nowrap">${r.dtParada||'—'}</td>
+      <td>${r.tipo||'N/I'}</td>
+      <td style="font-family:'DM Mono',monospace;white-space:nowrap">${r.dtParada||'-'}</td>
       <td style="font-family:'DM Mono',monospace;font-weight:700;color:${diasColor(r.diasParado)}">${r.diasParado}d</td>
       <td>${stTag(r.status)}</td>
-      <td style="font-family:'DM Mono',monospace;white-space:nowrap">${r.prazo1||'—'}</td>
-      <td style="font-family:'DM Mono',monospace;white-space:nowrap">${r.prazo2||'—'}</td>
-      <td style="font-family:'DM Mono',monospace;white-space:nowrap">${r.prazo3||'—'}</td>
-      <td style="max-width:200px">${r.falha||'—'}</td>
-      <td style="max-width:200px">${r.statusAtual||'—'}</td>
-      <td>${r.fornecedor||'—'}</td>
-      <td>${r.local||'—'}</td>
-      <td style="font-family:'DM Mono',monospace;text-align:center">${r.prog||'—'}</td>
-      <td>${impTag(r)}</td>
-      <td style="font-family:'DM Mono',monospace;white-space:nowrap">${r.dtLib||'—'}</td>
+      <td style="font-family:'DM Mono',monospace;white-space:nowrap">${r.prazo1||'-'}</td>
+      <td style="font-family:'DM Mono',monospace;white-space:nowrap">${r.prazo2||'-'}</td>
+      <td style="font-family:'DM Mono',monospace;white-space:nowrap">${r.prazo3||'-'}</td>
+      <td style="max-width:200px">${r.falha||'-'}</td>
+      <td style="max-width:200px">${r.statusAtual||'-'}</td>
+      <td>${r.fornecedor||'-'}</td>
+      <td>${r.local||'-'}</td>
+      <td style="font-family:'DM Mono',monospace;text-align:center">${r.prog||'-'}</td>
+      <td>${impTag(r.impacto)}</td>
+      <td style="font-family:'DM Mono',monospace;white-space:nowrap">${r.dtLib||'-'}</td>
     </tr>`).join('');
 }
+
 
 // ── SIDEBAR TOOLTIP ENGINE ──
 (function(){
