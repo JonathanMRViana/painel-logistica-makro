@@ -1042,8 +1042,7 @@ tbody tr:hover td{background:var(--surface2)}
 
     <!-- RPD PANEL -->
     <div id="panel-rpd" class="panel">
-      <div id="rpdLoad" class="loading"><div class="spinner"></div><div class="loading-txt">carregando dados · eficiência logística</div></div>
-      <div id="rpdBody" style="display:none">
+      <div id="rpdBody">
 
         <div class="top-filter-bar">
           <span class="top-filter-bar-title">Filtros</span>
@@ -1317,7 +1316,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778768344 -->
+<!-- v1778769070 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],rpdData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -2901,11 +2900,7 @@ function processRPD(rows){
   const mesEl=document.getElementById('rpdMes');
   if(mesEl)mesEl.innerHTML='<option value="TODOS">Todos</option>'+meses.map(m=>'<option value="'+m+'">'+m+'</option>').join('');
 
-  const rpdL=document.getElementById('rpdLoad');
-  const rpdB=document.getElementById('rpdBody');
-  if(rpdL)rpdL.style.display='none';
-  if(rpdB)rpdB.style.display='block';
-
+  
   renderRPD();
 }
 
