@@ -1317,7 +1317,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778767726 -->
+<!-- v1778768175 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],rpdData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -1417,7 +1417,7 @@ function parseCSV(text){
 async function loadAll(){
   document.getElementById('updTxt').textContent='atualizando...';
   try{
-    const [resAet,resMob,resMat,resPat,resInef,resEfl]=await Promise.all([
+    const [resAet,resMob,resMat,resPat,resInef,resEfl,resRpd]=await Promise.all([
       fetch(CSV_AET+'&t='+Date.now()),
       fetch(CSV_MOB+'&t='+Date.now()),
       fetch(CSV_MAT+'&t='+Date.now()),
