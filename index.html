@@ -1195,7 +1195,7 @@ etailGrid" style="display:none;margin-bottom:20px">
           <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">MC</div><div class="kpi-value" id="rpMC">—</div><div class="kpi-sub">manutenção corretiva</div></div>
           <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">MP</div><div class="kpi-value" id="rpMP">—</div><div class="kpi-sub">manutenção preventiva</div></div>
           <div class="kpi c-blue"><div class="kpi-stripe"></div><div class="kpi-label">RF</div><div class="kpi-value" id="rpRF">—</div><div class="kpi-sub">reforma</div></div>
-          <div class="kpi c-green" id="rpOPCard"><div class="kpi-stripe"></div><div class="kpi-label" id="rpOPLabel">Quebras OP</div><div class="kpi-value" id="rpOP">—</div><div class="kpi-sub" id="rpOPSub">registros no período</div></div>
+          <div class="kpi c-green" id="rpOPCard"><div class="kpi-stripe"></div><div class="kpi-label" id="rpOPLabel">Quebras</div><div class="kpi-value" id="rpOP">—</div><div class="kpi-sub" id="rpOPSub">registros no período</div></div>
           <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label" id="rpCavLabel">Cavalos Parados</div><div class="kpi-value" id="rpCav">—</div><div class="kpi-sub" id="rpCavSub">tipo de frota</div></div>
           <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label" id="rpImpLabel">Implementos Parados</div><div class="kpi-value" id="rpImp">—</div><div class="kpi-sub" id="rpImpSub">tipo de frota</div></div>
         </div>
@@ -2781,18 +2781,17 @@ function renderRPD(){
   const imp=baseMetric.filter(r=>r.equipKind==='IMPLEMENTO').length;
   const byStatus={};f.forEach(r=>{byStatus[r.status]=(byStatus[r.status]||0)+1;});
   const byStatusMaint={};baseMetric.forEach(r=>{byStatusMaint[r.status]=(byStatusMaint[r.status]||0)+1;});
-  const breaksByFrota={};opRows.forEach(r=>{const k=r.frota||'N/I';breaksByFrota[k]=(breaksByFrota[k]||0)+1;});
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set('rp0',maint.length);set('rp1',mediaDias);set('rp2',totalDias);set('rp3',comImpacto);set('rp3s',Math.round(comImpacto/metricTotal*100)+'% da manutenção');
-  set('rpMC',byStatusMaint.MC||0);set('rpMP',byStatusMaint.MP||0);set('rpRF',byStatusMaint.RF||0);set('rpOP',opRows.length);set('rpCav',cav);set('rpImp',imp);
+  set('rpMC',byStatusMaint.MC||0);set('rpMP',byStatusMaint.MP||0);set('rpRF',byStatusMaint.RF||0);set('rpOP',rpdViewMode==='detail'?totalReg:opRows.length);set('rpCav',cav);set('rpImp',imp);
   set('rp0s',rpdViewMode==='detail'?`${totalReg} registros no detalhamento`:'status diferente de OP');
   set('rp0Label','Frotas em Manutenção');
-  set('rpOPLabel',rpdViewMode==='detail'?'Quebras OP':'OP no Período');
-  set('rpOPSub',rpdViewMode==='detail'?'cada linha OP = 1 quebra':'não conta como manutenção');
+  set('rpOPLabel',rpdViewMode==='detail'?'Quebras':'OP no Período');
+  set('rpOPSub',rpdViewMode==='detail'?'cada linha = 1 quebra':'não conta como manutenção');
   set('rpCavLabel','Cavalos Parados');
   set('rpImpLabel','Implementos Parados');
   set('rpdStatusTitle',rpdViewMode==='detail'?'Por Status Geral':'Por Status de Manutenção');
-  set('rpdBarTitle',rpdViewMode==='detail'?'Quebras OP por Frota (Top 10)':'Dias Parado por Frota (Top 10)');
+  set('rpdBarTitle',rpdViewMode==='detail'?'Quantidade de Quebras por Frota (Top 10)':'Dias Parado por Frota (Top 10)');
   set('rpdTblTitle',rpdViewMode==='detail'?'Detalhamento de Todos os Status':'Detalhamento de Frotas em Manutenção');
 
   const skeys=Object.keys(byStatus).sort((a,b)=>byStatus[b]-byStatus[a]);
