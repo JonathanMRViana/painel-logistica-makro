@@ -1196,18 +1196,12 @@ tbody tr:hover td{background:var(--surface2)}
             <div style="position:relative;height:200px"><canvas id="rpdBar"></canvas></div>
           </div>
         </div>
-        <div class="grid-2" style="margin-bottom:20px">
-          <div class="card">
-            <div class="card-head"><span class="card-title">Cavalos por Impacto Cliente</span></div>
-            <div style="display:flex;gap:0;align-items:stretch;min-height:200px">
-              <div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="position:relative;width:180px;height:180px"><canvas id="rpdImpactPie"></canvas></div></div>
-              <div style="width:1px;background:var(--border);margin:0 16px;flex-shrink:0"></div>
-              <div class="legend" id="rpdImpactLeg" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px"></div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-head"><span class="card-title">Resumo por Tipo de Frota</span></div>
-            <div id="rpdEquipResumo" class="bars" style="padding-top:12px"></div>
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-head"><span class="card-title">Cavalos por Cliente Impactado</span></div>
+          <div style="display:flex;gap:0;align-items:stretch;min-height:220px">
+            <div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="position:relative;width:190px;height:190px"><canvas id="rpdImpactPie"></canvas></div></div>
+            <div style="width:1px;background:var(--border);margin:0 16px;flex-shrink:0"></div>
+            <div class="legend" id="rpdImpactLeg" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px"></div>
           </div>
         </div>
 
@@ -2621,7 +2615,19 @@ function _num(v){
   const n=parseFloat(cleaned);
   return isNaN(n)?0:Math.round(n);
 }
-function _impactNorm(v){const t=_normKey(v);return (t==='SIM'||t==='S'||t==='YES'||t==='1')?'SIM':'NAO';}
+function _impactNorm(v){
+  const raw=_txt(v);
+  const t=_normKey(raw);
+  if(!t||['NAO','NÃO','N','NO','0','NI','N/I','NAOINFORMADO','SEMIMPACTO'].includes(t))return 'NAO';
+  return 'SIM';
+}
+function _clienteImpactado(v){
+  const raw=_txt(v);
+  const t=_normKey(raw);
+  if(!raw||['NAO','NÃO','N','NO','0','NI','N/I','NAOINFORMADO','SEMIMPACTO'].includes(t))return '';
+  if(['SIM','S','YES','1'].includes(t))return 'CLIENTE N/I';
+  return raw.toUpperCase();
+}
 function _isOp(v){return _normKey(v)==='OP';}
 function _equipKind(tipo){
   const t=_normKey(tipo);
@@ -2712,6 +2718,8 @@ function processRPD(rows){
       local:_cell(v,C.local),
       prog:_cell(v,C.prog),
       impacto:_impactNorm(_cell(v,C.impacto)),
+      clienteImpactado:_clienteImpactado(_cell(v,C.impacto)),
+      impactoRaw:_cell(v,C.impacto),
       dtLib:_cell(v,C.dtLib)
     };
     rec.equipKind=_equipKind(rec.tipo);
@@ -2742,7 +2750,7 @@ function getRPDFiltered(){
     if(impacto==='SIM'&&r.impacto!=='SIM')return false;
     if(impacto==='NAO'&&r.impacto==='SIM')return false;
     if(q){
-      const hay=[r.frota,r.tipo,r.tipoFrota,r.modelo,r.fornecedor,r.local,r.falha,r.statusAtual,r.prog].join(' ').toLowerCase();
+      const hay=[r.frota,r.tipo,r.tipoFrota,r.modelo,r.fornecedor,r.local,r.falha,r.statusAtual,r.prog,r.clienteImpactado].join(' ').toLowerCase();
       if(!hay.includes(q))return false;
     }
     return true;
@@ -2787,20 +2795,21 @@ function renderRPD(){
   const bEl=document.getElementById('rpdBar');
   if(bEl){if(rpdBarChart){rpdBarChart.destroy();rpdBarChart=null;}rpdBarChart=new Chart(bEl,{type:'bar',data:{labels:top10.map(r=>r.frota),datasets:[{label:'Dias Parado',data:top10.map(r=>r.diasParado),backgroundColor:top10.map(r=>r.diasParado>60?'rgba(200,20,40,0.85)':r.diasParado>30?'rgba(232,148,58,0.85)':'rgba(42,176,184,0.85)'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx2=>` ${ctx2.raw} dias`}}},scales:{x:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11}}},y:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11}}}}}});}
 
-  const cavs=f.filter(r=>r.equipKind==='CAVALO');
-  const imc={SIM:cavs.filter(r=>r.impacto==='SIM').length,NAO:cavs.filter(r=>r.impacto!=='SIM').length};
+  const cavsImpactados=f.filter(r=>r.equipKind==='CAVALO'&&r.impacto==='SIM');
+  const cliSc={};
+  cavsImpactados.forEach(r=>{const k=r.clienteImpactado||'CLIENTE N/I';cliSc[k]=(cliSc[k]||0)+1;});
+  let cliKeys=Object.keys(cliSc).sort((a,b)=>cliSc[b]-cliSc[a]||a.localeCompare(b,'pt-BR')).slice(0,8);
+  if(cliKeys.length===0){cliKeys=['SEM IMPACTO'];cliSc['SEM IMPACTO']=0;}
+  const cliColors=['#c81428','#e8943a','#2ab0b8','#2db87a','#1b3f7a','#6366f1','#7a7a7a','#3d4559'];
   const impLeg=document.getElementById('rpdImpactLeg');
-  if(impLeg)impLeg.innerHTML=`<span class="leg" style="justify-content:space-between"><span><span class="leg-dot" style="background:#c81428"></span> Com impacto</span><b>${imc.SIM}</b></span><span class="leg" style="justify-content:space-between"><span><span class="leg-dot" style="background:#2db87a"></span> Sem impacto</span><b>${imc.NAO}</b></span>`;
+  if(impLeg)impLeg.innerHTML=cliKeys.map((k,i)=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${cliColors[i%cliColors.length]}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${_esc(k)}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${cliSc[k]})</span></span>`).join('');
   const ip=document.getElementById('rpdImpactPie');
-  if(ip){if(rpdImpactChart){rpdImpactChart.destroy();rpdImpactChart=null;}rpdImpactChart=new Chart(ip,{type:'pie',data:{labels:['Com impacto','Sem impacto'],datasets:[{data:[imc.SIM,imc.NAO],backgroundColor:['#c81428','#2db87a'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});}
-  const eq=document.getElementById('rpdEquipResumo');
-  if(eq){const ni=f.filter(r=>r.equipKind==='N/I').length;eq.innerHTML=`<div class="bar-row"><div class="bar-lbl">Cavalos</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(cav/tot2*100)}%;background:var(--makro-blue)"></div></div><div class="bar-num">${cav}</div></div><div class="bar-row"><div class="bar-lbl">Implementos</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(imp/tot2*100)}%;background:var(--green)"></div></div><div class="bar-num">${imp}</div></div><div class="bar-row"><div class="bar-lbl">N/I</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(ni/tot2*100)}%;background:var(--text3)"></div></div><div class="bar-num">${ni}</div></div>`;}
-
+  if(ip){if(rpdImpactChart){rpdImpactChart.destroy();rpdImpactChart=null;}rpdImpactChart=new Chart(ip,{type:'doughnut',data:{labels:cliKeys,datasets:[{data:cliKeys.map(k=>cliSc[k]),backgroundColor:cliKeys.map((k,i)=>cliColors[i%cliColors.length]),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0)||1;const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});}
   const cnt=document.getElementById('rpdCnt');const tbl=document.getElementById('rpdTbl');
   if(cnt)cnt.textContent=f.length+' registros';
   if(!tbl)return;
   const stTag=s=>{const c=s==='MC'?'tag-red':s==='MP'?'tag-amber':s==='RF'?'tag-teal':'tag-dim';return`<span class="tag ${c}">${s||'N/I'}</span>`;};
-  const impTag=v=>v==='SIM'?'<span class="tag tag-red">SIM</span>':'<span class="tag tag-green">NÃO</span>';
+  const impTag=r=>r.impacto==='SIM'?'<span class="tag tag-red">'+_esc(r.clienteImpactado||'SIM')+'</span>':'<span class="tag tag-green">NÃO</span>';
   const diasColor=d=>d>60?'var(--red)':d>30?'var(--amber)':'var(--text)';
   tbl.innerHTML=f.length===0
     ?'<tr><td colspan="15" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro</td></tr>'
@@ -2818,7 +2827,7 @@ function renderRPD(){
       <td>${r.fornecedor||'—'}</td>
       <td>${r.local||'—'}</td>
       <td style="font-family:'DM Mono',monospace;text-align:center">${r.prog||'—'}</td>
-      <td>${impTag(r.impacto)}</td>
+      <td>${impTag(r)}</td>
       <td style="font-family:'DM Mono',monospace;white-space:nowrap">${r.dtLib||'—'}</td>
     </tr>`).join('');
 }
