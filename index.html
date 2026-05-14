@@ -83,7 +83,7 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 .refresh-btn:hover{border-color:var(--border2);color:var(--text);background:var(--surface2)}
 
 .main{padding:36px 24px 24px;flex:1;min-width:0;overflow-x:hidden}
-.panel{display:none}.panel.active{display:block}
+.panel{display:none}.panel.active{display:block;padding:16px 32px 40px;}
 
 /* ── KPI CARDS ── */
 .kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px;margin-top:8px}
@@ -311,6 +311,7 @@ tbody tr:hover td{background:var(--surface2)}
 
 /* ── TABLE: compact columns never wrap ── */
 .tbl-wrap td .tag{white-space:nowrap;}
+.panel{padding:24px 32px;}
 </style>
 </head>
 <body>
@@ -1161,7 +1162,7 @@ etailGrid" style="display:none;margin-bottom:20px">
       <div id="rpdBody">
 
         <!-- RPD VIEW MODE -->
-        <div class="filter-bar-row" style="margin-bottom:12px">
+        <div class="filter-bar-row" style="margin-bottom:16px;margin-top:4px">
           <button class="ftag on" id="rpdViewCurrent" onclick="setRPDView('current')">Cenário Atual</button>
           <button class="ftag" id="rpdViewDetail" onclick="setRPDView('detail')">Detalhamento · Todos os Status</button>
         </div>
@@ -1207,9 +1208,7 @@ etailGrid" style="display:none;margin-bottom:20px">
 
         
         <!-- DETALHE: quebras + dias por frota -->
-id="rpdD
-
-                <div class="grid-2" id="rpdDetailGrid" style="display:none;margin-bottom:20px">
+        <div class="grid-2" id="rpdDetailGrid" style="display:none;margin-bottom:20px">
           <div class="card">
             <div class="card-head" style="display:flex;justify-content:space-between;align-items:center">
               <span class="card-title">Quantidade de Quebras por Frota</span>
@@ -1254,7 +1253,7 @@ id="rpdD
   </div>
 </div>
 
-<!-- v1778788048 -->
+<!-- v1778789175 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],rpdData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -1280,8 +1279,7 @@ function goTo(id){
     if(id==='pat'&&patData.length>0){if(pC){pC.destroy();pC=null;}renderPAT();}
     if(id==='inef'&&inefData.length>0){if(iC){iC.destroy();iC=null;}if(iC2){iC2.destroy();iC2=null;}renderINEF();}
     if(id==='efl'){if(eflChart){eflChart.destroy();eflChart=null;}if(eflData.length>0)renderEFL();}
-    if(id==='rpd'){if(typeof rpdChart!=='undefined'&&rpdChart){rpdChart.destroy();rpdChart=null;}if(rpdData.length>0)renderRPD();}
-    if(id==='rpd'&&rpdData.length>0){if(rC){rC.destroy();rC=null;}renderRPD();}
+    if(id==='rpd'&&rpdData.length>0){if(rpdChart){rpdChart.destroy();rpdChart=null;}renderRPD();}
     if(id==='mat'&&matData.length>0){if(mAC){mAC.destroy();mAC=null;}renderMAT();}
   },50);
 }
@@ -2737,7 +2735,7 @@ function syncRPDSelect(src,targetId){const t=document.getElementById(targetId);i
 function syncRPDDate(src,targetId){const t=document.getElementById(targetId);if(t&&t!==src)t.value=src.value;renderRPD();}
 function clearRPDFilters(){
   ['rpdTipo','rpdTipoTop','rpdStatus','rpdStatusTop','rpdImpacto','rpdImpactoTop','rpdAno','rpdAnoTop','rpdMes','rpdMesTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
-  ['rpdData','rpdDataTop','rpdSearch','rpdSearchTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['rpdDataDe','rpdDataDeTop','rpdDataAte','rpdDataAteTop','rpdSearch','rpdSearchTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   renderRPD();
 }
 
@@ -2823,7 +2821,7 @@ function renderRPD(){
     rpdQbPage=0;rpdDiasPage=0;
     window._rpdByQb=Object.entries(frotaMap).filter(x=>x[1].quebras>0).sort((a,b)=>b[1].quebras-a[1].quebras);
     window._rpdByDias=Object.entries(frotaMap).filter(x=>x[1].dias>0).sort((a,b)=>b[1].dias-a[1].dias);
-    renderRPDChart('qb');renderRPDChart('dias');
+    setTimeout(()=>{renderRPDChart('qb');renderRPDChart('dias');},50);
   }
 
   const clientMap={};
