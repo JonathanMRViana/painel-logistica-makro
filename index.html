@@ -1234,7 +1234,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778851158 -->
+<!-- v1778851712 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],rpdData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -2171,8 +2171,13 @@ function renderINEFtbl(){
       if(cob!=='TODOS'&&!r.cobr.includes(cob))return false;
       if(motivo!=='TODOS'&&r.motivo!==motivo)return false;
       if(transp!=='TODOS'&&r.transp!==transp)return false;
-      if(semDe&&r.dtCheg&&r.dtCheg<semDe)return false;
-      if(semAte&&r.dtCheg&&r.dtCheg>semAte)return false;
+      if(semDe||semAte){
+        // Convert DD/MM/YYYY → YYYY-MM-DD for comparison
+        const toISO=s=>{if(!s)return '';const p=s.split('/');return p.length===3?p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0'):s;};
+        const dtISO=toISO(r.dtCheg);
+        if(semDe&&dtISO&&dtISO<semDe)return false;
+        if(semAte&&dtISO&&dtISO>semAte)return false;
+      }
       if(q&&!r.frota.toLowerCase().includes(q)&&!r.cliente.toLowerCase().includes(q)&&!r.motivo.toLowerCase().includes(q)&&!r.conj.toLowerCase().includes(q))return false;
       return true;
     });
