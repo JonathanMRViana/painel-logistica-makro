@@ -312,6 +312,12 @@ tbody tr:hover td{background:var(--surface2)}
 /* ── TABLE: compact columns never wrap ── */
 .tbl-wrap td .tag{white-space:nowrap;}
 .panel{padding:24px 32px;}
+.tag-dim-dark{background:rgba(75,85,99,.18);color:#4b5563;border-color:rgba(75,85,99,.3)}
+
+.c-gray-dark .kpi-stripe{background:#4b5563}
+.c-gray-dark .kpi-value{color:#4b5563}
+.c-gray-light .kpi-stripe{background:#9ca3af}
+.c-gray-light .kpi-value{color:#9ca3af}
 </style>
 </head>
 <body>
@@ -1169,8 +1175,8 @@ tbody tr:hover td{background:var(--surface2)}
         <div class="kpi-row" style="grid-template-columns:repeat(5,minmax(0,1fr));margin-top:-6px" id="rpdKpiRow6">
           <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">MC</div><div class="kpi-value" id="rpMC">—</div><div class="kpi-sub">manutenção corretiva</div></div>
           <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">MP</div><div class="kpi-value" id="rpMP">—</div><div class="kpi-sub">manutenção preventiva</div></div>
-          <div class="kpi c-blue"><div class="kpi-stripe"></div><div class="kpi-label">RF</div><div class="kpi-value" id="rpRF">—</div><div class="kpi-sub">reforma</div></div>
-          <div class="kpi c-green" id="rpOPCard"><div class="kpi-stripe"></div><div class="kpi-label" id="rpOPLabel">Quebras</div><div class="kpi-value" id="rpOP">—</div><div class="kpi-sub" id="rpOPSub">registros no período</div></div>
+          <div class="kpi c-gray-dark"><div class="kpi-stripe"></div><div class="kpi-label">RF</div><div class="kpi-value" id="rpRF">—</div><div class="kpi-sub">reforma</div></div>
+          <div class="kpi c-gray-light" id="rpOPCard"><div class="kpi-stripe"></div><div class="kpi-label" id="rpOPLabel">Quebras</div><div class="kpi-value" id="rpOP">—</div><div class="kpi-sub" id="rpOPSub">registros no período</div></div>
           <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label" id="rpCavLabel">Cavalos Parados</div><div class="kpi-value" id="rpCav">—</div><div class="kpi-sub" id="rpCavSub">tipo de frota</div></div>
           <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label" id="rpImpLabel">Implementos Parados</div><div class="kpi-value" id="rpImp">—</div><div class="kpi-sub" id="rpImpSub">tipo de frota</div></div>
         </div>
@@ -1228,7 +1234,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778789175 -->
+<!-- v1778850342 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],rpdData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -2771,7 +2777,7 @@ function renderRPD(){
   set('rpdTblTitle',rpdViewMode==='detail'?'Detalhamento de Todos os Status':'Detalhamento de Frotas em Manutenção');
 
   const skeys=Object.keys(byStatus).sort((a,b)=>byStatus[b]-byStatus[a]);
-  const sColors={'MC':'#c81428','MP':'#e8943a','RF':'#2ab0b8','OP':'#2db87a','AGUARDANDO':'#f39c12'};
+  const sColors={'MC':'#c81428','MP':'#e8943a','RF':'#4b5563','OP':'#9ca3af','AGUARDANDO':'#f39c12'};
   const getC=k=>sColors[k]||'#6b7280';
   const rpdStatusGraphLabel=s=>(rpdViewMode==='detail'&&rpdIsOP(s))?'Quebras':s;
   const leg=document.getElementById('rpdLeg');
@@ -2812,7 +2818,7 @@ function renderRPD(){
   const cnt=document.getElementById('rpdCnt'),tbl=document.getElementById('rpdTbl');
   if(cnt)cnt.textContent=f.length+' registros';
   if(!tbl)return;
-  const stTag=s=>{const c=s==='MC'?'tag-red':s==='MP'?'tag-amber':s==='RF'?'tag-teal':s==='OP'?'tag-green':'tag-dim';return`<span class="tag ${c}">${rpdEsc(s||'N/I')}</span>`;};
+  const stTag=s=>{const c=s==='MC'?'tag-red':s==='MP'?'tag-amber':s==='RF'?'tag-dim-dark':s==='OP'?'tag-green':'tag-dim';return`<span class="tag ${c}">${rpdEsc(s||'N/I')}</span>`;};
   const impTag=r=>r.impacto==='SIM'?`<span class="tag tag-red">SIM</span><div style="font-size:10px;color:var(--text3);margin-top:2px">${rpdEsc(r.prog||'CLIENTE N/I')}</div>`:'<span class="tag tag-green">NÃO</span>';
   const diasColor=d=>d>60?'var(--red)':d>30?'var(--amber)':'var(--text)';
   tbl.innerHTML=f.length===0?'<tr><td colspan="15" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro</td></tr>':[...f].sort((a,b)=>b.diasParado-a.diasParado||String(a.frota).localeCompare(String(b.frota),'pt-BR',{numeric:true})).map(r=>`<tr><td style="font-family:'DM Mono',monospace;font-weight:600">${rpdEsc(r.frota)}</td><td>${rpdEsc(r.tipo||'—')}</td><td style="font-family:'DM Mono',monospace;white-space:nowrap">${rpdEsc(r.dtParada||'—')}</td><td style="font-family:'DM Mono',monospace;font-weight:700;color:${diasColor(r.diasParado)}">${r.diasParado}d</td><td>${stTag(r.status)}</td><td style="font-family:'DM Mono',monospace;white-space:nowrap">${rpdEsc(r.prazo1||'—')}</td><td style="font-family:'DM Mono',monospace;white-space:nowrap">${rpdEsc(r.prazo2||'—')}</td><td style="font-family:'DM Mono',monospace;white-space:nowrap">${rpdEsc(r.prazo3||'—')}</td><td style="max-width:200px">${rpdEsc(r.falha||'—')}</td><td style="max-width:200px">${rpdEsc(r.statusAtual||'—')}</td><td>${rpdEsc(r.fornecedor||'—')}</td><td>${rpdEsc(r.local||'—')}</td><td style="font-family:'DM Mono',monospace;text-align:center">${rpdEsc(r.prog||'—')}</td><td>${impTag(r)}</td><td style="font-family:'DM Mono',monospace;white-space:nowrap">${rpdEsc(r.dtLib||'—')}</td></tr>`).join('');
