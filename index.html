@@ -2773,13 +2773,14 @@ function renderRPD(){
   const skeys=Object.keys(byStatus).sort((a,b)=>byStatus[b]-byStatus[a]);
   const sColors={'MC':'#c81428','MP':'#e8943a','RF':'#2ab0b8','OP':'#2db87a','AGUARDANDO':'#f39c12'};
   const getC=k=>sColors[k]||'#6b7280';
+  const rpdStatusGraphLabel=s=>(rpdViewMode==='detail'&&rpdIsOP(s))?'Quebras':s;
   const leg=document.getElementById('rpdLeg');
-  if(leg)leg.innerHTML=skeys.length?skeys.map(s=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${getC(s)}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${rpdEsc(s)}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${byStatus[s]})</span></span>`).join(''):'<span class="leg">Sem dados</span>';
+  if(leg)leg.innerHTML=skeys.length?skeys.map(s=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${getC(s)}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${rpdEsc(rpdStatusGraphLabel(s))}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${byStatus[s]})</span></span>`).join(''):'<span class="leg">Sem dados</span>';
   const dEl=document.getElementById('rpdDonut');
-  if(dEl){if(rpdChart){rpdChart.destroy();rpdChart=null;}rpdChart=new Chart(dEl,{type:'doughnut',data:{labels:skeys,datasets:[{data:skeys.map(k=>byStatus[k]),backgroundColor:skeys.map(getC),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0)||1;return ' '+ctx.label+': '+ctx.raw+' ('+Math.round(ctx.raw/t*100)+'%)';}}}},cutout:'72%'}});}
+  if(dEl){if(rpdChart){rpdChart.destroy();rpdChart=null;}rpdChart=new Chart(dEl,{type:'doughnut',data:{labels:skeys.map(rpdStatusGraphLabel),datasets:[{data:skeys.map(k=>byStatus[k]),backgroundColor:skeys.map(getC),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0)||1;return ' '+ctx.label+': '+ctx.raw+' ('+Math.round(ctx.raw/t*100)+'%)';}}}},cutout:'72%'}});}
 
   const statusBars=document.getElementById('rpdStatusBars');
-  if(statusBars){const mx=Math.max(...skeys.map(k=>byStatus[k]),1);statusBars.innerHTML=skeys.map(k=>`<div class="bar-row"><div class="bar-lbl">${rpdEsc(k)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(byStatus[k]/mx*100)}%;background:${getC(k)}"></div></div><div class="bar-num">${byStatus[k]}</div></div>`).join('')||'<span class="leg">Sem dados</span>';}
+  if(statusBars){const mx=Math.max(...skeys.map(k=>byStatus[k]),1);statusBars.innerHTML=skeys.map(k=>`<div class="bar-row"><div class="bar-lbl">${rpdEsc(rpdStatusGraphLabel(k))}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(byStatus[k]/mx*100)}%;background:${getC(k)}"></div></div><div class="bar-num">${byStatus[k]}</div></div>`).join('')||'<span class="leg">Sem dados</span>';}
 
   // ── Show/hide por modo ──
   const isDetail=rpdViewMode==='detail';
