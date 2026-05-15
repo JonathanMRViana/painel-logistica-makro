@@ -1020,9 +1020,9 @@ tbody tr:hover td{background:var(--surface2)}
               </div>
               <span id="inefRangeWrap" style="display:none;align-items:center;gap:6px">
                 <span style="font-size:11px;color:var(--text3)">De</span>
-                <select class="f-select" id="inefSemDe" style="width:120px" onchange="renderINEFtbl()"><option value="">Todas</option></select>
+                <select class="f-select" id="inefSemDe" style="width:120px" onchange="renderINEF()"><option value="">Todas</option></select>
                 <span style="font-size:11px;color:var(--text3)">Até</span>
-                <select class="f-select" id="inefSemAte" style="width:120px" onchange="renderINEFtbl()"><option value="">Todas</option></select>
+                <select class="f-select" id="inefSemAte" style="width:120px" onchange="renderINEF()"><option value="">Todas</option></select>
               </span>
             </div>
           </div>
@@ -1234,7 +1234,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778850342 -->
+<!-- v1778851158 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],rpdData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -2163,12 +2163,16 @@ function renderINEFtbl(){
     const motivo=((document.getElementById('inefMotivo')||{}).value)||'TODOS';
     const transp=((document.getElementById('inefTransp')||{}).value)||'TODOS';
 
+    const semDe=(document.getElementById('inefSemDe')||{}).value||'';
+    const semAte=(document.getElementById('inefSemAte')||{}).value||'';
     const f=inefData.filter(r=>{
       if(mes!=='TODOS'&&r.mes!==mes)return false;
       if(status!=='TODOS'&&!r.status.includes(status))return false;
       if(cob!=='TODOS'&&!r.cobr.includes(cob))return false;
       if(motivo!=='TODOS'&&r.motivo!==motivo)return false;
       if(transp!=='TODOS'&&r.transp!==transp)return false;
+      if(semDe&&r.dtCheg&&r.dtCheg<semDe)return false;
+      if(semAte&&r.dtCheg&&r.dtCheg>semAte)return false;
       if(q&&!r.frota.toLowerCase().includes(q)&&!r.cliente.toLowerCase().includes(q)&&!r.motivo.toLowerCase().includes(q)&&!r.conj.toLowerCase().includes(q))return false;
       return true;
     });
