@@ -1228,7 +1228,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778789175 -->
+<!-- v1778846570 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],rpdData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -1551,7 +1551,8 @@ function renderMOBtbl(){
     // Update Carga KPIs
     const totC=f.reduce((s,r)=>s+(r.nCarg||0),0);
     const carrC=f.reduce((s,r)=>s+(r.nCarreg||0),0);
-    const transC=f.reduce((s,r)=>s+(r.nTransit||0),0);
+    // Em Trânsito: só considera mobilizações com % < 100% (não finalizadas)
+    const transC=f.reduce((s,r)=>Math.round((r.pct||0)*100)<100?s+(r.nTransit||0):s,0);
     const entC=f.reduce((s,r)=>s+(r.nEntreg||0),0);
     const tot2C=totC||1;
     const mc0=document.getElementById('mc0');if(mc0)mc0.textContent=totC;
