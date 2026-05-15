@@ -1176,7 +1176,7 @@ tbody tr:hover td{background:var(--surface2)}
           <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">MC</div><div class="kpi-value" id="rpMC">—</div><div class="kpi-sub">manutenção corretiva</div></div>
           <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">MP</div><div class="kpi-value" id="rpMP">—</div><div class="kpi-sub">manutenção preventiva</div></div>
           <div class="kpi c-gray-dark"><div class="kpi-stripe"></div><div class="kpi-label">RF</div><div class="kpi-value" id="rpRF">—</div><div class="kpi-sub">reforma</div></div>
-          <div class="kpi c-gray-light" id="rpOPCard"><div class="kpi-stripe"></div><div class="kpi-label" id="rpOPLabel">Quebras</div><div class="kpi-value" id="rpOP">—</div><div class="kpi-sub" id="rpOPSub">registros no período</div></div>
+          <div class="kpi c-gray-light" id="rpOPCard"><div class="kpi-stripe"></div><div class="kpi-label" id="rpOPLabel">Falhas Operacionais</div><div class="kpi-value" id="rpOP">—</div><div class="kpi-sub" id="rpOPSub">registros no período</div></div>
           <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label" id="rpCavLabel">Cavalos Parados</div><div class="kpi-value" id="rpCav">—</div><div class="kpi-sub" id="rpCavSub">tipo de frota</div></div>
           <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label" id="rpImpLabel">Implementos Parados</div><div class="kpi-value" id="rpImp">—</div><div class="kpi-sub" id="rpImpSub">tipo de frota</div></div>
         </div>
@@ -1187,12 +1187,16 @@ tbody tr:hover td{background:var(--surface2)}
           <div class="card" id="rpdImpactCard"><div class="card-head"><span class="card-title">Frotas por Cliente Impactado</span></div><div style="display:flex;gap:0;align-items:stretch;min-height:200px"><div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="position:relative;width:180px;height:180px"><canvas id="rpdImpactPie"></canvas></div></div><div style="width:1px;background:var(--border);margin:0 16px;flex-shrink:0"></div><div class="legend" id="rpdImpactLeg" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px"></div></div></div>
         </div>
 
-        
-        <!-- DETALHE: quebras + dias por frota -->
-        <div class="grid-2" id="rpdDetailGrid" style="display:none;margin-bottom:20px">
+        <!-- CENÁRIO ATUAL: Total de Dias Parados por Frota -->
+        <div class="card" id="rpdDiasCurrentCard" style="margin-bottom:20px">
+          <div class="card-head"><span class="card-title">Total de Dias Parados por Frota</span><span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-left:8px">frotas em MC · fotografia atual</span></div>
+          <div style="position:relative;height:260px"><canvas id="rpdDiasBarCurrent"></canvas></div>
+        </div>
+
+        <div class="grid-2" id="rpdDetailGrid" style="display:none;margin-bottom:0">
           <div class="card">
             <div class="card-head" style="display:flex;justify-content:space-between;align-items:center">
-              <span class="card-title">Quantidade de Quebras por Frota</span>
+              <span class="card-title">Quantidade de Falhas Operacionais por Frota</span>
               <div style="display:flex;gap:6px;align-items:center">
                 <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace" id="rpdQbInfo"></span>
                 <button onclick="scrollRPD('qb',-1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);width:26px;height:26px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px">&#8249;</button>
@@ -1234,7 +1238,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778852953 -->
+<!-- v1778866019 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],rpdData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -2590,7 +2594,7 @@ function renderEFL(){
 
 
 // ── RPD: FROTAS EM MANUTENÇÃO ──
-let rpdChart=null, rpdBarChart=null, rpdImpactChart=null, rpdViewMode='current', rpdQbChart=null, rpdDiasChart=null, rpdQbPage=0, rpdDiasPage=0;
+let rpdChart=null, rpdBarChart=null, rpdImpactChart=null, rpdViewMode='current', rpdQbChart=null, rpdDiasChart=null, rpdQbPage=0, rpdDiasPage=0, rpdDiasCurrentChart=null;
 
 function rpdTxt(v){return String(v==null?'':v).trim();}
 function rpdKey(v){return rpdTxt(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]/g,'');}
@@ -2776,18 +2780,18 @@ function renderRPD(){
   set('rpMC',byStatusMaint.MC||0);set('rpMP',byStatusMaint.MP||0);set('rpRF',byStatusMaint.RF||0);set('rpOP',opRows.length);set('rpCav',cav);set('rpImp',imp);
   set('rp0s',rpdViewMode==='detail'?`${totalReg} registros no detalhamento`:'status diferente de OP');
   set('rp0Label','Frotas em Manutenção');
-  set('rpOPLabel',rpdViewMode==='detail'?'Quebras':'OP no Período');
+  set('rpOPLabel',rpdViewMode==='detail'?'Falhas Operacionais':'OP no Período');
   set('rpOPSub',rpdViewMode==='detail'?'linhas no período':'não conta como manutenção');
   set('rpCavLabel','Cavalos Parados');
   set('rpImpLabel','Implementos Parados');
   set('rpdStatusTitle',rpdViewMode==='detail'?'Por Status Geral':'Por Status de Manutenção');
-  set('rpdBarTitle',rpdViewMode==='detail'?'Quebras por Frota (Top 10)':'Dias Parado por Frota (Top 10)');
+  set('rpdBarTitle',rpdViewMode==='detail'?'Falhas Operacionais por Frota (Top 10)':'Dias Parado por Frota (Top 10)');
   set('rpdTblTitle',rpdViewMode==='detail'?'Detalhamento de Todos os Status':'Detalhamento de Frotas em Manutenção');
 
   const skeys=Object.keys(byStatus).sort((a,b)=>byStatus[b]-byStatus[a]);
   const sColors={'MC':'#c81428','MP':'#e8943a','RF':'#4b5563','OP':'#9ca3af','AGUARDANDO':'#f39c12'};
   const getC=k=>sColors[k]||'#6b7280';
-  const rpdStatusGraphLabel=s=>(rpdViewMode==='detail'&&rpdIsOP(s))?'Quebras':s;
+  const rpdStatusGraphLabel=s=>(rpdViewMode==='detail'&&rpdIsOP(s))?'Falhas Operacionais':s;
   const leg=document.getElementById('rpdLeg');
   if(leg)leg.innerHTML=skeys.length?skeys.map(s=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${getC(s)}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${rpdEsc(rpdStatusGraphLabel(s))}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${byStatus[s]})</span></span>`).join(''):'<span class="leg">Sem dados</span>';
   const dEl=document.getElementById('rpdDonut');
@@ -2799,6 +2803,19 @@ function renderRPD(){
   // ── Show/hide por modo ──
   const isDetail=rpdViewMode==='detail';
   const rdg=document.getElementById('rpdDetailGrid');if(rdg)rdg.style.display=isDetail?'':'none';
+  const rdcc=document.getElementById('rpdDiasCurrentCard');if(rdcc)rdcc.style.display=isDetail?'none':'';
+
+  // ── Cenário Atual: gráfico de dias parados (só maint = não-OP) ──
+  if(rpdDiasCurrentChart){rpdDiasCurrentChart.destroy();rpdDiasCurrentChart=null;}
+  if(!isDetail){
+    const diasMap={};
+    maint.forEach(r=>{const k=r.frota||'N/I';diasMap[k]=(diasMap[k]||0)+r.diasParado;});
+    const sorted=Object.entries(diasMap).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
+    const el=document.getElementById('rpdDiasBarCurrent');
+    if(el&&sorted.length){
+      rpdDiasCurrentChart=new Chart(el,{type:'bar',data:{labels:sorted.map(x=>x[0]),datasets:[{data:sorted.map(x=>x[1]),backgroundColor:'rgba(200,20,40,0.85)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw} dias`}}},scales:{x:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11}}},y:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11}}}}}});
+    }
+  }
   const rpOPC=document.getElementById('rpOPCard');if(rpOPC)rpOPC.style.display=isDetail?'':'none';
   const kr6=document.getElementById('rpdKpiRow6');if(kr6)kr6.style.gridTemplateColumns=isDetail?'repeat(6,minmax(0,1fr))':'repeat(5,minmax(0,1fr))';
 
