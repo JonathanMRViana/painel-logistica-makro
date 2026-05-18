@@ -318,6 +318,36 @@ tbody tr:hover td{background:var(--surface2)}
 .c-gray-dark .kpi-value{color:#4b5563}
 .c-gray-light .kpi-stripe{background:#9ca3af}
 .c-gray-light .kpi-value{color:#9ca3af}
+
+/* ── SIDEBAR TOOLTIP (body-level) ── */
+#sb-tooltip{
+  position:fixed;left:0;top:0;
+  background:var(--surface);
+  color:var(--text);
+  font-size:12px;
+  font-family:'Nunito Sans',sans-serif;
+  font-weight:500;
+  white-space:nowrap;
+  padding:7px 13px;
+  border-radius:7px;
+  border:1px solid var(--border2);
+  box-shadow:0 4px 20px rgba(0,0,0,.28);
+  pointer-events:none;
+  z-index:99999;
+  opacity:0;
+  transform:translateX(6px);
+  transition:opacity .14s ease,transform .14s ease;
+  display:none;
+}
+#sb-tooltip.visible{opacity:1;transform:translateX(0)}
+#sb-tooltip .tt-title{font-weight:600;font-size:12px;color:var(--text);display:block}
+#sb-tooltip .tt-sub{font-size:10px;color:var(--text3);display:block;margin-top:2px}
+
+/* ── SIDEBAR TOOLTIP ── */
+#sb-tooltip{position:fixed;left:0;top:0;background:var(--surface);color:var(--text);font-size:12px;font-family:'Nunito Sans',sans-serif;font-weight:500;white-space:nowrap;padding:7px 13px;border-radius:7px;border:1px solid var(--border2);box-shadow:0 4px 20px rgba(0,0,0,.28);pointer-events:none;z-index:99999;opacity:0;transform:translateX(6px);transition:opacity .14s ease,transform .14s ease;display:none}
+#sb-tooltip.visible{opacity:1;transform:translateX(0)}
+#sb-tooltip .tt-title{font-weight:600;font-size:12px;color:var(--text);display:block}
+#sb-tooltip .tt-sub{font-size:10px;color:var(--text3);display:block;margin-top:2px}
 </style>
 </head>
 <body>
@@ -1238,7 +1268,7 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
-<!-- v1778866019 -->
+<!-- v1778869583 -->
 <script>
 let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],rpdData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,dark=false;
 window._aet=()=>aetData;
@@ -2848,6 +2878,35 @@ function renderRPD(){
   const diasColor=d=>d>60?'var(--red)':d>30?'var(--amber)':'var(--text)';
   tbl.innerHTML=f.length===0?'<tr><td colspan="15" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro</td></tr>':[...f].sort((a,b)=>b.diasParado-a.diasParado||String(a.frota).localeCompare(String(b.frota),'pt-BR',{numeric:true})).map(r=>`<tr><td style="font-family:'DM Mono',monospace;font-weight:600">${rpdEsc(r.frota)}</td><td>${rpdEsc(r.tipo||'—')}</td><td style="font-family:'DM Mono',monospace;white-space:nowrap">${rpdEsc(r.dtParada||'—')}</td><td style="font-family:'DM Mono',monospace;font-weight:700;color:${diasColor(r.diasParado)}">${r.diasParado}d</td><td>${stTag(r.status)}</td><td style="font-family:'DM Mono',monospace;white-space:nowrap">${rpdEsc(r.prazo1||'—')}</td><td style="font-family:'DM Mono',monospace;white-space:nowrap">${rpdEsc(r.prazo2||'—')}</td><td style="font-family:'DM Mono',monospace;white-space:nowrap">${rpdEsc(r.prazo3||'—')}</td><td style="max-width:200px">${rpdEsc(r.falha||'—')}</td><td style="max-width:200px">${rpdEsc(r.statusAtual||'—')}</td><td>${rpdEsc(r.fornecedor||'—')}</td><td>${rpdEsc(r.local||'—')}</td><td style="font-family:'DM Mono',monospace;text-align:center">${rpdEsc(r.prog||'—')}</td><td>${impTag(r)}</td><td style="font-family:'DM Mono',monospace;white-space:nowrap">${rpdEsc(r.dtLib||'—')}</td></tr>`).join('');
 }
+
+// ── SIDEBAR TOOLTIP ENGINE ──
+(function(){
+  const tip=document.getElementById('sb-tooltip');
+  if(!tip)return;
+  const title=tip.querySelector('.tt-title');
+  const sub=tip.querySelector('.tt-sub');
+  let timer;
+  const sb=document.querySelector('.sidebar');
+  if(!sb)return;
+  sb.addEventListener('mouseover',function(e){
+    const nav=e.target.closest('.nav-item[data-tip]');
+    if(!nav||!sb.classList.contains('col'))return;
+    clearTimeout(timer);
+    title.textContent=nav.dataset.tip||'';
+    sub.textContent=nav.dataset.sub||'';
+    tip.style.display='block';
+    const r=nav.getBoundingClientRect();
+    tip.style.left=(r.right+10)+'px';
+    tip.style.top=(r.top+r.height/2-tip.offsetHeight/2)+'px';
+    requestAnimationFrame(()=>tip.classList.add('visible'));
+  });
+  sb.addEventListener('mouseout',function(e){
+    const nav=e.target.closest('.nav-item[data-tip]');
+    if(!nav)return;
+    tip.classList.remove('visible');
+    timer=setTimeout(()=>{tip.style.display='none';},150);
+  });
+})();
 
 loadAll();
 setInterval(loadAll,5*60*1000);
