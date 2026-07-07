@@ -376,21 +376,16 @@ tbody tr:hover td{background:var(--surface2)}
   <div class="sb-nav-top">
   <div class="sb-section">Transporte</div>
 
-  <div class="sb-section">Logística</div>
-
   <div class="nav-item active" id="nav-mob" data-tip="Gestão de Mobilizações" data-sub="Operações de mobilização e desmobilização" onclick="goTo('mob')">
     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
     <span class="nav-lbl">Gestão de Mobilizações</span>
   </div>
 
-  <div class="nav-item" id="nav-aet" data-tip="Gestão de AET's" data-sub="Licenças especiais de trânsito" onclick="goTo('aet')">
-    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-    <span class="nav-lbl">Gestão de AET's</span>
-  </div>
+  <div class="sb-section">Logística</div>
 
-  <div class="nav-item nav-disabled" data-tip="Programação Logística" data-sub="Em desenvolvimento">
-    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
-    <span class="nav-lbl">Programação Logística</span>
+  <div class="nav-item" id="nav-inef" data-tip="Controle de Ineficiências" data-sub="Equipamentos parados e diárias" onclick="goTo('inef')">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span class="nav-lbl">Controle de Ineficiências Op. (Diárias)</span>
   </div>
 
   <div class="nav-item nav-disabled" data-tip="Cronogramas de Mobilizações" data-sub="Em desenvolvimento">
@@ -398,9 +393,9 @@ tbody tr:hover td{background:var(--surface2)}
     <span class="nav-lbl">Cronogramas de Mobilizações</span>
   </div>
 
-  <div class="nav-item" id="nav-inef" data-tip="Controle de Ineficiências" data-sub="Equipamentos parados e diárias" onclick="goTo('inef')">
-    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    <span class="nav-lbl">Controle de Ineficiências Op. (Diárias)</span>
+  <div class="nav-item" id="nav-aet" data-tip="Gestão de AET's" data-sub="Licenças especiais de trânsito" onclick="goTo('aet')">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+    <span class="nav-lbl">Gestão de AET's</span>
   </div>
 
   <div class="nav-item" id="nav-pat" data-tip="Gestão de Pátio" data-sub="Atividades e operações de pátio" onclick="goTo('pat')">
@@ -413,22 +408,17 @@ tbody tr:hover td{background:var(--surface2)}
     <span class="nav-lbl">Mat. de Amarração & Segurança</span>
   </div>
 
+  <div class="nav-item nav-disabled" data-tip="Programação Logística" data-sub="Em desenvolvimento">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+    <span class="nav-lbl">Programação Logística</span>
+  </div>
+
 
   <div class="sb-section">KPIs</div>
-
-  <div class="nav-item" id="nav-exec" data-tip="Resumo Executivo" data-sub="Aguardando dados" onclick="goTo('exec')">
-    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 8h8M8 12h5M8 16h7"/></svg>
-    <span class="nav-lbl">Resumo Executivo</span>
-  </div>
 
   <div class="nav-item nav-disabled" data-tip="Indicadores" data-sub="Em desenvolvimento">
     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
     <span class="nav-lbl">Indicadores</span>
-  </div>
-
-  <div class="nav-item" id="nav-rpd" data-tip="Rel. Frotas em Manutenção (RPD)" data-sub="Frotas em manutenção" onclick="goTo('rpd')">
-    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
-    <span class="nav-lbl">Relatório de Frotas em Manutenção (RPD)</span>
   </div>
 
   <div class="nav-item" id="nav-efl" onclick="goTo('efl')" data-tip="Rel. Eficiência Logística" data-sub="KM rodado por frota">
@@ -436,10 +426,20 @@ tbody tr:hover td{background:var(--surface2)}
     <span class="nav-lbl">Relatório de Eficiência Logística</span>
   </div>
 
+  <div class="nav-item" id="nav-rpd" data-tip="Rel. Frotas em Manutenção (RPD)" data-sub="Frotas em manutenção" onclick="goTo('rpd')">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+    <span class="nav-lbl">Relatório de Frotas em Manutenção (RPD)</span>
+  </div>
+
+  <div class="nav-item nav-disabled" data-tip="Resumo Executivo" data-sub="Aguardando dados">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 8h8M8 12h5M8 16h7"/></svg>
+    <span class="nav-lbl">Resumo Executivo</span>
+  </div>
+
   <div class="sb-section">Faturamento</div>
 
-  <div class="nav-item" id="nav-fatprev" data-tip="Prévia de Faturamento" data-sub="Aguardando dados" onclick="goTo('fatprev')">
-    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h8M8 17h5"/></svg>
+  <div class="nav-item nav-disabled" data-tip="Prévia de Faturamento" data-sub="Aguardando dados">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M8 16V8h3a2 2 0 010 4H8"/><path d="M11 12l2.5 4"/><path d="M17 7.5v9"/><path d="M19 9.5c0-1-1-1.5-2-1.5s-2 .5-2 1.5 1 1.5 2 1.5 2 .5 2 1.5-1 1.5-2 1.5-2-.5-2-1.5"/></svg>
     <span class="nav-lbl">Prévia de Faturamento</span>
   </div>
 
