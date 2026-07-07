@@ -1663,6 +1663,9 @@ function progObsCell(ref,text){
   const safeText=progEsc(text||'');
   return safeText?`<span class="obs-icon" data-frota="${safeRef}" data-obs="${safeText}">☰</span>`:'—';
 }
+function progSplitFrotas(v){
+  return progTxt(v).split(/\s*,\s*|\s+e\s+/i).map(s=>progTxt(s)).filter(Boolean);
+}
 function renderPROG(){
   if(!progSheetsData.length)return;
   const baseSheet=progSheetsData.find(s=>s.week===getPROGSelectedWeek())||progSheetsData[progSheetsData.length-1];
@@ -1681,14 +1684,17 @@ function renderPROG(){
     if(q){const hay=[r.week,r.conjunto,r.tipo,r.un,r.cliente,r.localizacao,r.frotaAtendida,r.statusAtual,r.realizado,r.aderencia,r.obs].join(' ').toLowerCase();if(!hay.includes(q))return false;}
     return true;
   });
-  const loads=(baseSheet.loads||[]).filter(r=>{if(frota!=='TODOS'&&r.frota!==frota)return false;if(q){const hay=[r.frota,r.tipoOp].join(' ').toLowerCase();if(!hay.includes(q))return false;}return true;});
-  const extras=baseSheet.extras||[];
-  const occs=baseSheet.occurrences||[];
+  const hasStructuredFilters=cliente!=='TODOS'||frota!=='TODOS'||un!=='TODOS'||status!=='TODOS'||realizado!=='TODOS';
+  const allowedFrotas=new Set(records.flatMap(r=>progSplitFrotas(r.frotaAtendida)).map(v=>progKey(v)));
+  const allowedConjuntos=new Set(records.map(r=>progKey(r.conjunto)));
+  const loads=(baseSheet.loads||[]).filter(r=>{if(frota!=='TODOS'&&progKey(r.frota)!==progKey(frota))return false;if(hasStructuredFilters&&allowedFrotas.size>0&&!allowedFrotas.has(progKey(r.frota)))return false;if(q){const hay=[r.frota,r.tipoOp,r.cargas,r.entregues,r.emTransito,r.pendente].join(' ').toLowerCase();if(!hay.includes(q))return false;}return true;});
+  const extras=(baseSheet.extras||[]).filter(r=>{if(cliente!=='TODOS'&&r.cliente!==cliente)return false;if(frota!=='TODOS'&&!progKey([r.frotaAtendida,r.conjunto,r.motivo].join(' ')).includes(progKey(frota)))return false;if(hasStructuredFilters&&frota==='TODOS'&&allowedFrotas.size>0){const extraFrotas=progSplitFrotas(r.frotaAtendida).map(v=>progKey(v));if(extraFrotas.length&&!extraFrotas.some(v=>allowedFrotas.has(v)))return false;}if(q){const hay=[r.conjunto,r.tipo,r.solicitante,r.cliente,r.dataSolicitacao,r.dataSaida,r.motivo,r.frotaAtendida,r.status].join(' ').toLowerCase();if(!hay.includes(q))return false;}return true;});
+  const occs=(baseSheet.occurrences||[]).filter(r=>{if(frota!=='TODOS'){const hay=[r.conjunto,r.descricao,r.impacto].join(' ');if(!progKey(hay).includes(progKey(frota))&&!allowedConjuntos.has(progKey(r.conjunto)))return false;}if(hasStructuredFilters&&frota==='TODOS'&&allowedConjuntos.size>0&&!allowedConjuntos.has(progKey(r.conjunto))&&q==='')return false;if(q){const hay=[r.conjunto,r.dataHora,r.tipo,r.descricao,r.responsavel,r.impacto,r.status,r.dataResolucao].join(' ').toLowerCase();if(!hay.includes(q))return false;}return true;});
   const ocorrOpen=occs.filter(o=>progIsOpenStatus(o.status)).length;
-  const manutCount=baseSheet.records.filter(r=>progKey(r.statusAtual).includes('MANUTEN')).length;
-  const dispCount=baseSheet.records.filter(r=>progKey(r.statusAtual).includes('DISPON')).length;
-  const semPrevCount=baseSheet.records.filter(r=>progKey(r.dataLiberacao).includes('SEMPREVISAO')).length;
-  const totalProgramados=baseSheet.records.length||0;
+  const manutCount=records.filter(r=>progKey(r.statusAtual).includes('MANUTEN')).length;
+  const dispCount=records.filter(r=>progKey(r.statusAtual).includes('DISPON')).length;
+  const semPrevCount=records.filter(r=>progKey(r.dataLiberacao).includes('SEMPREVISAO')).length;
+  const totalProgramados=records.length||0;
   const extrasRate=totalProgramados?extras.length/totalProgramados*100:0;
   const totalCargas=loads.reduce((s,r)=>s+r.cargas,0);
   const cargasEntregues=loads.reduce((s,r)=>s+r.entregues,0);
@@ -1697,7 +1703,7 @@ function renderPROG(){
   const taxaEntrega=totalCargas?cargasEntregues/totalCargas*100:0;
   const taxaDisponibilidade=totalProgramados?dispCount/totalProgramados*100:0;
   const doneMap={'Realizado':0,'Parcial':0,'Pendente':0,'Não Realizado':0};
-  baseSheet.records.forEach(r=>{const k=progKey(r.realizado);if(k==='REALIZADO')doneMap['Realizado']++;else if(k==='PARCIAL')doneMap['Parcial']++;else if(k==='PENDENTE')doneMap['Pendente']++;else if(k.includes('NAOREALIZADO'))doneMap['Não Realizado']++;});
+  records.forEach(r=>{const k=progKey(r.realizado);if(k==='REALIZADO')doneMap['Realizado']++;else if(k==='PARCIAL')doneMap['Parcial']++;else if(k==='PENDENTE')doneMap['Pendente']++;else if(k.includes('NAOREALIZADO'))doneMap['Não Realizado']++;});
   const pontosExec=(doneMap['Realizado']*1)+(doneMap['Parcial']*0.5);
   const taxaAderencia=totalProgramados?pontosExec/totalProgramados*100:0;
   const summaryOrder=[['Programações',String(totalProgramados)],['Disponíveis',String(dispCount)],['Em Manutenção',String(manutCount)],['Sem Previsão',String(semPrevCount)]];
@@ -1716,7 +1722,7 @@ function renderPROG(){
   const statusCanvas=document.getElementById('progStatusChart');
   if(progStatusChart){progStatusChart.destroy();progStatusChart=null;}
   if(statusCanvas&&statLabels.length){progStatusChart=new Chart(statusCanvas,{type:'doughnut',data:{labels:statLabels,datasets:[{data:statVals,backgroundColor:statColors.slice(0,statLabels.length),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.label+': '+ctx.raw}}},cutout:'72%'}});}
-  const clientMap={};baseSheet.records.forEach(r=>{const key=r.cliente||'N/I';clientMap[key]=(clientMap[key]||0)+1;});
+  const clientMap={};records.forEach(r=>{const key=r.cliente||'N/I';clientMap[key]=(clientMap[key]||0)+1;});
   const clientEntries=Object.entries(clientMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
   const clientCanvas=document.getElementById('progClientChart');
   if(progClientChart){progClientChart.destroy();progClientChart=null;}
