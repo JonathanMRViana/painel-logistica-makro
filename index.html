@@ -153,6 +153,15 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 .obs-cell{text-align:center}
 .obs-icon{cursor:pointer;font-size:15px;opacity:.7;transition:opacity .15s;display:inline-block;padding:3px 6px;border-radius:4px}
 .obs-icon:hover{opacity:1;background:var(--surface2)}
+.prog-main-table th:nth-child(2),.prog-main-table td:nth-child(2){min-width:112px}
+.prog-main-table th:nth-child(5),.prog-main-table td:nth-child(5){min-width:74px}
+.prog-main-table th:nth-child(8),.prog-main-table td:nth-child(8){min-width:140px}
+.prog-main-table th:nth-child(9),.prog-main-table td:nth-child(9){min-width:132px}
+.prog-main-table th:nth-child(10),.prog-main-table td:nth-child(10){min-width:120px}
+.prog-main-table th:nth-child(13),.prog-main-table td:nth-child(13),
+.prog-main-table th:nth-child(14),.prog-main-table td:nth-child(14){min-width:84px}
+.prog-main-table td:nth-child(2),.prog-main-table td:nth-child(5),.prog-main-table td:nth-child(8),.prog-main-table td:nth-child(9){word-break:normal;overflow-wrap:normal}
+.prog-main-table td:nth-child(3),.prog-main-table td:nth-child(4),.prog-main-table td:nth-child(6),.prog-main-table td:nth-child(7),.prog-main-table td:nth-child(11),.prog-main-table td:nth-child(12){white-space:nowrap}
 .obs-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px}
 .obs-modal-overlay.open{display:flex}
 .obs-modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:20px;max-width:480px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.3);position:relative}
@@ -1333,7 +1342,7 @@ tbody tr:hover td{background:var(--surface2)}
           </div>
           <div class="card">
             <div class="card-head"><span class="card-title">Distribuição por Cliente</span></div>
-            <div style="position:relative;height:220px"><canvas id="progClientChart"></canvas></div>
+            <div style="position:relative;height:220px;display:flex;align-items:center;justify-content:center;padding-top:8px"><canvas id="progClientChart"></canvas></div>
           </div>
         </div>
 
@@ -1350,7 +1359,7 @@ tbody tr:hover td{background:var(--surface2)}
 
         <div class="tbl-card" style="margin-bottom:20px">
           <div class="tbl-head"><span class="tbl-title">Programação Principal</span><span class="count-tag" id="progCnt">0 registros</span></div>
-          <div class="tbl-wrap"><table><thead><tr><th>Semana</th><th>Conjunto</th><th>Tipo</th><th>UN</th><th>Cliente</th><th>Data Cliente</th><th>Data Saída</th><th>Localização</th><th>Frota Atendida</th><th>Status Atual</th><th>Data Liberação</th><th>Realizado?</th><th>Obs. Aderência</th><th>Observação</th></tr></thead><tbody id="progTbl"></tbody></table></div>
+          <div class="tbl-wrap"><table class="prog-main-table"><thead><tr><th>Semana</th><th>Conjunto</th><th>Tipo</th><th>UN</th><th>Cliente</th><th>Data Cliente</th><th>Data Saída</th><th>Localização</th><th>Frota Atendida</th><th>Status Atual</th><th>Data Liberação</th><th>Realizado?</th><th>Obs. Aderência</th><th>Observação</th></tr></thead><tbody id="progTbl"></tbody></table></div>
         </div>
 
         <div class="tbl-card" style="margin-bottom:20px">
@@ -1645,6 +1654,11 @@ function populatePROGFilters(){
   fill('progRealizado',[...new Set(allRecords.map(r=>r.realizado).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')));
 }
 function clearPROGFilters(){['progSearch'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});['progWeek','progCliente','progFrota','progUn','progStatus','progRealizado'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});renderPROG();}
+function progObsCell(ref,text){
+  const safeRef=progEsc(ref||'');
+  const safeText=progEsc(text||'');
+  return safeText?`<span class="obs-icon" data-frota="${safeRef}" data-obs="${safeText}">☰</span>`:'—';
+}
 function renderPROG(){
   if(!progSheetsData.length)return;
   const baseSheet=progSheetsData.find(s=>s.week===getPROGSelectedWeek())||progSheetsData[progSheetsData.length-1];
@@ -1732,7 +1746,7 @@ function renderPROG(){
     });
   }
   const tbl=document.getElementById('progTbl');
-  if(tbl){tbl.innerHTML=records.length?records.map(r=>`<tr><td style="font-family:'DM Mono',monospace">${progEsc(r.week)}</td><td style="font-family:'DM Mono',monospace;font-weight:600">${progEsc(r.conjunto)}</td><td>${progEsc(r.tipo||'—')}</td><td>${progEsc(r.un||'—')}</td><td>${progEsc(r.cliente||'—')}</td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataCliente||'—')}</td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataSaida||'—')}</td><td>${progEsc(r.localizacao||'—')}</td><td>${progEsc(r.frotaAtendida||'—')}</td><td><span class="tag ${progTagStatus(r.statusAtual)}">${progEsc(r.statusAtual||'—')}</span></td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataLiberacao||'—')}</td><td><span class="tag ${progTagDone(r.realizado)}">${progEsc(r.realizado||'—')}</span></td><td>${progEsc(r.aderencia||'—')}</td><td>${progEsc(r.obs||'—')}</td></tr>`).join(''):'<tr><td colspan="14" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro</td></tr>';}
+  if(tbl){tbl.innerHTML=records.length?records.map(r=>`<tr><td style="font-family:'DM Mono',monospace;white-space:nowrap">${progEsc(r.week)}</td><td style="font-family:'DM Mono',monospace;font-weight:600">${progEsc(r.conjunto)}</td><td>${progEsc(r.tipo||'—')}</td><td>${progEsc(r.un||'—')}</td><td>${progEsc(r.cliente||'—')}</td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataCliente||'—')}</td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataSaida||'—')}</td><td>${progEsc(r.localizacao||'—')}</td><td>${progEsc(r.frotaAtendida||'—')}</td><td><span class="tag ${progTagStatus(r.statusAtual)}">${progEsc(r.statusAtual||'—')}</span></td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataLiberacao||'—')}</td><td><span class="tag ${progTagDone(r.realizado)}">${progEsc(r.realizado||'—')}</span></td><td class="obs-cell">${progObsCell(r.conjunto,r.aderencia)}</td><td class="obs-cell">${progObsCell(r.conjunto,r.obs)}</td></tr>`).join(''):'<tr><td colspan="14" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro</td></tr>';}
   const cargaTbl=document.getElementById('progCargaTbl');
   if(cargaTbl){cargaTbl.innerHTML=loads.length?loads.map(r=>{const rate=r.cargas?Math.round(r.entregues/r.cargas*100):0;return`<tr><td style="font-family:'DM Mono',monospace">${progEsc(r.week)}</td><td style="font-family:'DM Mono',monospace;font-weight:600">${progEsc(r.frota)}</td><td>${progEsc(r.tipoOp||'—')}</td><td style="font-family:'DM Mono',monospace">${r.cargas}</td><td style="font-family:'DM Mono',monospace;color:var(--green)">${r.entregues}</td><td style="font-family:'DM Mono',monospace;color:var(--makro-blue)">${r.emTransito}</td><td style="font-family:'DM Mono',monospace;color:var(--amber)">${r.pendente}</td><td style="font-family:'DM Mono',monospace">${r.conjuntos}</td><td style="font-family:'DM Mono',monospace">${rate}%</td></tr>`;}).join(''):'<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro de cargas</td></tr>';}
   const occTbl=document.getElementById('progOccTbl');
