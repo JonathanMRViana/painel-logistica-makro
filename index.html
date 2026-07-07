@@ -1360,9 +1360,37 @@ function toggleTheme(){
   document.getElementById('themeLbl').textContent=lbl;
   document.getElementById('themeIconOnly').textContent=ico;
   document.getElementById('themeIconOnly').title=lbl;
+  const activePanel=document.querySelector('.panel.active');
+  const activeId=activePanel?activePanel.id.replace('panel-',''):'';
   if(aC){aC.destroy();aC=null;}if(mC){mC.destroy();mC=null;}
-  if(aetData.length)renderAET();
-  if(mobData.length)renderMOB();
+  if(mAC){mAC.destroy();mAC=null;}if(pC){pC.destroy();pC=null;}
+  if(iC){iC.destroy();iC=null;}if(iC2){iC2.destroy();iC2=null;}
+  if(typeof eflChart!=='undefined'&&eflChart){eflChart.destroy();eflChart=null;}
+  if(typeof rpdChart!=='undefined'&&rpdChart){rpdChart.destroy();rpdChart=null;}
+  if(typeof rpdBarChart!=='undefined'&&rpdBarChart){rpdBarChart.destroy();rpdBarChart=null;}
+  if(typeof rpdImpactChart!=='undefined'&&rpdImpactChart){rpdImpactChart.destroy();rpdImpactChart=null;}
+  if(typeof rpdQbChart!=='undefined'&&rpdQbChart){rpdQbChart.destroy();rpdQbChart=null;}
+  if(typeof rpdDiasChart!=='undefined'&&rpdDiasChart){rpdDiasChart.destroy();rpdDiasChart=null;}
+  if(typeof rpdDiasCurrentChart!=='undefined'&&rpdDiasCurrentChart){rpdDiasCurrentChart.destroy();rpdDiasCurrentChart=null;}
+  if(activeId==='aet'&&aetData.length)renderAET();
+  if(activeId==='mob'&&mobData.length)renderMOB();
+  if(activeId==='mat'&&matData.length)renderMAT();
+  if(activeId==='pat'&&patData.length)renderPAT();
+  if(activeId==='inef'&&inefData.length)renderINEF();
+  if(activeId==='efl'&&eflData.length)renderEFL();
+  if(activeId==='rpd'&&rpdData.length)renderRPD();
+}
+
+function cssVar(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+function chartTheme(){
+  const text=cssVar('--text')||'#f0f0f0';
+  const text2=cssVar('--text2')||'#9a9da6';
+  const text3=cssVar('--text3')||'#5e6170';
+  const border=cssVar('--border')||'#2c2e32';
+  const border2=cssVar('--border2')||'#3a3c41';
+  return {text,text2,text3,border,border2,grid:dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.08)',tooltipBg:dark?'rgba(22,23,25,0.96)':'rgba(255,255,255,0.96)'};
 }
 
 
@@ -2242,6 +2270,7 @@ function renderINEF(){
 
 function renderINEFtbl(){
   try{
+    const ct=chartTheme();
     const q=((document.getElementById('inefSearch')||{}).value||'').toLowerCase().trim();
     const mes=((document.getElementById('inefMes')||{}).value)||'TODOS';
     const status=((document.getElementById('inefStatus')||{}).value)||'TODOS';
@@ -2333,12 +2362,12 @@ function renderINEFtbl(){
         {type:'bar',label:'Valor Total (R$)',data:vlSerie,backgroundColor:'rgba(200,20,40,0.7)',borderColor:'#c81428',borderWidth:1,yAxisID:'y'},
         {type:'line',label:'Ocorrências',data:ocSerie,borderColor:'#1b3f7a',backgroundColor:'rgba(27,63,122,0.1)',borderWidth:2,pointRadius:4,pointBackgroundColor:'#1b3f7a',yAxisID:'y2',tension:0.3}
       ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-        plugins:{legend:{display:true,position:'top',labels:{font:{family:'Montserrat',size:11},color:'var(--text3)',boxWidth:12}},
+        plugins:{legend:{display:true,position:'top',labels:{font:{family:'Montserrat',size:11},color:ct.text3,boxWidth:12}},
           tooltip:{callbacks:{label:function(ctx){return ctx.dataset.yAxisID==='y'?' '+fMoney(ctx.raw):' '+ctx.raw+' ocorrências';}}}},
         scales:{
-          y:{position:'left',grid:{display:false},ticks:{callback:function(v){return'R$'+v.toLocaleString('pt-BR');},color:'var(--text3)',font:{family:'DM Mono',size:10}}},
-          y2:{position:'right',grid:{drawOnChartArea:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:10}}},
-          x:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'Montserrat',size:10},maxRotation:45}}
+          y:{position:'left',grid:{display:false},ticks:{callback:function(v){return'R$'+v.toLocaleString('pt-BR');},color:ct.text3,font:{family:'DM Mono',size:10}}},
+          y2:{position:'right',grid:{drawOnChartArea:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:10}}},
+          x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'Montserrat',size:10},maxRotation:45}}
         }
       }});
     }
@@ -2615,6 +2644,7 @@ function scrollEFLChart(dir){
 }
 
 function renderEFLChart(f){
+  const ct=chartTheme();
   const pages=Math.ceil(f.length/EFL_PAGE_SIZE)||1;
   const slice=f.slice(eflChartPage*EFL_PAGE_SIZE,(eflChartPage+1)*EFL_PAGE_SIZE);
   const info=document.getElementById('eflChartInfo');
@@ -2629,11 +2659,11 @@ function renderEFLChart(f){
         {label:'KM Vazio',data:slice.map(r=>r.kmVazio),backgroundColor:'rgba(232,148,58,0.75)',borderRadius:4},
       ]},
     options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top',labels:{font:{family:'Montserrat',size:11},color:'var(--text3)',boxWidth:12}},
+      plugins:{legend:{position:'top',labels:{font:{family:'Montserrat',size:11},color:ct.text3,boxWidth:12}},
         tooltip:{callbacks:{label:ctx2=>` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},
       scales:{
-        x:{stacked:true,grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11}}},
-        y:{stacked:true,grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11},callback:v=>v.toLocaleString('pt-BR')+'km'}}
+        x:{stacked:true,grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:11}}},
+        y:{stacked:true,grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:11},callback:v=>v.toLocaleString('pt-BR')+'km'}}
       }}});
 }
 
@@ -2816,6 +2846,7 @@ function clearRPDFilters(){
 
 const RPD_PAGE=15;
 function renderRPDChart(key){
+  const ct=chartTheme();
   const isQb=key==='qb';
   const data=isQb?window._rpdByQb:window._rpdByDias;
   if(!data||!data.length)return;
@@ -2828,7 +2859,7 @@ function renderRPDChart(key){
   if(!el)return;
   if(isQb){if(rpdQbChart){rpdQbChart.destroy();rpdQbChart=null;}}
   else{if(rpdDiasChart){rpdDiasChart.destroy();rpdDiasChart=null;}}
-  const opts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>isQb?` ${Math.round(ctx.raw)} quebras`:` ${ctx.raw} dias`}}},scales:{x:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:10}}},y:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11},...(isQb?{stepSize:1,callback:v=>Number.isInteger(v)?v:null}:{})}}}};
+  const opts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>isQb?` ${Math.round(ctx.raw)} quebras`:` ${ctx.raw} dias`}}},scales:{x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:10}}},y:{grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:11},...(isQb?{stepSize:1,callback:v=>Number.isInteger(v)?v:null}:{})}}}};
   const chart=new Chart(el,{type:'bar',data:{labels:slice.map(x=>x[0]),datasets:[{data:slice.map(x=>isQb?x[1].quebras:x[1].dias),backgroundColor:isQb?'rgba(232,148,58,0.85)':'rgba(200,20,40,0.85)',borderRadius:4}]},options:opts});
   if(isQb)rpdQbChart=chart; else rpdDiasChart=chart;
 }
@@ -2842,6 +2873,7 @@ function scrollRPD(key,dir){
 }
 
 function renderRPD(){
+  const ct=chartTheme();
   const f=getRPDFiltered();
   const maint=f.filter(r=>!rpdIsOP(r.status));
   const opRows=f.filter(r=>rpdIsOP(r.status));
@@ -2895,7 +2927,7 @@ function renderRPD(){
     const sorted=Object.entries(diasMap).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
     const el=document.getElementById('rpdDiasBarCurrent');
     if(el&&sorted.length){
-      rpdDiasCurrentChart=new Chart(el,{type:'bar',data:{labels:sorted.map(x=>x[0]),datasets:[{data:sorted.map(x=>x[1]),backgroundColor:'rgba(200,20,40,0.85)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw} dias`}}},scales:{x:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11}}},y:{grid:{display:false},ticks:{color:'var(--text3)',font:{family:'DM Mono',size:11}}}}}});
+      rpdDiasCurrentChart=new Chart(el,{type:'bar',data:{labels:sorted.map(x=>x[0]),datasets:[{data:sorted.map(x=>x[1]),backgroundColor:'rgba(200,20,40,0.85)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw} dias`}}},scales:{x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:11}}},y:{grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:11}}}}}});
     }
   }
   const rpOPC=document.getElementById('rpOPCard');if(rpOPC)rpOPC.style.display=isDetail?'':'none';
