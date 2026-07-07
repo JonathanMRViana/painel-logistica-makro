@@ -445,7 +445,7 @@ tbody tr:hover td{background:var(--surface2)}
     <span class="nav-lbl">Relatório de Frotas em Manutenção (RPD)</span>
   </div>
 
-  <div class="nav-item nav-disabled" data-tip="Resumo Executivo" data-sub="Aguardando dados">
+  <div class="nav-item" id="nav-exec" data-tip="Resumo Executivo" data-sub="Visão gerencial consolidada" onclick="goTo('exec')">
     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 8h8M8 12h5M8 16h7"/></svg>
     <span class="nav-lbl">Resumo Executivo</span>
   </div>
@@ -1361,6 +1361,11 @@ tbody tr:hover td{background:var(--surface2)}
           </div>
         </div>
 
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-head"><span class="card-title">Quantitativo de Extras Programadas</span><span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace" id="progExtraWeek">—</span></div>
+          <div id="progExtraBars" class="bars"></div>
+        </div>
+
         <div class="tbl-card" style="margin-bottom:20px">
           <div class="tbl-head"><span class="tbl-title">Programação Principal</span><span class="count-tag" id="progCnt">0 registros</span></div>
           <div class="tbl-wrap"><table class="prog-main-table"><thead><tr><th>Semana</th><th>Conjunto</th><th>Tipo</th><th>UN</th><th>Cliente</th><th>Data Cliente</th><th>Data Saída</th><th>Localização</th><th>Frota Atendida</th><th>Status Atual</th><th>Data Liberação</th><th>Realizado?</th><th>Obs. Aderência</th><th>Observação</th></tr></thead><tbody id="progTbl"></tbody></table></div>
@@ -1386,13 +1391,59 @@ tbody tr:hover td{background:var(--surface2)}
 
     <!-- EXECUTIVE SUMMARY PANEL -->
     <div id="panel-exec" class="panel">
-      <div class="empty-panel-card">
-        <div class="empty-panel-inner">
-          <div class="empty-panel-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 8h8M8 12h5M8 16h7"/></svg>
+      <div style="display:grid;gap:20px">
+        <div class="kpi-row">
+          <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Mobilizações Pendentes</div><div class="kpi-value" id="execK0">—</div><div class="kpi-sub" id="execK0s"> </div></div>
+          <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Cargas Entregues</div><div class="kpi-value" id="execK1">—</div><div class="kpi-sub" id="execK1s"> </div></div>
+          <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Risco na Programação</div><div class="kpi-value" id="execK2">—</div><div class="kpi-sub" id="execK2s"> </div></div>
+          <div class="kpi c-blue"><div class="kpi-stripe"></div><div class="kpi-label">Ineficiências D-1</div><div class="kpi-value" id="execK3">—</div><div class="kpi-sub" id="execK3s"> </div></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><span class="card-title">Mobilizações Atuais</span><span class="count-tag" id="execMobTag">0 unidades</span></div>
+            <div class="bar-list" id="execMobBars"></div>
+            <div class="kv" id="execMobStats" style="margin-top:14px"></div>
+            <div id="execMobText" style="margin-top:12px;color:var(--text2);font-size:12px;line-height:1.6"></div>
           </div>
-          <div class="empty-panel-title">Resumo Executivo</div>
-          <div class="empty-panel-sub">aguardando dados via Google Sheets</div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Programação Semanal</span><span class="count-tag" id="execProgTag">semana ativa</span></div>
+            <div class="bar-list" id="execProgBars"></div>
+            <div class="kv" id="execProgStats" style="margin-top:14px"></div>
+            <div id="execProgText" style="margin-top:12px;color:var(--text2);font-size:12px;line-height:1.6"></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><span class="card-title">Ineficiências Operacionais</span><span class="count-tag" id="execInefTag">D-1</span></div>
+            <div class="bar-list" id="execInefBars"></div>
+            <div class="kv" id="execInefStats" style="margin-top:14px"></div>
+            <div id="execInefText" style="margin-top:12px;color:var(--text2);font-size:12px;line-height:1.6"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Leitura Gerencial</span></div>
+            <div id="execAlerts" style="display:grid;gap:10px"></div>
+          </div>
+        </div>
+
+        <div class="tbl-card">
+          <div class="tbl-head"><span class="tbl-title">Detalhamento Crítico D-1</span><span class="count-tag" id="execDtlCnt">0 registros</span></div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Frota</th>
+                  <th>Frota Atendida</th>
+                  <th>Modelo</th>
+                  <th>Status D-1</th>
+                  <th>KM D-1</th>
+                  <th>Faixa</th>
+                </tr>
+              </thead>
+              <tbody id="execDtlTbl"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -1423,7 +1474,7 @@ const pages={aet:{t:'Gestão de AET\'s',s:'licenças especiais de trânsito'},mo
   mat:{t:'Mat. de Amarração & Segurança',s:'controle de materiais por frota'},
   pat:{t:'Gestão de Pátio',s:'controle de atividades e operações de pátio'},
   inef:{t:'Controle de Ineficiências Op. (Diárias)',s:'monitoramento de equipamentos parados e diárias'},
-  exec:{t:'Resumo Executivo',s:'aguardando dados via Google Sheets'},
+  exec:{t:'Resumo Executivo',s:'visão gerencial consolidada das operações'},
   fatprev:{t:'Prévia de Faturamento',s:'aguardando dados via Google Sheets'},
   rpd:{t:'Relatório de Eficiência Logística',s:'eficiência de KM por frota · operação diária'}};
 
@@ -1447,6 +1498,7 @@ function goTo(id){
     if(id==='rpd'&&rpdData.length>0){if(rpdChart){rpdChart.destroy();rpdChart=null;}renderRPD();}
     if(id==='prog'&&progSheetsData.length>0){if(progStatusChart){progStatusChart.destroy();progStatusChart=null;}if(progClientChart){progClientChart.destroy();progClientChart=null;}if(progLoadChart){progLoadChart.destroy();progLoadChart=null;}renderPROG();}
     if(id==='mat'&&matData.length>0){if(mAC){mAC.destroy();mAC=null;}renderMAT();}
+    if(id==='exec'){renderEXEC();}
   },50);
 }
 
@@ -1482,6 +1534,7 @@ function toggleTheme(){
   if(activeId==='efl'&&eflData.length)renderEFL();
   if(activeId==='rpd'&&rpdData.length)renderRPD();
   if(activeId==='prog'&&progSheetsData.length)renderPROG();
+  if(activeId==='exec')renderEXEC();
 }
 
 function cssVar(name){
@@ -1566,6 +1619,7 @@ async function loadAll(){
   try{processEFL(parseCSV(txtEfl));}catch(e){console.error('processEFL error:',e.message);}
   try{processRPD(parseCSV(txtRpd));}catch(e){console.error('processRPD error:',e.message);}
   try{processPROG(progTexts.map((txt,i)=>({meta:PROG_SHEETS[i],rows:parseCSV(txt)})));}catch(e){console.error('processPROG error:',e.message);}
+  try{renderEXEC();}catch(e){console.error('renderEXEC error:',e.message);}
   document.getElementById('updTxt').textContent=new Date().toLocaleTimeString('pt-BR');
 }
 
@@ -1708,11 +1762,31 @@ function renderPROG(){
   const taxaAderencia=totalProgramados?pontosExec/totalProgramados*100:0;
   const summaryOrder=[['Programações',String(totalProgramados)],['Disponíveis',String(dispCount)],['Em Manutenção',String(manutCount)],['Sem Previsão',String(semPrevCount)]];
   function set(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
-  set('progK0',baseSheet.week);set('progK0s','programação semanal');set('progK1',records.length);set('progK2',taxaAderencia.toFixed(1).replace('.',',')+'%');set('progK3',totalCargas);set('progK3s',cargasPendentes+' pendentes');set('progK4',cargasEntregues);set('progK4s',taxaEntrega.toFixed(1).replace('.',',')+'% da carga');set('progK5',ocorrOpen);set('progK5s',extras.length+' extras na semana');set('progResumoWeek',baseSheet.week);set('progCnt',records.length+' registros');set('progCargaCnt',loads.length+' registros');set('progOccCnt',occs.length+' registros');set('progExtraCnt',extras.length+' registros');
+  set('progK0',baseSheet.week);set('progK0s','programação semanal');set('progK1',records.length);set('progK2',taxaAderencia.toFixed(1).replace('.',',')+'%');set('progK3',totalCargas);set('progK3s',cargasPendentes+' pendentes');set('progK4',cargasEntregues);set('progK4s',taxaEntrega.toFixed(1).replace('.',',')+'% da carga');set('progK5',ocorrOpen);set('progK5s',extras.length+' extras na semana');set('progResumoWeek',baseSheet.week);set('progExtraWeek',baseSheet.week);set('progCnt',records.length+' registros');set('progCargaCnt',loads.length+' registros');set('progOccCnt',occs.length+' registros');set('progExtraCnt',extras.length+' registros');
   const bars=document.getElementById('progResumoBars');
   if(bars){const max=Math.max(...summaryOrder.map(x=>progNum(x[1])),1);bars.innerHTML=summaryOrder.map(([label,val])=>{const num=progNum(val);const color=label.includes('Manutenção')?'var(--red)':label.includes('Dispon')?'var(--green)':'var(--makro-blue)';return`<div class="bar-row"><div class="bar-lbl">${progEsc(label)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,Math.round(num/max*100))}%;background:${color}"></div></div><div class="bar-num" style="width:54px">${progEsc(val)}</div></div>`;}).join('');}
   const insights=document.getElementById('progInsights');
   if(insights){const rows=[['Taxa Disponib.',taxaDisponibilidade.toFixed(1).replace('.',',')+'%','var(--teal)'],['Aderência',taxaAderencia.toFixed(1).replace('.',',')+'%','var(--green)'],['Extras / Programado',extrasRate.toFixed(1).replace('.',',')+'%','var(--amber)'],['Entrega de Cargas',taxaEntrega.toFixed(1).replace('.',',')+'%','var(--makro-blue)'],['Ocorrências em Aberto',String(ocorrOpen),'var(--red)']];const max=Math.max(...rows.map(r=>progPct(r[1])||progNum(r[1])),1);insights.innerHTML=rows.map(([label,val,color])=>{const num=progPct(val)??progNum(val);return`<div class="bar-row"><div class="bar-lbl">${progEsc(label)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,Math.round(num/max*100))}%;background:${color}"></div></div><div class="bar-num" style="width:54px">${progEsc(val)}</div></div>`;}).join('');}
+  const extraBars=document.getElementById('progExtraBars');
+  if(extraBars){
+    const extraStatusMap={};
+    extras.forEach(r=>{const key=r.status||'Sem Status';extraStatusMap[key]=(extraStatusMap[key]||0)+1;});
+    const extraClientMap={};
+    extras.forEach(r=>{const key=r.cliente||'N/I';extraClientMap[key]=(extraClientMap[key]||0)+1;});
+    const topClient=Object.entries(extraClientMap).sort((a,b)=>b[1]-a[1])[0];
+    const rows=[
+      ['Extras na Semana',extras.length,'var(--amber)'],
+      ['Taxa vs Programado',extrasRate.toFixed(1).replace('.',',')+'%','var(--makro-blue)'],
+      ['Pendentes',Object.entries(extraStatusMap).filter(([k])=>progKey(k).includes('PEND')).reduce((s,[,v])=>s+v,0),'var(--red)'],
+      ['Principal Cliente',topClient?topClient[1]:0,'var(--teal)']
+    ];
+    const max=Math.max(...rows.map(r=>progPct(r[1])||progNum(r[1])),1);
+    extraBars.innerHTML=rows.map(([label,val,color],idx)=>{
+      const num=progPct(val)??progNum(val);
+      const shown=idx===3&&topClient?`${progEsc(topClient[0])} (${topClient[1]})`:progEsc(val);
+      return`<div class="bar-row"><div class="bar-lbl">${progEsc(label)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,Math.round(num/max*100))}%;background:${color}"></div></div><div class="bar-num" style="width:${idx===3&&topClient?110:54}px">${shown}</div></div>`;
+    }).join('');
+  }
   const ct=chartTheme();
   const statLabels=Object.keys(doneMap).filter(k=>doneMap[k]>0);
   const statVals=statLabels.map(k=>doneMap[k]);
@@ -1763,6 +1837,183 @@ function renderPROG(){
   if(occTbl){occTbl.innerHTML=occs.length?occs.map(r=>`<tr><td style="font-family:'DM Mono',monospace">${progEsc(r.conjunto||'—')}</td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataHora||'—')}</td><td>${progEsc(r.tipo||'—')}</td><td>${progEsc(r.descricao||'—')}</td><td>${progEsc(r.responsavel||'—')}</td><td>${progEsc(r.impacto||'—')}</td><td><span class="tag ${progIsOpenStatus(r.status)?'tag-red':'tag-green'}">${progEsc(r.status||'—')}</span></td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataResolucao||'—')}</td></tr>`).join(''):'<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">Nenhuma ocorrência registrada</td></tr>';}
   const extraTbl=document.getElementById('progExtraTbl');
   if(extraTbl){extraTbl.innerHTML=extras.length?extras.map(r=>`<tr><td style="font-family:'DM Mono',monospace">${progEsc(r.conjunto||'—')}</td><td>${progEsc(r.tipo||'—')}</td><td>${progEsc(r.solicitante||'—')}</td><td>${progEsc(r.cliente||'—')}</td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataSolicitacao||'—')}</td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataSaida||'—')}</td><td>${progEsc(r.motivo||'—')}</td><td>${progEsc(r.frotaAtendida||'—')}</td><td><span class="tag ${progTagDone(r.status)}">${progEsc(r.status||'—')}</span></td></tr>`).join(''):'<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:24px">Nenhuma solicitação extra registrada</td></tr>';}
+}
+
+function execEsc(v){return String(v==null?'':v).replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]));}
+function execPct(v){return (isFinite(v)?v:0).toFixed(1).replace('.',',')+'%';}
+function execTagClass(level){
+  if(level==='critico')return'tag-red';
+  if(level==='atencao')return'tag-amber';
+  if(level==='positivo')return'tag-green';
+  return'tag-dim';
+}
+function execStatusKey(v){
+  return String(v==null?'':v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
+}
+function execParseSheetDate(label){
+  const parts=String(label||'').trim().split(/[\/\-]/);
+  if(parts.length<3)return null;
+  let d,m,y;
+  if(parseInt(parts[0],10)>12){d=parseInt(parts[0],10);m=parseInt(parts[1],10);y=parseInt(parts[2],10);}
+  else if(parseInt(parts[1],10)>12){m=parseInt(parts[0],10);d=parseInt(parts[1],10);y=parseInt(parts[2],10);}
+  else {m=parseInt(parts[0],10);d=parseInt(parts[1],10);y=parseInt(parts[2],10);}
+  const dt=new Date(y,m-1,d);
+  return isNaN(dt.getTime())?null:dt;
+}
+function execDateId(d){
+  return d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`:'';
+}
+function renderEXEC(){
+  const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  const html=(id,val)=>{const el=document.getElementById(id);if(el)el.innerHTML=val;};
+
+  const mobOpen=mobData.filter(r=>{const st=execStatusKey(r.status);return st&&!st.includes('FINALIZ')&&!st.includes('CANCEL');});
+  const mobTotCargas=mobData.reduce((s,r)=>s+(r.nCarg||0),0);
+  const mobEntregues=mobData.reduce((s,r)=>s+(r.nEntreg||0),0);
+  const mobTransito=mobData.reduce((s,r)=>s+(r.nTransit||0),0);
+  const mobCarreg=mobData.reduce((s,r)=>s+(r.nCarreg||0),0);
+  const mobByUnd={};
+  mobOpen.forEach(r=>{
+    const key=r.und||'N/I';
+    if(!mobByUnd[key])mobByUnd[key]={pend:0,ent:0,carreg:0,trans:0};
+    mobByUnd[key].pend++;
+    mobByUnd[key].ent+=r.nEntreg||0;
+    mobByUnd[key].carreg+=r.nCarreg||0;
+    mobByUnd[key].trans+=r.nTransit||0;
+  });
+  const mobEntries=Object.entries(mobByUnd).sort((a,b)=>b[1].pend-a[1].pend||b[1].ent-a[1].ent).slice(0,6);
+  const mobMax=Math.max(...mobEntries.map(x=>x[1].pend),1);
+
+  const activeProg=progSheetsData.length?progSheetsData[progSheetsData.length-1]:{week:'—',records:[],loads:[],occurrences:[],extras:[]};
+  const progRecords=activeProg.records||[];
+  const progLoads=activeProg.loads||[];
+  const progOccs=(activeProg.occurrences||[]).filter(r=>progIsOpenStatus(r.status));
+  const progExtras=activeProg.extras||[];
+  const progTotal=progRecords.length;
+  const progMaint=progRecords.filter(r=>progKey(r.statusAtual).includes('MANUTEN')).length;
+  const progDisp=progRecords.filter(r=>progKey(r.statusAtual).includes('DISPON')).length;
+  const progPendExec=progRecords.filter(r=>progKey(r.realizado)==='PENDENTE').length;
+  const progRiskPct=progTotal?progMaint/progTotal*100:0;
+  const progEntregues=progLoads.reduce((s,r)=>s+(r.entregues||0),0);
+  const progPendCarga=progLoads.reduce((s,r)=>s+(r.pendente||0),0);
+  const progTransCarga=progLoads.reduce((s,r)=>s+(r.emTransito||0),0);
+  const progBarsData=[
+    ['Disponíveis',progDisp,'var(--green)'],
+    ['Em manutenção',progMaint,'var(--red)'],
+    ['Pendentes',progPendExec,'var(--amber)'],
+    ['Ocorrências abertas',progOccs.length,'var(--makro-blue)']
+  ];
+  const progBarMax=Math.max(...progBarsData.map(x=>x[1]),1);
+
+  const yesterday=new Date();
+  yesterday.setDate(yesterday.getDate()-1);
+  const yKey=execDateId(yesterday);
+  const eflD1=eflData.map(r=>{
+    const day=(r.days||[]).find(d=>execDateId(execParseSheetDate(d.date))===yKey);
+    return day?{frota:r.frota,frotaAt:r.frotaAt,modelo:r.modelo,motor:r.motor,km:Math.round(day.km||0),cond:execStatusKey(day.cond),rawCond:day.cond||'—'}:null;
+  }).filter(Boolean);
+  const inefStatusDefs=[
+    {label:'AC',match:k=>k.includes('AC')},
+    {label:'AD',match:k=>k.includes('AD')},
+    {label:'DOC F',match:k=>k.includes('DOC')&&k.includes('F')},
+    {label:'MNT',match:k=>k.includes('MNT')||k.includes('MC')||k.includes('MP')||k.includes('RF')}
+  ];
+  const inefCounts=inefStatusDefs.map(def=>({label:def.label,count:eflD1.filter(r=>def.match(r.cond)).length}));
+  const lowKmRows=eflD1.filter(r=>r.km>0&&r.km<350).sort((a,b)=>a.km-b.km);
+  const criticalRows=eflD1.filter(r=>inefStatusDefs.some(def=>def.match(r.cond))||r.km>0&&r.km<350)
+    .sort((a,b)=>{
+      const aCrit=(a.km>0&&a.km<350)?1:0;
+      const bCrit=(b.km>0&&b.km<350)?1:0;
+      return bCrit-aCrit||a.km-b.km||String(a.frota).localeCompare(String(b.frota),'pt-BR',{numeric:true});
+    });
+  const inefBarMax=Math.max(...inefCounts.map(x=>x.count),1);
+
+  const riskLevel=progRiskPct>=60?'critico':progRiskPct>=35?'atencao':'positivo';
+  const ineffTotal=inefCounts.reduce((s,r)=>s+r.count,0)+lowKmRows.length;
+
+  set('execK0',mobOpen.length);
+  set('execK0s',(mobData.length?execPct(mobOpen.length/mobData.length*100):'0,0%')+' da base de mobilização');
+  set('execK1',mobEntregues);
+  set('execK1s',mobCarreg+' em carregamento · '+mobTransito+' em trânsito');
+  set('execK2',execPct(progRiskPct));
+  set('execK2s',progMaint+' de '+progTotal+' conjuntos em manutenção');
+  set('execK3',ineffTotal);
+  set('execK3s',eflD1.length+' frotas lidas no D-1');
+
+  set('execMobTag',Object.keys(mobByUnd).length+' unidades');
+  html('execMobBars',mobEntries.length?mobEntries.map(([label,val])=>`<div class="bar-row"><div class="bar-lbl">${execEsc(label)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,Math.round(val.pend/mobMax*100))}%;background:var(--red)"></div></div><div class="bar-num">${val.pend}</div></div>`).join(''):'<span class="leg">Sem dados</span>');
+  html('execMobStats',`
+    <div class="kv-item"><div class="kv-k">Pendentes</div><div class="kv-v">${mobOpen.length}</div></div>
+    <div class="kv-item"><div class="kv-k">Entregues</div><div class="kv-v">${mobEntregues}</div></div>
+    <div class="kv-item"><div class="kv-k">Em carregamento</div><div class="kv-v">${mobCarreg}</div></div>
+    <div class="kv-item"><div class="kv-k">Em trânsito</div><div class="kv-v">${mobTransito}</div></div>
+  `);
+  html('execMobText',mobEntries.length
+    ?`Maior concentração atual em <strong>${execEsc(mobEntries[0][0])}</strong>, com <strong>${mobEntries[0][1].pend}</strong> mobilizações pendentes. No consolidado, a operação soma <strong>${mobEntregues}</strong> cargas entregues e <strong>${mobCarreg+mobTransito}</strong> ainda em fluxo.`
+    :'Sem base suficiente de mobilização para leitura gerencial no momento.');
+
+  set('execProgTag',activeProg.week||'semana ativa');
+  html('execProgBars',progBarsData.map(([label,val,color])=>`<div class="bar-row"><div class="bar-lbl">${execEsc(label)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,Math.round(val/progBarMax*100))}%;background:${color}"></div></div><div class="bar-num">${val}</div></div>`).join(''));
+  html('execProgStats',`
+    <div class="kv-item"><div class="kv-k">Semana</div><div class="kv-v">${execEsc(activeProg.week||'—')}</div></div>
+    <div class="kv-item"><div class="kv-k">Programados</div><div class="kv-v">${progTotal}</div></div>
+    <div class="kv-item"><div class="kv-k">Extras</div><div class="kv-v">${progExtras.length}</div></div>
+    <div class="kv-item"><div class="kv-k">Cargas pendentes</div><div class="kv-v">${progPendCarga}</div></div>
+  `);
+  html('execProgText',progTotal
+    ?`De <strong>${progTotal}</strong> conjuntos programados na <strong>${execEsc(activeProg.week)}</strong>, <strong>${progMaint}</strong> estão em manutenção, resultando em <strong>${execPct(progRiskPct)}</strong> de exposição operacional. As cargas da semana registram <strong>${progEntregues}</strong> entregues, <strong>${progTransCarga}</strong> em trânsito e <strong>${progPendCarga}</strong> pendentes de carregamento.`
+    :'Sem programação consolidada disponível para leitura.');
+
+  set('execInefTag',yesterday.toLocaleDateString('pt-BR'));
+  html('execInefBars',inefCounts.map(item=>`<div class="bar-row"><div class="bar-lbl">${execEsc(item.label)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,Math.round(item.count/inefBarMax*100))}%;background:var(--makro-blue)"></div></div><div class="bar-num">${item.count}</div></div>`).join(''));
+  html('execInefStats',`
+    <div class="kv-item"><div class="kv-k">Baixa rodagem &lt;350km</div><div class="kv-v">${lowKmRows.length}</div></div>
+    <div class="kv-item"><div class="kv-k">AC + AD + DOC F + MNT</div><div class="kv-v">${inefCounts.reduce((s,r)=>s+r.count,0)}</div></div>
+    <div class="kv-item"><div class="kv-k">Frotas lidas</div><div class="kv-v">${eflD1.length}</div></div>
+    <div class="kv-item"><div class="kv-k">Fonte</div><div class="kv-v">Rel. Eficiência</div></div>
+  `);
+  html('execInefText',eflD1.length
+    ?`No D-1 de <strong>${yesterday.toLocaleDateString('pt-BR')}</strong>, o painel encontrou <strong>${inefCounts.reduce((s,r)=>s+r.count,0)}</strong> apontamentos nos status críticos monitorados e <strong>${lowKmRows.length}</strong> frotas com rodagem abaixo de 350 km/dia.`
+    :'Sem leitura de D-1 disponível no Relatório de Eficiência Logística.');
+
+  const alerts=[
+    {
+      title:'Mobilização',
+      level:mobOpen.length>=10?'atencao':'positivo',
+      body:mobEntries.length?`${mobEntries[0][0]} lidera a fila atual com ${mobEntries[0][1].pend} mobilizações pendentes.`:'Sem concentração relevante por unidade.'
+    },
+    {
+      title:'Programação',
+      level:riskLevel,
+      body:progTotal?`${execPct(progRiskPct)} da programação semanal está em manutenção (${progMaint}/${progTotal}), com ${progOccs.length} ocorrências abertas e ${progExtras.length} demandas extras.`:'Sem base suficiente para análise da programação.'
+    },
+    {
+      title:'Ineficiência',
+      level:lowKmRows.length>=5||inefCounts.reduce((s,r)=>s+r.count,0)>=5?'critico':ineffTotal?'atencao':'positivo',
+      body:lowKmRows.length?`${lowKmRows.length} frotas rodaram abaixo de 350 km/dia no D-1. Prioridade imediata para validar causa operacional e status AC/AD/DOC F/MNT.`:'Sem frota crítica por baixa rodagem no D-1.'
+    }
+  ];
+  html('execAlerts',alerts.map(a=>`<div style="border:1px solid var(--border);background:var(--surface2);border-radius:8px;padding:14px 16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px">
+      <strong style="font-size:12px;letter-spacing:.04em;text-transform:uppercase">${execEsc(a.title)}</strong>
+      <span class="tag ${execTagClass(a.level)}">${execEsc(a.level)}</span>
+    </div>
+    <div style="color:var(--text2);font-size:12px;line-height:1.6">${a.body}</div>
+  </div>`).join(''));
+
+  set('execDtlCnt',criticalRows.length+' registros');
+  html('execDtlTbl',criticalRows.length?criticalRows.slice(0,12).map(r=>{
+    const faixa=r.km>0&&r.km<350?'Baixa rodagem':'Status crítico';
+    const tone=r.km>0&&r.km<350?'tag-amber':'tag-red';
+    return `<tr>
+      <td style="font-family:'DM Mono',monospace;font-weight:600">${execEsc(r.frota)}</td>
+      <td style="font-family:'DM Mono',monospace">${execEsc(r.frotaAt||'—')}</td>
+      <td>${execEsc(r.modelo||'—')}</td>
+      <td><span class="tag ${execStatusKey(r.rawCond).includes('OP')?'tag-green':'tag-blue'}">${execEsc(r.rawCond||'—')}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-weight:700;color:${r.km>0&&r.km<350?'var(--amber)':'var(--text)'}">${r.km.toLocaleString('pt-BR')} km</td>
+      <td><span class="tag ${tone}">${faixa}</span></td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px">Nenhum desvio crítico identificado no D-1</td></tr>');
 }
 
 function processAET(rows){
