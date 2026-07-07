@@ -111,6 +111,36 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;transition:background .25s}
 .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 .card-title{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+.bar-list{display:flex;flex-direction:column;gap:10px}
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
+.kv-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;min-height:62px;display:flex;flex-direction:column;justify-content:center}
+.kv-k{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-family:'Montserrat',sans-serif;margin-bottom:6px}
+.kv-v{font-size:20px;font-weight:600;line-height:1.1;color:var(--text);font-family:'Montserrat',sans-serif}
+.exec-panel{display:grid;gap:20px}
+.exec-kpis{margin-top:0}
+.exec-card{padding:20px 20px 18px}
+.exec-card .card-head{margin-bottom:14px}
+.exec-card .count-tag{background:var(--surface2)}
+.exec-body-copy{margin-top:14px;color:var(--text2);font-size:12px;line-height:1.65;max-width:66ch}
+.exec-alerts{display:grid;gap:12px}
+.exec-alert{border:1px solid var(--border);background:linear-gradient(180deg,var(--surface2),transparent);border-radius:8px;padding:14px 16px}
+.exec-alert-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.exec-alert-title{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-family:'Montserrat',sans-serif}
+.exec-alert-body{color:var(--text2);font-size:12px;line-height:1.6}
+#panel-exec .tbl-card{padding-top:16px}
+#panel-exec .tbl-title{font-size:10px}
+#panel-exec .bar-lbl{width:144px}
+#panel-exec .bar-track{height:7px}
+#panel-exec .bar-num{width:36px}
+#panel-exec .kpi-value{font-size:26px}
+#panel-exec .kpi-sub{min-height:30px;line-height:1.4}
+#panel-exec .tbl-wrap table{table-layout:fixed}
+#panel-exec .tbl-wrap th:nth-child(1),#panel-exec .tbl-wrap td:nth-child(1){width:84px}
+#panel-exec .tbl-wrap th:nth-child(2),#panel-exec .tbl-wrap td:nth-child(2){width:110px}
+#panel-exec .tbl-wrap th:nth-child(3),#panel-exec .tbl-wrap td:nth-child(3){width:140px}
+#panel-exec .tbl-wrap th:nth-child(4),#panel-exec .tbl-wrap td:nth-child(4){width:110px}
+#panel-exec .tbl-wrap th:nth-child(5),#panel-exec .tbl-wrap td:nth-child(5){width:92px}
+#panel-exec .tbl-wrap th:nth-child(6),#panel-exec .tbl-wrap td:nth-child(6){width:100px}
 .empty-panel-card{background:var(--surface2);border:1px dashed var(--border2);border-radius:var(--radius);min-height:360px;display:flex;align-items:center;justify-content:center;text-align:center;opacity:.72;padding:32px}
 .empty-panel-inner{display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--text3)}
 .empty-panel-icon{width:44px;height:44px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;color:var(--text3);background:var(--surface3)}
@@ -282,6 +312,8 @@ tbody tr:hover td{background:var(--surface2)}
   .main-wrap{margin-left:56px}
   .kpi-row{grid-template-columns:repeat(2,minmax(0,1fr))}
   .grid-2{grid-template-columns:1fr}
+  .kv{grid-template-columns:1fr}
+  #panel-exec .bar-lbl{width:116px}
   .main{padding:16px}
 }
 
@@ -1391,8 +1423,8 @@ tbody tr:hover td{background:var(--surface2)}
 
     <!-- EXECUTIVE SUMMARY PANEL -->
     <div id="panel-exec" class="panel">
-      <div style="display:grid;gap:20px">
-        <div class="kpi-row">
+      <div class="exec-panel">
+        <div class="kpi-row exec-kpis">
           <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Mobilizações Pendentes</div><div class="kpi-value" id="execK0">—</div><div class="kpi-sub" id="execK0s"> </div></div>
           <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Cargas Entregues</div><div class="kpi-value" id="execK1">—</div><div class="kpi-sub" id="execK1s"> </div></div>
           <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Risco na Programação</div><div class="kpi-value" id="execK2">—</div><div class="kpi-sub" id="execK2s"> </div></div>
@@ -1400,30 +1432,30 @@ tbody tr:hover td{background:var(--surface2)}
         </div>
 
         <div class="grid-2">
-          <div class="card">
+          <div class="card exec-card">
             <div class="card-head"><span class="card-title">Mobilizações Atuais</span><span class="count-tag" id="execMobTag">0 unidades</span></div>
             <div class="bar-list" id="execMobBars"></div>
             <div class="kv" id="execMobStats" style="margin-top:14px"></div>
-            <div id="execMobText" style="margin-top:12px;color:var(--text2);font-size:12px;line-height:1.6"></div>
+            <div class="exec-body-copy" id="execMobText"></div>
           </div>
-          <div class="card">
+          <div class="card exec-card">
             <div class="card-head"><span class="card-title">Programação Semanal</span><span class="count-tag" id="execProgTag">semana ativa</span></div>
             <div class="bar-list" id="execProgBars"></div>
             <div class="kv" id="execProgStats" style="margin-top:14px"></div>
-            <div id="execProgText" style="margin-top:12px;color:var(--text2);font-size:12px;line-height:1.6"></div>
+            <div class="exec-body-copy" id="execProgText"></div>
           </div>
         </div>
 
         <div class="grid-2">
-          <div class="card">
+          <div class="card exec-card">
             <div class="card-head"><span class="card-title">Ineficiências Operacionais</span><span class="count-tag" id="execInefTag">D-1</span></div>
             <div class="bar-list" id="execInefBars"></div>
             <div class="kv" id="execInefStats" style="margin-top:14px"></div>
-            <div id="execInefText" style="margin-top:12px;color:var(--text2);font-size:12px;line-height:1.6"></div>
+            <div class="exec-body-copy" id="execInefText"></div>
           </div>
-          <div class="card">
+          <div class="card exec-card">
             <div class="card-head"><span class="card-title">Leitura Gerencial</span></div>
-            <div id="execAlerts" style="display:grid;gap:10px"></div>
+            <div class="exec-alerts" id="execAlerts"></div>
           </div>
         </div>
 
@@ -1993,12 +2025,12 @@ function renderEXEC(){
       body:lowKmRows.length?`${lowKmRows.length} frotas rodaram abaixo de 350 km/dia no D-1. Prioridade imediata para validar causa operacional e status AC/AD/DOC F/MNT.`:'Sem frota crítica por baixa rodagem no D-1.'
     }
   ];
-  html('execAlerts',alerts.map(a=>`<div style="border:1px solid var(--border);background:var(--surface2);border-radius:8px;padding:14px 16px">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px">
-      <strong style="font-size:12px;letter-spacing:.04em;text-transform:uppercase">${execEsc(a.title)}</strong>
+  html('execAlerts',alerts.map(a=>`<div class="exec-alert">
+    <div class="exec-alert-head">
+      <strong class="exec-alert-title">${execEsc(a.title)}</strong>
       <span class="tag ${execTagClass(a.level)}">${execEsc(a.level)}</span>
     </div>
-    <div style="color:var(--text2);font-size:12px;line-height:1.6">${a.body}</div>
+    <div class="exec-alert-body">${a.body}</div>
   </div>`).join(''));
 
   set('execDtlCnt',criticalRows.length+' registros');
