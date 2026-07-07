@@ -1907,14 +1907,8 @@ function renderEXEC(){
   const mobByUnd={};
   mobOpen.forEach(r=>{
     const key=r.und||'N/I';
-    if(!mobByUnd[key])mobByUnd[key]={pend:0,ent:0,carreg:0,trans:0};
-    mobByUnd[key].pend++;
-    mobByUnd[key].ent+=r.nEntreg||0;
-    mobByUnd[key].carreg+=r.nCarreg||0;
-    mobByUnd[key].trans+=r.nTransit||0;
+    mobByUnd[key]=(mobByUnd[key]||0)+1;
   });
-  const mobEntries=Object.entries(mobByUnd).sort((a,b)=>b[1].pend-a[1].pend||b[1].ent-a[1].ent).slice(0,6);
-  const mobMax=Math.max(...mobEntries.map(x=>x[1].pend),1);
 
   const activeProg=progSheetsData.length?progSheetsData[progSheetsData.length-1]:{week:'—',records:[],loads:[],occurrences:[],extras:[]};
   const progRecords=activeProg.records||[];
@@ -1972,16 +1966,17 @@ function renderEXEC(){
   set('execK3',ineffTotal);
   set('execK3s',eflD1.length+' frotas lidas no D-1');
 
-  set('execMobTag',Object.keys(mobByUnd).length+' unidades');
-  html('execMobBars',mobEntries.length?mobEntries.map(([label,val])=>`<div class="bar-row"><div class="bar-lbl">${execEsc(label)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,Math.round(val.pend/mobMax*100))}%;background:var(--red)"></div></div><div class="bar-num">${val.pend}</div></div>`).join(''):'<span class="leg">Sem dados</span>');
+  set('execMobTag','visão resumida');
+  html('execMobBars',mobOpen.length?`<div class="bar-row"><div class="bar-lbl">Mobilizações pendentes</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(10,Math.min(100,mobData.length?Math.round(mobOpen.length/mobData.length*100):0))}%;background:var(--red)"></div></div><div class="bar-num">${mobOpen.length}</div></div>`:'<span class="leg">Sem dados</span>');
   html('execMobStats',`
     <div class="kv-item"><div class="kv-k">Pendentes</div><div class="kv-v">${mobOpen.length}</div></div>
+    <div class="kv-item"><div class="kv-k">Cargas Totais</div><div class="kv-v">${mobTotCargas}</div></div>
+    <div class="kv-item"><div class="kv-k">Carregadas</div><div class="kv-v">${mobCarreg}</div></div>
+    <div class="kv-item"><div class="kv-k">Em Trânsito</div><div class="kv-v">${mobTransito}</div></div>
     <div class="kv-item"><div class="kv-k">Entregues</div><div class="kv-v">${mobEntregues}</div></div>
-    <div class="kv-item"><div class="kv-k">Em carregamento</div><div class="kv-v">${mobCarreg}</div></div>
-    <div class="kv-item"><div class="kv-k">Em trânsito</div><div class="kv-v">${mobTransito}</div></div>
   `);
-  html('execMobText',mobEntries.length
-    ?`Maior concentração atual em <strong>${execEsc(mobEntries[0][0])}</strong>, com <strong>${mobEntries[0][1].pend}</strong> mobilizações pendentes. No consolidado, a operação soma <strong>${mobEntregues}</strong> cargas entregues e <strong>${mobCarreg+mobTransito}</strong> ainda em fluxo.`
+  html('execMobText',mobOpen.length||mobTotCargas
+    ?`Leitura simplificada da mobilização atual: <strong>${mobOpen.length}</strong> pendentes, <strong>${mobTotCargas}</strong> cargas totais, <strong>${mobCarreg}</strong> carregadas, <strong>${mobTransito}</strong> em trânsito e <strong>${mobEntregues}</strong> entregues.`
     :'Sem base suficiente de mobilização para leitura gerencial no momento.');
 
   set('execProgTag',activeProg.week||'semana ativa');
