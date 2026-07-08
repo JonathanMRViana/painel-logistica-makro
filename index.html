@@ -1484,7 +1484,7 @@ tbody tr:hover td{background:var(--surface2)}
             </div>
           </div>
           <div class="card" style="display:flex;flex-direction:column">
-            <div class="card-head"><span class="card-title">Distribuição por Cliente</span></div>
+            <div class="card-head"><span class="card-title">Distribuição de Conjuntos por Cliente</span></div>
             <div style="position:relative;flex:1;min-height:220px;display:flex;align-items:center;justify-content:center">
               <div style="position:relative;width:100%;height:220px">
                 <canvas id="progClientChart"></canvas>
@@ -1691,6 +1691,30 @@ function chartTheme(){
   const border2=cssVar('--border2')||'#3a3c41';
   return {text,text2,text3,border,border2,grid:dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.08)',tooltipBg:dark?'rgba(22,23,25,0.96)':'rgba(255,255,255,0.96)'};
 }
+const progBarValueLabelsPlugin={
+  id:'progBarValueLabels',
+  afterDatasetsDraw(chart,args,pluginOptions){
+    const {ctx}=chart;
+    const ct=chartTheme();
+    ctx.save();
+    chart.data.datasets.forEach((dataset,datasetIndex)=>{
+      const meta=chart.getDatasetMeta(datasetIndex);
+      if(meta.hidden)return;
+      meta.data.forEach((bar,index)=>{
+        const raw=dataset.data[index];
+        const value=Number(raw||0);
+        if(!isFinite(value)||value<=0)return;
+        const pos=bar.tooltipPosition();
+        ctx.fillStyle=(pluginOptions&&pluginOptions.color)||ct.text2;
+        ctx.font=`600 ${((pluginOptions&&pluginOptions.fontSize)||10)}px 'DM Mono', monospace`;
+        ctx.textAlign='center';
+        ctx.textBaseline='bottom';
+        ctx.fillText(String(value).replace('.',','),pos.x,pos.y-4-(datasetIndex*12));
+      });
+    });
+    ctx.restore();
+  }
+};
 
 
 
@@ -1943,13 +1967,14 @@ function renderPROG(){
   const clientEntries=Object.entries(clientMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
   const clientCanvas=document.getElementById('progClientChart');
   if(progClientChart){progClientChart.destroy();progClientChart=null;}
-  if(clientCanvas&&clientEntries.length){progClientChart=new Chart(clientCanvas,{type:'bar',data:{labels:clientEntries.map(x=>x[0]),datasets:[{data:clientEntries.map(x=>x[1]),backgroundColor:'rgba(27,63,122,0.82)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.raw+' conjunto(s)'}}},scales:{x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:10}}},y:{grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},stepSize:1}}}}});}
+  if(clientCanvas&&clientEntries.length){progClientChart=new Chart(clientCanvas,{type:'bar',plugins:[progBarValueLabelsPlugin],data:{labels:clientEntries.map(x=>x[0]),datasets:[{data:clientEntries.map(x=>x[1]),backgroundColor:'rgba(27,63,122,0.82)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{progBarValueLabels:{color:ct.text2,fontSize:10},legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.raw+' conjunto(s)'}}},scales:{x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:10}}},y:{grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},stepSize:1}}}}});}
   const loadEntries=loads.slice().sort((a,b)=>(b.entregues+b.emTransito+b.pendente+b.cargas)-(a.entregues+a.emTransito+a.pendente+a.cargas)).slice(0,8);
   const loadCanvas=document.getElementById('progLoadChart');
   if(progLoadChart){progLoadChart.destroy();progLoadChart=null;}
   if(loadCanvas&&loadEntries.length){
     progLoadChart=new Chart(loadCanvas,{
       type:'bar',
+      plugins:[progBarValueLabelsPlugin],
       data:{
         labels:loadEntries.map(x=>x.frota),
         datasets:[
@@ -1962,6 +1987,7 @@ function renderPROG(){
         responsive:true,
         maintainAspectRatio:false,
         plugins:{
+          progBarValueLabels:{color:ct.text2,fontSize:10},
           legend:{position:'bottom',labels:{color:ct.text3,boxWidth:10,font:{family:'DM Mono',size:10}}},
           tooltip:{callbacks:{label:ctx=>' '+ctx.dataset.label+': '+ctx.raw}}
         },
