@@ -118,10 +118,15 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 .pat-compare-table th{color:var(--text3);font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
 .pat-compare-table td{color:var(--text2)}
 .pat-compare-table td.metric{color:var(--text);font-weight:600}
-.pat-delta-up{color:var(--green);font-family:'DM Mono',monospace}
-.pat-delta-down{color:var(--red);font-family:'DM Mono',monospace}
-.pat-delta-flat{color:var(--text3);font-family:'DM Mono',monospace}
-.pat-compare-note{font-size:12px;color:var(--text2);line-height:1.65}
+.pat-delta-up,.pat-delta-down,.pat-delta-flat{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:11px}
+.pat-delta-up{color:var(--green)}
+.pat-delta-down{color:var(--red)}
+.pat-delta-flat{color:var(--text3)}
+.pat-delta-chip{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:999px;border:1px solid currentColor;font-size:10px;line-height:1;padding:0 5px}
+.pat-delta-text{font-family:'DM Mono',monospace}
+.pat-compare-note{font-size:13px;color:var(--text2);line-height:1.75;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;min-height:232px}
+.pat-compare-note strong{color:var(--text)}
+.pat-compare-empty{display:flex;align-items:center;justify-content:center;min-height:232px;text-align:center;color:var(--text3);font-size:12px;line-height:1.7}
 .bar-list{display:flex;flex-direction:column;gap:10px}
 .kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
 .kv-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;min-height:62px;display:flex;flex-direction:column;justify-content:center}
@@ -2589,8 +2594,12 @@ function diffDaysInclusive(start,end){
   const b=new Date(end+'T00:00:00');
   return Math.floor((b-a)/86400000)+1;
 }
+function patHasComparablePeriod(state){
+  return !!(state.dataDe||state.dataAte||state.ano!=='TODOS');
+}
 function patResolveCurrentRange(currentData){
   const state=getPATFilterState();
+  if(!patHasComparablePeriod(state))return{start:'',end:''};
   if(state.dataDe||state.dataAte){
     return{start:state.dataDe||state.dataAte,end:state.dataAte||state.dataDe};
   }
@@ -2616,27 +2625,34 @@ function patSummarize(data,range){
   const days=Math.max(diffDaysInclusive(range.start,range.end),1);
   return{total,concluidas,pendentes,emAndamento,canceladas,alta,mediaDia:total/days,days};
 }
-function patFmtDelta(cur,base){
+function patFmtDelta(cur,base,isAvg){
   const diff=cur-base;
-  const pct=base>0?((diff/base)*100):null;
   const cls=diff>0?'pat-delta-up':diff<0?'pat-delta-down':'pat-delta-flat';
+  const chip=diff>0?'▲':diff<0?'▼':'•';
+  const fmt=isAvg?patFmtAvg:patFmtInt;
+  if(base===0&&cur===0)return `<span class="${cls}"><span class="pat-delta-chip">${chip}</span><span class="pat-delta-text">sem variação</span></span>`;
+  if(base===0&&cur!==0)return `<span class="${cls}"><span class="pat-delta-chip">${chip}</span><span class="pat-delta-text">+${fmt(diff)} · sem base</span></span>`;
   const sign=diff>0?'+':'';
-  const pctTxt=pct===null?'n/a':`${sign}${pct.toFixed(1)}%`;
-  return `<span class="${cls}">${sign}${diff} · ${pctTxt}</span>`;
+  const pct=((diff/base)*100);
+  return `<span class="${cls}"><span class="pat-delta-chip">${chip}</span><span class="pat-delta-text">${sign}${fmt(diff)} · ${sign}${pct.toFixed(1)}%</span></span>`;
 }
 function patFmtInt(v){return Number(v||0).toLocaleString('pt-BR');}
 function patFmtAvg(v){return Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});}
+function patFmtPeriodMetric(v,isAvg){return isAvg?patFmtAvg(v):patFmtInt(v);}
 function patRangeLabel(start,end){
   if(!start||!end)return'Período sem data';
   return `${start.split('-').reverse().join('/')} · ${end.split('-').reverse().join('/')}`;
+}
+function patMonthShort(dateObj){
+  return dateObj.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}).replace('.','');
 }
 function patBuildSeries(data,range,mode){
   const days=Math.max(diffDaysInclusive(range.start,range.end),1);
   if(mode==='daily'){
     const labels=[],values=[];
     for(let i=0;i<days;i++){
-      labels.push(`D${i+1}`);
       const key=addDaysToKey(range.start,i);
+      labels.push(key.split('-').slice(1).reverse().join('/'));
       values.push(data.filter(r=>dateKey(r.dtId)===key).length);
     }
     return{labels,values,title:'Evolução por Dia do Período'};
@@ -2645,14 +2661,23 @@ function patBuildSeries(data,range,mode){
   const endDate=new Date(range.end+'T00:00:00');
   const labels=[],values=[];
   let cursor=new Date(startDate.getFullYear(),startDate.getMonth(),1);
-  let idx=1;
   while(cursor<=endDate){
     const y=cursor.getFullYear(),m=cursor.getMonth()+1;
-    labels.push(`M${idx++}`);
+    labels.push(patMonthShort(cursor));
     values.push(data.filter(r=>{const d=parseDate(r.dtId);return d&&d.getFullYear()===y&&d.getMonth()+1===m;}).length);
     cursor.setMonth(cursor.getMonth()+1);
   }
   return{labels,values,title:'Evolução por Mês do Período'};
+}
+function patComparisonText(cur,base,label,isAvg){
+  if(base===0&&cur===0)return `${label} sem variação relevante.`;
+  if(base===0&&cur!==0)return `${label} sem base comparável anterior.`;
+  const diff=cur-base;
+  const fmt=isAvg?patFmtAvg:patFmtInt;
+  const pct=Math.abs((diff/base)*100).toFixed(1).replace('.',',');
+  if(diff>0)return `${label} acima em ${fmt(diff)} (${pct}%).`;
+  if(diff<0)return `${label} abaixo em ${fmt(Math.abs(diff))} (${pct}%).`;
+  return `${label} estável frente à base comparada.`;
 }
 function syncMOBSelect(src,targetId){
   const t=document.getElementById(targetId);
@@ -3096,6 +3121,7 @@ function renderPATtbl(){
 
 function renderPATCompare(currentData){
   const ct=chartTheme();
+  const state=getPATFilterState();
   const range=patResolveCurrentRange(currentData);
   const hasRange=!!(range.start&&range.end);
   const days=Math.max(diffDaysInclusive(range.start,range.end),1);
@@ -3109,15 +3135,15 @@ function renderPATCompare(currentData){
   const set=(id,val)=>{const el=document.getElementById(id);if(el)el.innerHTML=val;};
   const granularity=days<=45?'daily':'monthly';
 
-  set('ptc0',patFmtInt(cur.total));
-  set('ptc0s',hasRange?patRangeLabel(range.start,range.end):'refine o período');
-  set('ptc1',patFmtInt(prev.total));
-  set('ptc1s',hasRange?`${patRangeLabel(prevRange.start,prevRange.end)} · ${patFmtDelta(cur.total,prev.total)}`:'—');
-  set('ptc2',patFmtInt(yoy.total));
-  set('ptc2s',hasRange?`${patRangeLabel(yoyRange.start,yoyRange.end)} · ${patFmtDelta(cur.total,yoy.total)}`:'—');
-  set('ptc3',patFmtAvg(cur.mediaDia));
-  set('ptc3s',hasRange?`${cur.days} dias analisados`:'—');
-  set('patCompareRange',hasRange?patRangeLabel(range.start,range.end):'Defina um período');
+  set('ptc0',hasRange?patFmtInt(cur.total):'—');
+  set('ptc0s',hasRange?patRangeLabel(range.start,range.end):'defina Data De/Até ou Ano');
+  set('ptc1',hasRange?patFmtInt(prev.total):'—');
+  set('ptc1s',hasRange?`${patRangeLabel(prevRange.start,prevRange.end)}`:'sem base comparável');
+  set('ptc2',hasRange?patFmtInt(yoy.total):'—');
+  set('ptc2s',hasRange?`${patRangeLabel(yoyRange.start,yoyRange.end)}`:'sem base anual');
+  set('ptc3',hasRange?patFmtAvg(cur.mediaDia):'—');
+  set('ptc3s',hasRange?`${cur.days} dias no recorte`:'selecione um período comparável');
+  set('patCompareRange',hasRange?patRangeLabel(range.start,range.end):'Defina um período comparável');
   const yoyHead=document.getElementById('patCompareYoYHead');
   if(yoyHead){
     const curYear=range.start?range.start.slice(0,4):'Atual';
@@ -3136,7 +3162,11 @@ function renderPATCompare(currentData){
   ];
   const statsEl=document.getElementById('patCompareStats');
   if(statsEl){
-    statsEl.innerHTML=rows.map(([label,a,b,c,isAvg])=>`<tr><td class="metric">${label}</td><td>${isAvg?patFmtAvg(a):patFmtInt(a)}</td><td>${isAvg?patFmtAvg(b):patFmtInt(b)}</td><td>${patFmtDelta(a,b)}</td><td>${isAvg?patFmtAvg(c):patFmtInt(c)}</td><td>${patFmtDelta(a,c)}</td></tr>`).join('');
+    if(!hasRange){
+      statsEl.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px">Para liberar o comparativo gerencial, defina <strong>Data De / Data Até</strong> ou selecione pelo menos um <strong>Ano</strong>.</td></tr>`;
+    }else{
+      statsEl.innerHTML=rows.map(([label,a,b,c,isAvg])=>`<tr><td class="metric">${label}</td><td>${patFmtPeriodMetric(a,isAvg)}</td><td>${patFmtPeriodMetric(b,isAvg)}</td><td>${patFmtDelta(a,b,isAvg)}</td><td>${patFmtPeriodMetric(c,isAvg)}</td><td>${patFmtDelta(a,c,isAvg)}</td></tr>`).join('');
+    }
   }
 
   const compareBase=patCompareMode==='yoy'?{data:yoyData,range:yoyRange,label:'Mesmo período ano anterior',color:'#e8943a'}:{data:prevData,range:prevRange,label:'Período anterior equivalente',color:'#2ab0b8'};
@@ -3150,7 +3180,7 @@ function renderPATCompare(currentData){
     pCompareLineC=new Chart(lineEl,{type:'line',data:{labels:curSeries.labels,datasets:[
       {label:'Período atual',data:curSeries.values,borderColor:'#1b3f7a',backgroundColor:'rgba(27,63,122,0.12)',borderWidth:2,pointRadius:3,tension:.28,fill:false},
       {label:compareBase.label,data:cmpSeries.values,borderColor:compareBase.color,backgroundColor:'rgba(232,148,58,0.10)',borderWidth:2,pointRadius:3,tension:.28,fill:false}
-    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{font:{family:'Montserrat',size:11},color:ct.text3,boxWidth:12}}},scales:{y:{beginAtZero:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10}}},x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'Montserrat',size:10}}}}}});
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{font:{family:'Montserrat',size:11},color:ct.text3,boxWidth:12}}},scales:{y:{beginAtZero:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},precision:0}},x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'Montserrat',size:10},maxRotation:0,autoSkip:true,maxTicksLimit:granularity==='daily'?8:12}}}}});
   }
 
   const statusEl=document.getElementById('patCompareStatus');
@@ -3160,20 +3190,18 @@ function renderPATCompare(currentData){
       {label:'Atual',data:[cur.total,cur.concluidas,cur.pendentes,cur.alta],backgroundColor:'#1b3f7a'},
       {label:'Anterior',data:[prev.total,prev.concluidas,prev.pendentes,prev.alta],backgroundColor:'#2ab0b8'},
       {label:'Ano anterior',data:[yoy.total,yoy.concluidas,yoy.pendentes,yoy.alta],backgroundColor:'#e8943a'}
-    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{font:{family:'Montserrat',size:11},color:ct.text3,boxWidth:12}}},scales:{y:{beginAtZero:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10}}},x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'Montserrat',size:10}}}}}});
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{font:{family:'Montserrat',size:11},color:ct.text3,boxWidth:12}}},scales:{y:{beginAtZero:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},precision:0}},x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'Montserrat',size:10}}}}}});
   }
 
   const noteEl=document.getElementById('patCompareNarrative');
   if(noteEl){
     if(!hasRange){
-      noteEl.textContent='Defina um período usando Data De e Data Até, ou filtre um mês/ano, para liberar a comparação automática entre períodos.';
+      noteEl.innerHTML=`<div class="pat-compare-empty">Defina um recorte temporal comparável usando <strong>Data De / Data Até</strong> ou selecione pelo menos um <strong>Ano</strong>.<br>Assim o painel passa a comparar o período atual com o anterior equivalente e com o mesmo período do ano anterior.</div>`;
     }else{
-      const trendPrev=cur.total-prev.total;
-      const trendYoy=cur.total-yoy.total;
-      const risk=cur.alta>0?`${patFmtInt(cur.alta)} atividades com alta criticidade`:'sem atividades de alta criticidade';
-      const strongest=trendPrev>0?'acima':trendPrev<0?'abaixo':'em linha';
-      const yoyTxt=trendYoy>0?'crescimento':'redução';
-      noteEl.innerHTML=`No período atual, a Gestão de Pátio registrou <strong>${patFmtInt(cur.total)} atividades</strong>, com média de <strong>${patFmtAvg(cur.mediaDia)}</strong> por dia. Em relação ao período imediatamente anterior equivalente, o volume está <strong>${strongest}</strong>, com ${patFmtDelta(cur.total,prev.total)}. No recorte anual, há <strong>${yoyTxt}</strong> frente ao mesmo período do ano anterior, com ${patFmtDelta(cur.total,yoy.total)}. Hoje a operação apresenta ${risk}.`;
+      const criticidadePct=cur.total?((cur.alta/cur.total)*100):0;
+      const pendenciaPct=cur.total?((cur.pendentes/cur.total)*100):0;
+      const risk=cur.alta>0?`<strong>${patFmtInt(cur.alta)}</strong> atividades de alta criticidade (${criticidadePct.toFixed(1).replace('.',',')}%)`:'nenhuma atividade de alta criticidade no recorte';
+      noteEl.innerHTML=`No recorte <strong>${patRangeLabel(range.start,range.end)}</strong>, a Gestão de Pátio registrou <strong>${patFmtInt(cur.total)} atividades</strong>, com média de <strong>${patFmtAvg(cur.mediaDia)}</strong> por dia e <strong>${patFmtInt(cur.concluidas)}</strong> concluídas. Frente ao período anterior equivalente, ${patComparisonText(cur.total,prev.total,'o volume operacional',false)} No comparativo anual, ${patComparisonText(cur.total,yoy.total,'o recorte atual',false)} Hoje a operação apresenta ${risk} e <strong>${patFmtInt(cur.pendentes)}</strong> demandas pendentes ou em andamento (${pendenciaPct.toFixed(1).replace('.',',')}%).`;
     }
   }
 }
