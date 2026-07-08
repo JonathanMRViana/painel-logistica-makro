@@ -582,6 +582,8 @@ tbody tr:hover td{background:var(--surface2)}
               <option value="11">Novembro</option><option value="12">Dezembro</option>
             </select>
           </div>
+          <div class="select-group"><label class="select-label">Data De</label><input class="f-select" type="date" id="aetDataDeTop" onchange="syncAETDate(this,'aetDataDe')"></div>
+          <div class="select-group"><label class="select-label">Data Até</label><input class="f-select" type="date" id="aetDataAteTop" onchange="syncAETDate(this,'aetDataAte')"></div>
           <button class="clear-filters-btn" onclick="clearAETFilters()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             Limpar
@@ -642,6 +644,8 @@ tbody tr:hover td{background:var(--surface2)}
                 <option value="11">Nov</option><option value="12">Dez</option>
               </select>
             </div>
+            <div class="select-group"><label class="select-label">Data De</label><input class="f-select" type="date" id="aetDataDe" onchange="syncAETDate(this,'aetDataDeTop')"></div>
+            <div class="select-group"><label class="select-label">Data Até</label><input class="f-select" type="date" id="aetDataAte" onchange="syncAETDate(this,'aetDataAteTop')"></div>
             <button class="clear-filters-btn" onclick="clearAETFilters()">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               Limpar
@@ -978,6 +982,8 @@ tbody tr:hover td{background:var(--surface2)}
               <option value="11">Novembro</option><option value="12">Dezembro</option>
             </select>
           </div>
+          <div class="select-group"><label class="select-label">Data De</label><input class="f-select" type="date" id="patDataDe" onchange="syncPATDate(this,'patDataDeBot')"></div>
+          <div class="select-group"><label class="select-label">Data Até</label><input class="f-select" type="date" id="patDataAte" onchange="syncPATDate(this,'patDataAteBot')"></div>
           <button class="clear-filters-btn" onclick="clearPATFilters()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             Limpar
@@ -1056,6 +1062,8 @@ tbody tr:hover td{background:var(--surface2)}
                 <option value="11">Nov</option><option value="12">Dez</option>
               </select>
             </div>
+            <div class="select-group"><label class="select-label">Data De</label><input class="f-select" type="date" id="patDataDeBot" onchange="syncPATDate(this,'patDataDe')"></div>
+            <div class="select-group"><label class="select-label">Data Até</label><input class="f-select" type="date" id="patDataAteBot" onchange="syncPATDate(this,'patDataAte')"></div>
             <button class="clear-filters-btn" onclick="clearPATFilters()">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               Limpar
@@ -1096,6 +1104,8 @@ tbody tr:hover td{background:var(--surface2)}
             <input type="text" class="search-input" id="inefSearch" placeholder="Buscar frota, cliente ou motivo..." oninput="renderINEFtbl()">
           </div>
           <div class="select-group"><label class="select-label">Mês</label><select class="f-select" id="inefMes" onchange="renderINEFtbl()"><option value="TODOS">Todos</option></select></div>
+          <div class="select-group"><label class="select-label">Data De</label><input class="f-select" type="date" id="inefDataDe" onchange="renderINEFtbl()"></div>
+          <div class="select-group"><label class="select-label">Data Até</label><input class="f-select" type="date" id="inefDataAte" onchange="renderINEFtbl()"></div>
           <div class="select-group"><label class="select-label">Status</label><select class="f-select" id="inefStatus" onchange="renderINEFtbl()"><option value="TODOS">Todos</option><option value="FINALIZADO">Finalizado</option><option value="EM ABERTO">Em Aberto</option></select></div>
           <div class="select-group"><label class="select-label">Cobrança</label><select class="f-select" id="inefCob" onchange="renderINEFtbl()"><option value="TODOS">Todos</option><option value="FATURADO">Faturado</option><option value="PENDENTE">Pendente</option><option value="NAO COBRADO">Não Cobrado</option></select></div>
           <div class="select-group"><label class="select-label">Motivo</label><select class="f-select" id="inefMotivo" onchange="renderINEFtbl()"><option value="TODOS">Todos</option></select></div>
@@ -2201,6 +2211,14 @@ function getDateMonth(v){const d=parseDate(v);return d?d.getMonth()+1:null;}
 function fD(v){const d=parseDate(v);if(d)return d.toLocaleDateString('pt-BR');return(v&&v!==''&&v!=='—')?v:'—';}
 function diasN(v){const d=parseDate(v);return d?Math.floor((d-new Date())/86400000):null;}
 function sem(v){const d=parseDate(v);if(!d)return'SD';const x=Math.floor((d-new Date())/86400000);return x<0?'V':x<=5?'C5':x<=15?'C15':x<=30?'C30':'R';}
+function dateKey(v){const d=v instanceof Date?v:parseDate(v);return d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`:'';}
+function dateInRange(v,start,end){
+  const k=dateKey(v);
+  if(!k)return false;
+  if(start&&k<start)return false;
+  if(end&&k>end)return false;
+  return true;
+}
 
 function renderAETtbl(){
   const q=((document.getElementById('aetSearch')||{}).value||'').toLowerCase().trim();
@@ -2209,13 +2227,17 @@ function renderAETtbl(){
   const ren=((document.getElementById('aetRen')||{}).value)||'TODOS';
   const ano=((document.getElementById('aetAno')||{}).value)||'TODOS';
   const mes=((document.getElementById('aetMes')||{}).value)||'TODOS';
+  const dataDe=((document.getElementById('aetDataDe')||{}).value)||'';
+  const dataAte=((document.getElementById('aetDataAte')||{}).value)||'';
   const semMap={'VENCIDA':'V','C5':'C5','C15':'C15','C30':'C30','R':'R','SD':'SD'};
   const f=aetData.filter(r=>{
+    const refDate=parseDate(r.val)||parseDate(r.dtSol);
     if(sem!=='TODOS'&&r.sem!==semMap[sem])return false;
     if(tipo!=='TODOS'&&r.tipo!==tipo)return false;
     if(ren!=='TODOS'&&r.ren!==ren)return false;
     if(ano!=='TODOS'){const y=getDateYear(r.val)||getDateYear(r.dtSol);if(String(y)!==ano)return false;}
     if(mes!=='TODOS'){const m=getDateMonth(r.val)||getDateMonth(r.dtSol);if(String(m)!==mes)return false;}
+    if((dataDe||dataAte)&&!dateInRange(refDate,dataDe,dataAte))return false;
     if(q&&!r.frota.toLowerCase().includes(q)&&!r.lic.toLowerCase().includes(q))return false;
     return true;
   });
@@ -2395,6 +2417,13 @@ function syncMOBSearch(src,targetId){
   updateMOBFilterCount();
   renderMOBtbl();
 }
+function syncAETDate(src,targetId){
+  const t=document.getElementById(targetId);
+  if(t&&t!==src)t.value=src.value;
+  updateAETFilterCount();
+  renderAETtbl();
+  if(aetData.length)renderAETcharts();
+}
 function syncAETSelect(src,targetId){
   const t=document.getElementById(targetId);
   const top=document.getElementById(targetId+'Top');
@@ -2413,6 +2442,11 @@ function syncAETSelect(src,targetId){
   renderAETtbl();
   if(aetData.length)renderAETcharts();
 }
+function syncPATDate(src,targetId){
+  const t=document.getElementById(targetId);
+  if(t&&t!==src)t.value=src.value;
+  renderPATtbl();
+}
 function syncMOBSelect(src,targetId){
   const t=document.getElementById(targetId);
   const top=document.getElementById(targetId+'Top');
@@ -2429,7 +2463,9 @@ function updateAETFilterCount(){
   const q=(document.getElementById('aetSearch')||{value:''}).value;
   const _ano=((document.getElementById('aetAno')||{}).value)||'TODOS';
   const _mes=((document.getElementById('aetMes')||{}).value)||'TODOS';
-  const n=[sem,tipo,ren,_ano,_mes].filter(v=>v!=='TODOS').length+(q?1:0);
+  const _de=((document.getElementById('aetDataDe')||{}).value)||'';
+  const _ate=((document.getElementById('aetDataAte')||{}).value)||'';
+  const n=[sem,tipo,ren,_ano,_mes].filter(v=>v!=='TODOS').length+(q?1:0)+(_de?1:0)+(_ate?1:0);
   const el=document.getElementById('aetFilterCount');
   if(el){el.textContent=n;el.classList.toggle('show',n>0);}
 }
@@ -2448,7 +2484,7 @@ function updateMOBFilterCount(){
 }
 function clearAETFilters(){
   ['aetSem','aetSemTop','aetSemBot','aetTipo','aetTipoTop','aetTipoBot','aetRen','aetRenTop','aetRenBot','aetAno','aetAnoTop','aetMes','aetMesTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
-  ['aetSearch','aetSearchTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['aetSearch','aetSearchTop','aetDataDe','aetDataDeTop','aetDataAte','aetDataAteTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   updateAETFilterCount();
   renderAETtbl();
   renderAETcharts();
@@ -2474,12 +2510,16 @@ function renderAETcharts(){
   const q=(document.getElementById('aetSearch')||{value:''}).value.toLowerCase();
   const _ano=((document.getElementById('aetAno')||{}).value)||'TODOS';
   const _mes=((document.getElementById('aetMes')||{}).value)||'TODOS';
+  const _de=((document.getElementById('aetDataDe')||{}).value)||'';
+  const _ate=((document.getElementById('aetDataAte')||{}).value)||'';
   const d=aetData.filter(r=>{
+    const refDate=parseDate(r.val)||parseDate(r.dtSol);
     if(sem!=='TODOS'&&r.sem!==semMap[sem])return false;
     if(tipo!=='TODOS'&&r.tipo!==tipo)return false;
     if(ren!=='TODOS'&&r.ren!==ren)return false;
     if(_ano!=='TODOS'){const y=getDateYear(r.val)||getDateYear(r.dtSol);if(String(y)!==_ano)return false;}
     if(_mes!=='TODOS'){const m=getDateMonth(r.val)||getDateMonth(r.dtSol);if(String(m)!==_mes)return false;}
+    if((_de||_ate)&&!dateInRange(refDate,_de,_ate))return false;
     if(q&&!r.frota.toLowerCase().includes(q)&&!r.lic.toLowerCase().includes(q))return false;
     return true;
   });
@@ -2790,12 +2830,15 @@ function renderPATtbl(){
     const setor=((document.getElementById('patSetor')||{}).value)||'TODOS';
     const ano=((document.getElementById('patAno')||{}).value)||'TODOS';
     const mes=((document.getElementById('patMes')||{}).value)||'TODOS';
+    const dataDe=((document.getElementById('patDataDe')||{}).value)||'';
+    const dataAte=((document.getElementById('patDataAte')||{}).value)||'';
     const f=patData.filter(r=>{
       if(status!=='TODOS'&&r.status!==status)return false;
       if(crit!=='TODOS'&&r.crit!==crit)return false;
       if(setor!=='TODOS'&&r.setor!==setor)return false;
       if(ano!=='TODOS'){const y=getDateYear(r.dtId);if(String(y)!==ano)return false;}
       if(mes!=='TODOS'){const m=getDateMonth(r.dtId);if(String(m)!==mes)return false;}
+      if((dataDe||dataAte)&&!dateInRange(r.dtId,dataDe,dataAte))return false;
       if(q&&!r.ativ.toLowerCase().includes(q)&&!r.frota.toLowerCase().includes(q)&&!r.frotaMKT.toLowerCase().includes(q))return false;
       return true;
     });
@@ -2854,6 +2897,7 @@ function renderPATtbl(){
 
 function clearPATFilters(){
   ['patStatus','patStatusBot','patCrit','patCritBot','patSetor','patSetorBot','patAno','patAnoBot','patMes','patMesBot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
+  ['patDataDe','patDataDeBot','patDataAte','patDataAteBot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['patSearch','patSearchBot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   renderPATtbl();
 }
@@ -2935,6 +2979,8 @@ function renderINEFtbl(){
     const cob=((document.getElementById('inefCob')||{}).value)||'TODOS';
     const motivo=((document.getElementById('inefMotivo')||{}).value)||'TODOS';
     const transp=((document.getElementById('inefTransp')||{}).value)||'TODOS';
+    const dataDe=((document.getElementById('inefDataDe')||{}).value)||'';
+    const dataAte=((document.getElementById('inefDataAte')||{}).value)||'';
 
     const semDe=(document.getElementById('inefSemDe')||{}).value||'';
     const semAte=(document.getElementById('inefSemAte')||{}).value||'';
@@ -2944,6 +2990,7 @@ function renderINEFtbl(){
       if(cob!=='TODOS'&&!r.cobr.includes(cob))return false;
       if(motivo!=='TODOS'&&r.motivo!==motivo)return false;
       if(transp!=='TODOS'&&r.transp!==transp)return false;
+      if((dataDe||dataAte)&&!dateInRange(r.dtCheg,dataDe,dataAte))return false;
       if(semDe||semAte){
         // inefSemDe/inefSemAte contém chave de semana: "YYYY-SWW"
         const wk=getWeekKey(r.dtCheg);
@@ -3088,6 +3135,7 @@ function setInefView(v){
 }
 function clearINEFFilters(){
   ['inefMes','inefStatus','inefCob','inefMotivo','inefTransp'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
+  ['inefDataDe','inefDataAte'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const s=document.getElementById('inefSearch');if(s)s.value='';
   renderINEFtbl();
 }
