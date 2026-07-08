@@ -111,6 +111,17 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;transition:background .25s}
 .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 .card-title{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+.pat-compare-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pat-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:20px}
+.pat-compare-table{width:100%;border-collapse:collapse}
+.pat-compare-table th,.pat-compare-table td{padding:9px 10px;border-bottom:1px solid var(--border);font-size:11px;text-align:left}
+.pat-compare-table th{color:var(--text3);font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.pat-compare-table td{color:var(--text2)}
+.pat-compare-table td.metric{color:var(--text);font-weight:600}
+.pat-delta-up{color:var(--green);font-family:'DM Mono',monospace}
+.pat-delta-down{color:var(--red);font-family:'DM Mono',monospace}
+.pat-delta-flat{color:var(--text3);font-family:'DM Mono',monospace}
+.pat-compare-note{font-size:12px;color:var(--text2);line-height:1.65}
 .bar-list{display:flex;flex-direction:column;gap:10px}
 .kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
 .kv-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;min-height:62px;display:flex;flex-direction:column;justify-content:center}
@@ -954,6 +965,11 @@ tbody tr:hover td{background:var(--surface2)}
     <div id="panel-pat" class="panel">
       <div id="patLoad" class="loading"><div class="spinner"></div><div class="loading-txt">carregando dados · pátio</div></div>
       <div id="patBody">
+        <div class="filter-bar-row" style="margin-bottom:16px;margin-top:4px">
+          <button class="ftag on" id="patViewCurrent" onclick="setPATView('current')">Cenário Atual</button>
+          <button class="ftag" id="patViewCompare" onclick="setPATView('compare')">Comparativo de Períodos</button>
+        </div>
+
         <div class="top-filter-bar">
           <span class="top-filter-bar-title">Filtros</span>
           <div class="filter-divider"></div>
@@ -990,102 +1006,155 @@ tbody tr:hover td{background:var(--surface2)}
           </button>
         </div>
 
-        <div class="kpi-row" style="grid-template-columns:repeat(4,minmax(0,1fr))">
-          <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Total de Atividades</div><div class="kpi-value" id="pt0">—</div><div class="kpi-sub"> </div></div>
-          <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Concluídas</div><div class="kpi-value" id="pt1">—</div><div class="kpi-sub" id="pt1s">—</div></div>
-          <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Pendentes</div><div class="kpi-value" id="pt2">—</div><div class="kpi-sub" id="pt2s">—</div></div>
-          <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Alta Criticidade</div><div class="kpi-value" id="pt3">—</div><div class="kpi-sub" id="pt3s">—</div></div>
+        <div id="patCurrentView">
+          <div class="kpi-row" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+            <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Total de Atividades</div><div class="kpi-value" id="pt0">—</div><div class="kpi-sub"> </div></div>
+            <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Concluídas</div><div class="kpi-value" id="pt1">—</div><div class="kpi-sub" id="pt1s">—</div></div>
+            <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Pendentes</div><div class="kpi-value" id="pt2">—</div><div class="kpi-sub" id="pt2s">—</div></div>
+            <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Alta Criticidade</div><div class="kpi-value" id="pt3">—</div><div class="kpi-sub" id="pt3s">—</div></div>
+          </div>
+
+          <div class="grid-2" style="margin-bottom:20px">
+            <div class="card">
+              <div class="card-head"><span class="card-title">Status das Atividades</span></div>
+              <div style="display:flex;gap:0;align-items:stretch;min-height:200px">
+                <div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="position:relative;width:180px;height:180px"><canvas id="patDonut"></canvas></div></div>
+                <div style="width:1px;background:var(--border);margin:0 16px;flex-shrink:0"></div>
+                <div class="legend" id="patLeg" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><span class="card-title">Por Setor Demandante</span></div>
+              <div class="bars" id="patBars"></div>
+            </div>
+          </div>
+
+          <div class="tbl-card">
+            <div class="tbl-head"><span class="tbl-title">Detalhamento de Atividades</span><span class="count-tag" id="patCnt">0 registros</span></div>
+            <div class="filter-bar-row">
+              <div class="search-wrap" style="flex:1;min-width:160px;margin-bottom:0">
+                <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" class="search-input" id="patSearchBot" placeholder="Buscar atividade ou frota..." oninput="document.getElementById('patSearch').value=this.value;renderPATtbl()">
+              </div>
+              <div class="select-group">
+                <label class="select-label">Status</label>
+                <select class="f-select" id="patStatusBot" onchange="document.getElementById('patStatus').value=this.value;renderPATtbl()">
+                  <option value="TODOS">Todos</option>
+                  <option value="CONCLUÍDO">Concluído</option>
+                  <option value="PENDENTE">Pendente</option>
+                  <option value="EM ANDAMENTO">Em Andamento</option>
+                  <option value="CANCELADO">Cancelado</option>
+                </select>
+              </div>
+              <div class="select-group">
+                <label class="select-label">Criticidade</label>
+                <select class="f-select" id="patCritBot" onchange="document.getElementById('patCrit').value=this.value;renderPATtbl()">
+                  <option value="TODOS">Todos</option>
+                  <option value="ALTA">Alta</option>
+                  <option value="MÉDIA">Média</option>
+                  <option value="BAIXA">Baixa</option>
+                </select>
+              </div>
+              <div class="select-group">
+                <label class="select-label">Setor</label>
+                <select class="f-select" id="patSetorBot" onchange="document.getElementById('patSetor').value=this.value;renderPATtbl()">
+                  <option value="TODOS">Todos</option>
+                </select>
+              </div>
+              <div class="select-group">
+                <label class="select-label">Ano</label>
+                <select class="f-select" id="patAnoBot" onchange="document.getElementById('patAno').value=this.value;renderPATtbl()">
+                  <option value="TODOS">Todos</option>
+                </select>
+              </div>
+              <div class="select-group">
+                <label class="select-label">Mês</label>
+                <select class="f-select" id="patMesBot" onchange="document.getElementById('patMes').value=this.value;renderPATtbl()">
+                  <option value="TODOS">Todos</option>
+                  <option value="1">Jan</option><option value="2">Fev</option>
+                  <option value="3">Mar</option><option value="4">Abr</option>
+                  <option value="5">Mai</option><option value="6">Jun</option>
+                  <option value="7">Jul</option><option value="8">Ago</option>
+                  <option value="9">Set</option><option value="10">Out</option>
+                  <option value="11">Nov</option><option value="12">Dez</option>
+                </select>
+              </div>
+              <div class="select-group"><label class="select-label">Data De</label><input class="f-select" type="date" id="patDataDeBot" onchange="syncPATDate(this,'patDataDe')"></div>
+              <div class="select-group"><label class="select-label">Data Até</label><input class="f-select" type="date" id="patDataAteBot" onchange="syncPATDate(this,'patDataAte')"></div>
+              <button class="clear-filters-btn" onclick="clearPATFilters()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Limpar
+              </button>
+            </div>
+            <div class="tbl-wrap">
+              <table style="table-layout:auto">
+                <thead><tr>
+                  <th>Dt. Identificação</th>
+                  <th>Atividade</th>
+                  <th>Frota</th>
+                  <th>Frota MKT</th>
+                  <th>Setor</th>
+                  <th>Criticidade</th>
+                  <th>Status</th>
+                  <th>Dt. Prevista</th>
+                  <th>Dt. Reprogramada</th>
+                  <th>Dt. Finalização Real</th>
+                  <th>Obs.</th>
+                </tr></thead>
+                <tbody id="patTbl"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
-        <div class="grid-2" style="margin-bottom:20px">
-          <div class="card">
-            <div class="card-head"><span class="card-title">Status das Atividades</span></div>
-            <div style="display:flex;gap:0;align-items:stretch;min-height:200px">
-              <div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="position:relative;width:180px;height:180px"><canvas id="patDonut"></canvas></div></div>
-              <div style="width:1px;background:var(--border);margin:0 16px;flex-shrink:0"></div>
-              <div class="legend" id="patLeg" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px"></div>
-            </div>
+        <div id="patCompareView" style="display:none">
+          <div class="kpi-row" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+            <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Período Atual</div><div class="kpi-value" id="ptc0">—</div><div class="kpi-sub" id="ptc0s">—</div></div>
+            <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Anterior Equivalente</div><div class="kpi-value" id="ptc1">—</div><div class="kpi-sub" id="ptc1s">—</div></div>
+            <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Mesmo Período · Ano Anterior</div><div class="kpi-value" id="ptc2">—</div><div class="kpi-sub" id="ptc2s">—</div></div>
+            <div class="kpi c-teal"><div class="kpi-stripe"></div><div class="kpi-label">Média de Atividades / Dia</div><div class="kpi-value" id="ptc3">—</div><div class="kpi-sub" id="ptc3s">—</div></div>
           </div>
-          <div class="card">
-            <div class="card-head"><span class="card-title">Por Setor Demandante</span></div>
-            <div class="bars" id="patBars"></div>
-          </div>
-        </div>
 
-        <div class="tbl-card">
-          <div class="tbl-head"><span class="tbl-title">Detalhamento de Atividades</span><span class="count-tag" id="patCnt">0 registros</span></div>
-          <div class="filter-bar-row">
-            <div class="search-wrap" style="flex:1;min-width:160px;margin-bottom:0">
-              <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" class="search-input" id="patSearchBot" placeholder="Buscar atividade ou frota..." oninput="document.getElementById('patSearch').value=this.value;renderPATtbl()">
+          <div class="pat-compare-grid">
+            <div class="card">
+              <div class="card-head"><span class="card-title">Resumo Comparativo</span><span class="count-tag" id="patCompareRange">—</span></div>
+              <div style="overflow:auto">
+                <table class="pat-compare-table">
+                  <thead>
+                    <tr>
+                      <th>Métrica</th>
+                      <th>Atual</th>
+                      <th>Anterior</th>
+                      <th>Delta</th>
+                      <th id="patCompareYoYHead">Ano x Ano</th>
+                      <th>Delta</th>
+                    </tr>
+                  </thead>
+                  <tbody id="patCompareStats"></tbody>
+                </table>
+              </div>
             </div>
-            <div class="select-group">
-              <label class="select-label">Status</label>
-              <select class="f-select" id="patStatusBot" onchange="document.getElementById('patStatus').value=this.value;renderPATtbl()">
-                <option value="TODOS">Todos</option>
-                <option value="CONCLUÍDO">Concluído</option>
-                <option value="PENDENTE">Pendente</option>
-                <option value="EM ANDAMENTO">Em Andamento</option>
-                <option value="CANCELADO">Cancelado</option>
-              </select>
+            <div class="card">
+              <div class="card-head">
+                <span class="card-title" id="patCompareChartTitle">Evolução por Dia do Período</span>
+                <div class="pat-compare-head">
+                  <button class="ftag on" id="patCmpModePrev" onclick="setPATCompareMode('prev')">Anterior Equivalente</button>
+                  <button class="ftag" id="patCmpModeYoy" onclick="setPATCompareMode('yoy')">Ano x Ano</button>
+                </div>
+              </div>
+              <div style="height:260px"><canvas id="patCompareLine"></canvas></div>
             </div>
-            <div class="select-group">
-              <label class="select-label">Criticidade</label>
-              <select class="f-select" id="patCritBot" onchange="document.getElementById('patCrit').value=this.value;renderPATtbl()">
-                <option value="TODOS">Todos</option>
-                <option value="ALTA">Alta</option>
-                <option value="MÉDIA">Média</option>
-                <option value="BAIXA">Baixa</option>
-              </select>
-            </div>
-            <div class="select-group">
-              <label class="select-label">Setor</label>
-              <select class="f-select" id="patSetorBot" onchange="document.getElementById('patSetor').value=this.value;renderPATtbl()">
-                <option value="TODOS">Todos</option>
-              </select>
-            </div>
-            <div class="select-group">
-              <label class="select-label">Ano</label>
-              <select class="f-select" id="patAnoBot" onchange="document.getElementById('patAno').value=this.value;renderPATtbl()">
-                <option value="TODOS">Todos</option>
-              </select>
-            </div>
-            <div class="select-group">
-              <label class="select-label">Mês</label>
-              <select class="f-select" id="patMesBot" onchange="document.getElementById('patMes').value=this.value;renderPATtbl()">
-                <option value="TODOS">Todos</option>
-                <option value="1">Jan</option><option value="2">Fev</option>
-                <option value="3">Mar</option><option value="4">Abr</option>
-                <option value="5">Mai</option><option value="6">Jun</option>
-                <option value="7">Jul</option><option value="8">Ago</option>
-                <option value="9">Set</option><option value="10">Out</option>
-                <option value="11">Nov</option><option value="12">Dez</option>
-              </select>
-            </div>
-            <div class="select-group"><label class="select-label">Data De</label><input class="f-select" type="date" id="patDataDeBot" onchange="syncPATDate(this,'patDataDe')"></div>
-            <div class="select-group"><label class="select-label">Data Até</label><input class="f-select" type="date" id="patDataAteBot" onchange="syncPATDate(this,'patDataAte')"></div>
-            <button class="clear-filters-btn" onclick="clearPATFilters()">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              Limpar
-            </button>
           </div>
-          <div class="tbl-wrap">
-            <table style="table-layout:auto">
-              <thead><tr>
-                <th>Dt. Identificação</th>
-                <th>Atividade</th>
-                <th>Frota</th>
-                <th>Frota MKT</th>
-                <th>Setor</th>
-                <th>Criticidade</th>
-                <th>Status</th>
-                <th>Dt. Prevista</th>
-                <th>Dt. Reprogramada</th>
-                <th>Dt. Finalização Real</th>
-                <th>Obs.</th>
-              </tr></thead>
-              <tbody id="patTbl"></tbody>
-            </table>
+
+          <div class="pat-compare-grid">
+            <div class="card">
+              <div class="card-head"><span class="card-title">Status por Período</span></div>
+              <div style="height:260px"><canvas id="patCompareStatus"></canvas></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><span class="card-title">Leitura Gerencial</span></div>
+              <div class="pat-compare-note" id="patCompareNarrative">—</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1386,13 +1455,14 @@ tbody tr:hover td{background:var(--surface2)}
           <button class="clear-filters-btn" onclick="clearPROGFilters()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Limpar</button>
         </div>
 
-        <div class="kpi-row" style="grid-template-columns:repeat(6,minmax(0,1fr))">
+        <div class="kpi-row" style="grid-template-columns:repeat(7,minmax(0,1fr))">
           <div class="kpi c-blue"><div class="kpi-stripe"></div><div class="kpi-label">Semana Ativa</div><div class="kpi-value" id="progK0">—</div><div class="kpi-sub" id="progK0s">programação semanal</div></div>
           <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Programados</div><div class="kpi-value" id="progK1">—</div><div class="kpi-sub">conjuntos na semana</div></div>
           <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Taxa de Aderência</div><div class="kpi-value" id="progK2">—</div><div class="kpi-sub">resumo operacional</div></div>
           <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Cargas Planejadas</div><div class="kpi-value" id="progK3">—</div><div class="kpi-sub" id="progK3s">total da semana</div></div>
           <div class="kpi c-teal"><div class="kpi-stripe"></div><div class="kpi-label">Cargas Entregues</div><div class="kpi-value" id="progK4">—</div><div class="kpi-sub" id="progK4s">execução de cargas</div></div>
           <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Ocorrências em Aberto</div><div class="kpi-value" id="progK5">—</div><div class="kpi-sub" id="progK5s">registros abertos</div></div>
+          <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Extras Programadas</div><div class="kpi-value" id="progK6">—</div><div class="kpi-sub" id="progK6s">demandas adicionais</div></div>
         </div>
 
         <div class="grid-2">
@@ -1534,7 +1604,7 @@ tbody tr:hover td{background:var(--surface2)}
 
 <!-- v1778869583 -->
 <script>
-let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],rpdData=[],progSheetsData=[],aC=null,mC=null,mAC=null,pC=null,iC=null,iC2=null,progStatusChart=null,progClientChart=null,progLoadChart=null,dark=false;
+let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],rpdData=[],progSheetsData=[],aC=null,mC=null,mAC=null,pC=null,pCompareLineC=null,pCompareStatusC=null,iC=null,iC2=null,progStatusChart=null,progClientChart=null,progLoadChart=null,dark=false;
 window._aet=()=>aetData;
 window._mob=()=>mobData;
 
@@ -1560,7 +1630,7 @@ function goTo(id){
   setTimeout(function(){
     if(id==='aet'&&aetData.length>0){if(aC){aC.destroy();aC=null;}renderAETcharts();}
     if(id==='mob'&&mobData.length>0){if(mC){mC.destroy();mC=null;}renderMOBcharts();}
-    if(id==='pat'&&patData.length>0){if(pC){pC.destroy();pC=null;}renderPAT();}
+    if(id==='pat'&&patData.length>0){if(pC){pC.destroy();pC=null;}if(pCompareLineC){pCompareLineC.destroy();pCompareLineC=null;}if(pCompareStatusC){pCompareStatusC.destroy();pCompareStatusC=null;}renderPAT();}
     if(id==='inef'&&inefData.length>0){if(iC){iC.destroy();iC=null;}if(iC2){iC2.destroy();iC2=null;}renderINEF();}
     if(id==='efl'){if(eflChart){eflChart.destroy();eflChart=null;}if(eflData.length>0)renderEFL();}
     if(id==='rpd'&&rpdData.length>0){if(rpdChart){rpdChart.destroy();rpdChart=null;}renderRPD();}
@@ -1582,7 +1652,7 @@ function toggleTheme(){
   const activePanel=document.querySelector('.panel.active');
   const activeId=activePanel?activePanel.id.replace('panel-',''):'';
   if(aC){aC.destroy();aC=null;}if(mC){mC.destroy();mC=null;}
-  if(mAC){mAC.destroy();mAC=null;}if(pC){pC.destroy();pC=null;}
+  if(mAC){mAC.destroy();mAC=null;}if(pC){pC.destroy();pC=null;}if(pCompareLineC){pCompareLineC.destroy();pCompareLineC=null;}if(pCompareStatusC){pCompareStatusC.destroy();pCompareStatusC=null;}
   if(iC){iC.destroy();iC=null;}if(iC2){iC2.destroy();iC2=null;}
   if(typeof eflChart!=='undefined'&&eflChart){eflChart.destroy();eflChart=null;}
   if(typeof rpdChart!=='undefined'&&rpdChart){rpdChart.destroy();rpdChart=null;}
@@ -1830,7 +1900,7 @@ function renderPROG(){
   const taxaAderencia=totalProgramados?pontosExec/totalProgramados*100:0;
   const summaryOrder=[['Programações',String(totalProgramados)],['Disponíveis',String(dispCount)],['Em Manutenção',String(manutCount)],['Sem Previsão',String(semPrevCount)]];
   function set(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
-  set('progK0',baseSheet.week);set('progK0s','programação semanal');set('progK1',records.length);set('progK2',taxaAderencia.toFixed(1).replace('.',',')+'%');set('progK3',totalCargas);set('progK3s',cargasPendentes+' pendentes');set('progK4',cargasEntregues);set('progK4s',taxaEntrega.toFixed(1).replace('.',',')+'% da carga');set('progK5',ocorrOpen);set('progK5s',extras.length+' extras na semana');set('progResumoWeek',baseSheet.week);set('progExtraWeek',baseSheet.week);set('progCnt',records.length+' registros');set('progCargaCnt',loads.length+' registros');set('progOccCnt',occs.length+' registros');set('progExtraCnt',extras.length+' registros');
+  set('progK0',baseSheet.week);set('progK0s','programação semanal');set('progK1',records.length);set('progK2',taxaAderencia.toFixed(1).replace('.',',')+'%');set('progK3',totalCargas);set('progK3s',cargasPendentes+' pendentes');set('progK4',cargasEntregues);set('progK4s',taxaEntrega.toFixed(1).replace('.',',')+'% da carga');set('progK5',ocorrOpen);set('progK5s','registros abertos');set('progK6',extras.length);set('progK6s',extrasRate.toFixed(1).replace('.',',')+'% do programado');set('progResumoWeek',baseSheet.week);set('progExtraWeek',baseSheet.week);set('progCnt',records.length+' registros');set('progCargaCnt',loads.length+' registros');set('progOccCnt',occs.length+' registros');set('progExtraCnt',extras.length+' registros');
   const bars=document.getElementById('progResumoBars');
   if(bars){const max=Math.max(...summaryOrder.map(x=>progNum(x[1])),1);bars.innerHTML=summaryOrder.map(([label,val])=>{const num=progNum(val);const color=label.includes('Manutenção')?'var(--red)':label.includes('Dispon')?'var(--green)':'var(--makro-blue)';return`<div class="bar-row"><div class="bar-lbl">${progEsc(label)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,Math.round(num/max*100))}%;background:${color}"></div></div><div class="bar-num" style="width:54px">${progEsc(val)}</div></div>`;}).join('');}
   const insights=document.getElementById('progInsights');
@@ -2447,6 +2517,143 @@ function syncPATDate(src,targetId){
   if(t&&t!==src)t.value=src.value;
   renderPATtbl();
 }
+let patViewMode='current',patCompareMode='prev';
+function setPATView(mode){
+  patViewMode=mode==='compare'?'compare':'current';
+  const cur=document.getElementById('patViewCurrent');
+  const cmp=document.getElementById('patViewCompare');
+  const curView=document.getElementById('patCurrentView');
+  const cmpView=document.getElementById('patCompareView');
+  if(cur)cur.classList.toggle('on',patViewMode==='current');
+  if(cmp)cmp.classList.toggle('on',patViewMode==='compare');
+  if(curView)curView.style.display=patViewMode==='current'?'block':'none';
+  if(cmpView)cmpView.style.display=patViewMode==='compare'?'block':'none';
+  renderPATtbl();
+}
+function setPATCompareMode(mode){
+  patCompareMode=mode==='yoy'?'yoy':'prev';
+  const prev=document.getElementById('patCmpModePrev');
+  const yoy=document.getElementById('patCmpModeYoy');
+  if(prev)prev.classList.toggle('on',patCompareMode==='prev');
+  if(yoy)yoy.classList.toggle('on',patCompareMode==='yoy');
+  renderPATtbl();
+}
+function getPATFilterState(){
+  return{
+    q:((document.getElementById('patSearch')||{}).value||'').toLowerCase().trim(),
+    status:((document.getElementById('patStatus')||{}).value)||'TODOS',
+    crit:((document.getElementById('patCrit')||{}).value)||'TODOS',
+    setor:((document.getElementById('patSetor')||{}).value)||'TODOS',
+    ano:((document.getElementById('patAno')||{}).value)||'TODOS',
+    mes:((document.getElementById('patMes')||{}).value)||'TODOS',
+    dataDe:((document.getElementById('patDataDe')||{}).value)||'',
+    dataAte:((document.getElementById('patDataAte')||{}).value)||''
+  };
+}
+function patMatchNonDate(r,state){
+  if(state.status!=='TODOS'&&r.status!==state.status)return false;
+  if(state.crit!=='TODOS'&&r.crit!==state.crit)return false;
+  if(state.setor!=='TODOS'&&r.setor!==state.setor)return false;
+  if(state.q&&!r.ativ.toLowerCase().includes(state.q)&&!r.frota.toLowerCase().includes(state.q)&&!r.frotaMKT.toLowerCase().includes(state.q))return false;
+  return true;
+}
+function getPATFilteredData(rangeOverride){
+  const state=getPATFilterState();
+  return patData.filter(r=>{
+    if(!patMatchNonDate(r,state))return false;
+    if(rangeOverride){
+      return dateInRange(r.dtId,rangeOverride.start,rangeOverride.end);
+    }
+    if(state.ano!=='TODOS'){const y=getDateYear(r.dtId);if(String(y)!==state.ano)return false;}
+    if(state.mes!=='TODOS'){const m=getDateMonth(r.dtId);if(String(m)!==state.mes)return false;}
+    if((state.dataDe||state.dataAte)&&!dateInRange(r.dtId,state.dataDe,state.dataAte))return false;
+    return true;
+  });
+}
+function pad2(n){return String(n).padStart(2,'0');}
+function addDaysToKey(key,days){
+  if(!key)return'';
+  const d=new Date(key+'T00:00:00');
+  d.setDate(d.getDate()+days);
+  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+}
+function addYearsToKey(key,years){
+  if(!key)return'';
+  const d=new Date(key+'T00:00:00');
+  d.setFullYear(d.getFullYear()+years);
+  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+}
+function diffDaysInclusive(start,end){
+  if(!start||!end)return 0;
+  const a=new Date(start+'T00:00:00');
+  const b=new Date(end+'T00:00:00');
+  return Math.floor((b-a)/86400000)+1;
+}
+function patResolveCurrentRange(currentData){
+  const state=getPATFilterState();
+  if(state.dataDe||state.dataAte){
+    return{start:state.dataDe||state.dataAte,end:state.dataAte||state.dataDe};
+  }
+  if(state.ano!=='TODOS'&&state.mes!=='TODOS'){
+    const y=Number(state.ano),m=Number(state.mes);
+    const endDay=new Date(y,m,0).getDate();
+    return{start:`${y}-${pad2(m)}-01`,end:`${y}-${pad2(m)}-${pad2(endDay)}`};
+  }
+  if(state.ano!=='TODOS'&&state.mes==='TODOS'){
+    return{start:`${state.ano}-01-01`,end:`${state.ano}-12-31`};
+  }
+  const keys=currentData.map(r=>dateKey(r.dtId)).filter(Boolean).sort();
+  if(!keys.length)return{start:'',end:''};
+  return{start:keys[0],end:keys[keys.length-1]};
+}
+function patSummarize(data,range){
+  const total=data.length;
+  const concluidas=data.filter(r=>r.status==='CONCLUÍDO').length;
+  const pendentes=data.filter(r=>r.status==='PENDENTE'||r.status==='EM ANDAMENTO').length;
+  const emAndamento=data.filter(r=>r.status==='EM ANDAMENTO').length;
+  const canceladas=data.filter(r=>r.status==='CANCELADO').length;
+  const alta=data.filter(r=>r.crit==='ALTA').length;
+  const days=Math.max(diffDaysInclusive(range.start,range.end),1);
+  return{total,concluidas,pendentes,emAndamento,canceladas,alta,mediaDia:total/days,days};
+}
+function patFmtDelta(cur,base){
+  const diff=cur-base;
+  const pct=base>0?((diff/base)*100):null;
+  const cls=diff>0?'pat-delta-up':diff<0?'pat-delta-down':'pat-delta-flat';
+  const sign=diff>0?'+':'';
+  const pctTxt=pct===null?'n/a':`${sign}${pct.toFixed(1)}%`;
+  return `<span class="${cls}">${sign}${diff} · ${pctTxt}</span>`;
+}
+function patFmtInt(v){return Number(v||0).toLocaleString('pt-BR');}
+function patFmtAvg(v){return Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});}
+function patRangeLabel(start,end){
+  if(!start||!end)return'Período sem data';
+  return `${start.split('-').reverse().join('/')} · ${end.split('-').reverse().join('/')}`;
+}
+function patBuildSeries(data,range,mode){
+  const days=Math.max(diffDaysInclusive(range.start,range.end),1);
+  if(mode==='daily'){
+    const labels=[],values=[];
+    for(let i=0;i<days;i++){
+      labels.push(`D${i+1}`);
+      const key=addDaysToKey(range.start,i);
+      values.push(data.filter(r=>dateKey(r.dtId)===key).length);
+    }
+    return{labels,values,title:'Evolução por Dia do Período'};
+  }
+  const startDate=new Date(range.start+'T00:00:00');
+  const endDate=new Date(range.end+'T00:00:00');
+  const labels=[],values=[];
+  let cursor=new Date(startDate.getFullYear(),startDate.getMonth(),1);
+  let idx=1;
+  while(cursor<=endDate){
+    const y=cursor.getFullYear(),m=cursor.getMonth()+1;
+    labels.push(`M${idx++}`);
+    values.push(data.filter(r=>{const d=parseDate(r.dtId);return d&&d.getFullYear()===y&&d.getMonth()+1===m;}).length);
+    cursor.setMonth(cursor.getMonth()+1);
+  }
+  return{labels,values,title:'Evolução por Mês do Período'};
+}
 function syncMOBSelect(src,targetId){
   const t=document.getElementById(targetId);
   const top=document.getElementById(targetId+'Top');
@@ -2820,28 +3027,19 @@ function processPAT(rows){
 function renderPAT(){
   const pl=document.getElementById('patLoad');
   if(pl)pl.style.display='none';
+  const cur=document.getElementById('patViewCurrent');
+  const cmp=document.getElementById('patViewCompare');
+  const curView=document.getElementById('patCurrentView');
+  const cmpView=document.getElementById('patCompareView');
+  if(cur)cur.classList.toggle('on',patViewMode==='current');
+  if(cmp)cmp.classList.toggle('on',patViewMode==='compare');
+  if(curView)curView.style.display=patViewMode==='current'?'block':'none';
+  if(cmpView)cmpView.style.display=patViewMode==='compare'?'block':'none';
   renderPATtbl();
 }
 function renderPATtbl(){
   try{
-    const q=((document.getElementById('patSearch')||{}).value||'').toLowerCase().trim();
-    const status=((document.getElementById('patStatus')||{}).value)||'TODOS';
-    const crit=((document.getElementById('patCrit')||{}).value)||'TODOS';
-    const setor=((document.getElementById('patSetor')||{}).value)||'TODOS';
-    const ano=((document.getElementById('patAno')||{}).value)||'TODOS';
-    const mes=((document.getElementById('patMes')||{}).value)||'TODOS';
-    const dataDe=((document.getElementById('patDataDe')||{}).value)||'';
-    const dataAte=((document.getElementById('patDataAte')||{}).value)||'';
-    const f=patData.filter(r=>{
-      if(status!=='TODOS'&&r.status!==status)return false;
-      if(crit!=='TODOS'&&r.crit!==crit)return false;
-      if(setor!=='TODOS'&&r.setor!==setor)return false;
-      if(ano!=='TODOS'){const y=getDateYear(r.dtId);if(String(y)!==ano)return false;}
-      if(mes!=='TODOS'){const m=getDateMonth(r.dtId);if(String(m)!==mes)return false;}
-      if((dataDe||dataAte)&&!dateInRange(r.dtId,dataDe,dataAte))return false;
-      if(q&&!r.ativ.toLowerCase().includes(q)&&!r.frota.toLowerCase().includes(q)&&!r.frotaMKT.toLowerCase().includes(q))return false;
-      return true;
-    });
+    const f=getPATFilteredData();
     // Update KPIs
     const tot2=f.length||1;
     const conc=f.filter(r=>r.status==='CONCLUÍDO').length;
@@ -2892,7 +3090,92 @@ function renderPATtbl(){
         +'<td style="font-family:\'DM Mono\',monospace">'+fD(r.dtFin)+'</td>'
         +'<td class="obs-cell">'+obsC(r)+'</td>'
         +'</tr>').join('');
+    renderPATCompare(f);
   }catch(e){console.error('renderPATtbl:',e);}
+}
+
+function renderPATCompare(currentData){
+  const ct=chartTheme();
+  const range=patResolveCurrentRange(currentData);
+  const hasRange=!!(range.start&&range.end);
+  const days=Math.max(diffDaysInclusive(range.start,range.end),1);
+  const prevRange=hasRange?{start:addDaysToKey(range.start,-days),end:addDaysToKey(range.start,-1)}:{start:'',end:''};
+  const yoyRange=hasRange?{start:addYearsToKey(range.start,-1),end:addYearsToKey(range.end,-1)}:{start:'',end:''};
+  const prevData=hasRange?getPATFilteredData(prevRange):[];
+  const yoyData=hasRange?getPATFilteredData(yoyRange):[];
+  const cur=patSummarize(currentData,range);
+  const prev=patSummarize(prevData,prevRange);
+  const yoy=patSummarize(yoyData,yoyRange);
+  const set=(id,val)=>{const el=document.getElementById(id);if(el)el.innerHTML=val;};
+  const granularity=days<=45?'daily':'monthly';
+
+  set('ptc0',patFmtInt(cur.total));
+  set('ptc0s',hasRange?patRangeLabel(range.start,range.end):'refine o período');
+  set('ptc1',patFmtInt(prev.total));
+  set('ptc1s',hasRange?`${patRangeLabel(prevRange.start,prevRange.end)} · ${patFmtDelta(cur.total,prev.total)}`:'—');
+  set('ptc2',patFmtInt(yoy.total));
+  set('ptc2s',hasRange?`${patRangeLabel(yoyRange.start,yoyRange.end)} · ${patFmtDelta(cur.total,yoy.total)}`:'—');
+  set('ptc3',patFmtAvg(cur.mediaDia));
+  set('ptc3s',hasRange?`${cur.days} dias analisados`:'—');
+  set('patCompareRange',hasRange?patRangeLabel(range.start,range.end):'Defina um período');
+  const yoyHead=document.getElementById('patCompareYoYHead');
+  if(yoyHead){
+    const curYear=range.start?range.start.slice(0,4):'Atual';
+    const baseYear=yoyRange.start?yoyRange.start.slice(0,4):'Anterior';
+    yoyHead.textContent=`${baseYear}/${curYear}`;
+  }
+
+  const rows=[
+    ['Total de Atividades',cur.total,prev.total,yoy.total,false],
+    ['Concluídas',cur.concluidas,prev.concluidas,yoy.concluidas,false],
+    ['Pendentes + Andamento',cur.pendentes,prev.pendentes,yoy.pendentes,false],
+    ['Em Andamento',cur.emAndamento,prev.emAndamento,yoy.emAndamento,false],
+    ['Canceladas',cur.canceladas,prev.canceladas,yoy.canceladas,false],
+    ['Alta Criticidade',cur.alta,prev.alta,yoy.alta,false],
+    ['Média / Dia',cur.mediaDia,prev.mediaDia,yoy.mediaDia,true]
+  ];
+  const statsEl=document.getElementById('patCompareStats');
+  if(statsEl){
+    statsEl.innerHTML=rows.map(([label,a,b,c,isAvg])=>`<tr><td class="metric">${label}</td><td>${isAvg?patFmtAvg(a):patFmtInt(a)}</td><td>${isAvg?patFmtAvg(b):patFmtInt(b)}</td><td>${patFmtDelta(a,b)}</td><td>${isAvg?patFmtAvg(c):patFmtInt(c)}</td><td>${patFmtDelta(a,c)}</td></tr>`).join('');
+  }
+
+  const compareBase=patCompareMode==='yoy'?{data:yoyData,range:yoyRange,label:'Mesmo período ano anterior',color:'#e8943a'}:{data:prevData,range:prevRange,label:'Período anterior equivalente',color:'#2ab0b8'};
+  const curSeries=hasRange?patBuildSeries(currentData,range,granularity):{labels:['Sem período'],values:[0],title:'Evolução do Período'};
+  const cmpSeries=hasRange?patBuildSeries(compareBase.data,compareBase.range,granularity):{labels:['Sem período'],values:[0],title:'Evolução do Período'};
+  const titleEl=document.getElementById('patCompareChartTitle');
+  if(titleEl)titleEl.textContent=curSeries.title;
+  const lineEl=document.getElementById('patCompareLine');
+  if(lineEl){
+    if(pCompareLineC){pCompareLineC.destroy();pCompareLineC=null;}
+    pCompareLineC=new Chart(lineEl,{type:'line',data:{labels:curSeries.labels,datasets:[
+      {label:'Período atual',data:curSeries.values,borderColor:'#1b3f7a',backgroundColor:'rgba(27,63,122,0.12)',borderWidth:2,pointRadius:3,tension:.28,fill:false},
+      {label:compareBase.label,data:cmpSeries.values,borderColor:compareBase.color,backgroundColor:'rgba(232,148,58,0.10)',borderWidth:2,pointRadius:3,tension:.28,fill:false}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{font:{family:'Montserrat',size:11},color:ct.text3,boxWidth:12}}},scales:{y:{beginAtZero:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10}}},x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'Montserrat',size:10}}}}}});
+  }
+
+  const statusEl=document.getElementById('patCompareStatus');
+  if(statusEl){
+    if(pCompareStatusC){pCompareStatusC.destroy();pCompareStatusC=null;}
+    pCompareStatusC=new Chart(statusEl,{type:'bar',data:{labels:['Total','Concluídas','Pendentes','Alta Crit.'],datasets:[
+      {label:'Atual',data:[cur.total,cur.concluidas,cur.pendentes,cur.alta],backgroundColor:'#1b3f7a'},
+      {label:'Anterior',data:[prev.total,prev.concluidas,prev.pendentes,prev.alta],backgroundColor:'#2ab0b8'},
+      {label:'Ano anterior',data:[yoy.total,yoy.concluidas,yoy.pendentes,yoy.alta],backgroundColor:'#e8943a'}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{font:{family:'Montserrat',size:11},color:ct.text3,boxWidth:12}}},scales:{y:{beginAtZero:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10}}},x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'Montserrat',size:10}}}}}});
+  }
+
+  const noteEl=document.getElementById('patCompareNarrative');
+  if(noteEl){
+    if(!hasRange){
+      noteEl.textContent='Defina um período usando Data De e Data Até, ou filtre um mês/ano, para liberar a comparação automática entre períodos.';
+    }else{
+      const trendPrev=cur.total-prev.total;
+      const trendYoy=cur.total-yoy.total;
+      const risk=cur.alta>0?`${patFmtInt(cur.alta)} atividades com alta criticidade`:'sem atividades de alta criticidade';
+      const strongest=trendPrev>0?'acima':trendPrev<0?'abaixo':'em linha';
+      const yoyTxt=trendYoy>0?'crescimento':'redução';
+      noteEl.innerHTML=`No período atual, a Gestão de Pátio registrou <strong>${patFmtInt(cur.total)} atividades</strong>, com média de <strong>${patFmtAvg(cur.mediaDia)}</strong> por dia. Em relação ao período imediatamente anterior equivalente, o volume está <strong>${strongest}</strong>, com ${patFmtDelta(cur.total,prev.total)}. No recorte anual, há <strong>${yoyTxt}</strong> frente ao mesmo período do ano anterior, com ${patFmtDelta(cur.total,yoy.total)}. Hoje a operação apresenta ${risk}.`;
+    }
+  }
 }
 
 function clearPATFilters(){
