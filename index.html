@@ -1909,6 +1909,15 @@ function renderEXEC(){
     const key=r.und||'N/I';
     mobByUnd[key]=(mobByUnd[key]||0)+1;
   });
+  const mobProgressRows=mobOpen
+    .map(r=>({
+      frota:r.frota||'N/I',
+      cliente:r.cliente||'N/I',
+      und:r.und||'N/I',
+      pct:Math.max(0,Math.min(100,Math.round((r.pct||0)*100)))
+    }))
+    .sort((a,b)=>a.pct-b.pct||a.frota.localeCompare(b.frota,'pt-BR',{numeric:true}))
+    .slice(0,6);
 
   const activeProg=progSheetsData.length?progSheetsData[progSheetsData.length-1]:{week:'—',records:[],loads:[],occurrences:[],extras:[]};
   const progRecords=activeProg.records||[];
@@ -1966,8 +1975,10 @@ function renderEXEC(){
   set('execK3',ineffTotal);
   set('execK3s',eflD1.length+' frotas lidas no D-1');
 
-  set('execMobTag','visão resumida');
-  html('execMobBars',mobOpen.length?`<div class="bar-row"><div class="bar-lbl">Mobilizações pendentes</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(10,Math.min(100,mobData.length?Math.round(mobOpen.length/mobData.length*100):0))}%;background:var(--red)"></div></div><div class="bar-num">${mobOpen.length}</div></div>`:'<span class="leg">Sem dados</span>');
+  set('execMobTag',mobProgressRows.length?mobProgressRows.length+' mobilizações':'visão resumida');
+  html('execMobBars',mobProgressRows.length
+    ?mobProgressRows.map(r=>`<div class="bar-row"><div class="bar-lbl" title="${execEsc(r.frota)} · ${execEsc(r.cliente)}">${execEsc(r.frota)} · ${execEsc(r.cliente)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,r.pct)}%;background:${r.pct>=80?'var(--green)':r.pct>=50?'var(--amber)':'var(--red)'}"></div></div><div class="bar-num">${r.pct}%</div></div>`).join('')
+    :'<span class="leg">Sem dados</span>');
   html('execMobStats',`
     <div class="kv-item"><div class="kv-k">Pendentes</div><div class="kv-v">${mobOpen.length}</div></div>
     <div class="kv-item"><div class="kv-k">Cargas Totais</div><div class="kv-v">${mobTotCargas}</div></div>
@@ -2007,7 +2018,7 @@ function renderEXEC(){
     {
       title:'Mobilização',
       level:mobOpen.length>=10?'atencao':'positivo',
-      body:mobEntries.length?`${mobEntries[0][0]} lidera a fila atual com ${mobEntries[0][1].pend} mobilizações pendentes.`:'Sem concentração relevante por unidade.'
+      body:mobProgressRows.length?`A mobilização ${mobProgressRows[0].frota} (${mobProgressRows[0].cliente}) está entre as mais sensíveis, com ${mobProgressRows[0].pct}% de avanço e ainda pendente.`:'Sem mobilizações pendentes relevantes no momento.'
     },
     {
       title:'Programação',
