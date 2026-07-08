@@ -123,6 +123,28 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 .exec-card .count-tag{background:var(--surface2)}
 .exec-body-copy{margin-top:14px;color:var(--text2);font-size:12px;line-height:1.65;max-width:66ch}
 .exec-mob-bars{max-height:340px;overflow:auto;padding-right:6px}
+.exec-unit-stack{display:grid;gap:12px}
+.exec-unit-card{border:1px solid var(--border);background:var(--surface2);border-radius:8px;padding:12px}
+.exec-unit-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.exec-unit-title{font-size:12px;font-weight:700;color:var(--text);font-family:'Montserrat',sans-serif;letter-spacing:.03em;text-transform:uppercase}
+.exec-client-stack{display:grid;gap:10px}
+.exec-client-card{border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:10px 12px}
+.exec-client-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.exec-client-title{font-size:11px;font-weight:700;color:var(--text2);font-family:'Montserrat',sans-serif;letter-spacing:.03em;text-transform:uppercase}
+.exec-frota-list{display:grid;gap:10px}
+.exec-frota-row{border-top:1px solid var(--border);padding-top:10px}
+.exec-frota-row:first-child{border-top:none;padding-top:0}
+.exec-frota-main{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+.exec-frota-name{font-size:13px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace}
+.exec-frota-sub{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-family:'Montserrat',sans-serif;margin-top:3px}
+.exec-frota-progress{display:flex;align-items:center;gap:8px;min-width:160px}
+.exec-frota-bar{flex:1;height:7px;background:var(--surface3);border-radius:999px;overflow:hidden}
+.exec-frota-bar-fill{height:100%;border-radius:999px}
+.exec-frota-pct{font-size:11px;color:var(--text2);font-family:'DM Mono',monospace;width:42px;text-align:right}
+.exec-frota-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.exec-mini-kv{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px}
+.exec-mini-k{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-family:'Montserrat',sans-serif;margin-bottom:4px}
+.exec-mini-v{font-size:14px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace}
 .exec-alerts{display:grid;gap:12px}
 .exec-alert{border:1px solid var(--border);background:linear-gradient(180deg,var(--surface2),transparent);border-radius:8px;padding:14px 16px}
 .exec-alert-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
@@ -315,6 +337,9 @@ tbody tr:hover td{background:var(--surface2)}
   .grid-2{grid-template-columns:1fr}
   .kv{grid-template-columns:1fr}
   #panel-exec .bar-lbl{width:116px}
+  .exec-frota-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .exec-frota-main{flex-direction:column}
+  .exec-frota-progress{width:100%}
   .main{padding:16px}
 }
 
@@ -1905,17 +1930,17 @@ function renderEXEC(){
   const mobEntregues=mobData.reduce((s,r)=>s+(r.nEntreg||0),0);
   const mobTransito=mobData.reduce((s,r)=>s+(r.nTransit||0),0);
   const mobCarreg=mobData.reduce((s,r)=>s+(r.nCarreg||0),0);
-  const mobByUnd={};
-  mobOpen.forEach(r=>{
-    const key=r.und||'N/I';
-    mobByUnd[key]=(mobByUnd[key]||0)+1;
-  });
+  const mobTree={};
   const mobProgressRows=mobOpen
     .map(r=>({
       frota:r.frota||'N/I',
       cliente:r.cliente||'N/I',
       und:r.und||'N/I',
-      pct:Math.max(0,Math.min(100,Math.round((r.pct||0)*100)))
+      pct:Math.max(0,Math.min(100,Math.round((r.pct||0)*100))),
+      totais:r.nCarg||0,
+      carregadas:r.nCarreg||0,
+      transito:r.nTransit||0,
+      entregues:r.nEntreg||0
     }))
     .sort((a,b)=>
       a.und.localeCompare(b.und,'pt-BR',{numeric:true})||
@@ -1923,6 +1948,12 @@ function renderEXEC(){
       a.pct-b.pct||
       a.frota.localeCompare(b.frota,'pt-BR',{numeric:true})
     );
+  mobProgressRows.forEach(r=>{
+    if(!mobTree[r.und])mobTree[r.und]={total:0,clientes:{}};
+    mobTree[r.und].total++;
+    if(!mobTree[r.und].clientes[r.cliente])mobTree[r.und].clientes[r.cliente]=[];
+    mobTree[r.und].clientes[r.cliente].push(r);
+  });
 
   const activeProg=progSheetsData.length?progSheetsData[progSheetsData.length-1]:{week:'—',records:[],loads:[],occurrences:[],extras:[]};
   const progRecords=activeProg.records||[];
@@ -1980,9 +2011,38 @@ function renderEXEC(){
   set('execK3',ineffTotal);
   set('execK3s',eflD1.length+' frotas lidas no D-1');
 
-  set('execMobTag',mobProgressRows.length?mobProgressRows.length+' mobilizações':'visão resumida');
+  set('execMobTag',Object.keys(mobTree).length?Object.keys(mobTree).length+' unidades':'visão resumida');
   html('execMobBars',mobProgressRows.length
-    ?mobProgressRows.map(r=>`<div class="bar-row"><div class="bar-lbl" title="${execEsc(r.und)} / ${execEsc(r.cliente)} / ${execEsc(r.frota)}">${execEsc(r.und)} / ${execEsc(r.cliente)} / ${execEsc(r.frota)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,r.pct)}%;background:${r.pct>=80?'var(--green)':r.pct>=50?'var(--amber)':'var(--red)'}"></div></div><div class="bar-num">${r.pct}%</div></div>`).join('')
+    ?`<div class="exec-unit-stack">${Object.entries(mobTree).map(([und,unit])=>`<div class="exec-unit-card">
+        <div class="exec-unit-head">
+          <div class="exec-unit-title">${execEsc(und)}</div>
+          <span class="count-tag">${unit.total} mobilizações</span>
+        </div>
+        <div class="exec-client-stack">${Object.entries(unit.clientes).map(([cliente,rows])=>`<div class="exec-client-card">
+            <div class="exec-client-head">
+              <div class="exec-client-title">${execEsc(cliente)}</div>
+              <span class="count-tag">${rows.length} frota(s)</span>
+            </div>
+            <div class="exec-frota-list">${rows.map(r=>`<div class="exec-frota-row">
+                <div class="exec-frota-main">
+                  <div>
+                    <div class="exec-frota-name">${execEsc(r.frota)}</div>
+                    <div class="exec-frota-sub">Frota em mobilização</div>
+                  </div>
+                  <div class="exec-frota-progress">
+                    <div class="exec-frota-bar"><div class="exec-frota-bar-fill" style="width:${Math.max(8,r.pct)}%;background:${r.pct>=80?'var(--green)':r.pct>=50?'var(--amber)':'var(--red)'}"></div></div>
+                    <div class="exec-frota-pct">${r.pct}%</div>
+                  </div>
+                </div>
+                <div class="exec-frota-metrics">
+                  <div class="exec-mini-kv"><div class="exec-mini-k">Cargas Totais</div><div class="exec-mini-v">${r.totais}</div></div>
+                  <div class="exec-mini-kv"><div class="exec-mini-k">Carregadas</div><div class="exec-mini-v">${r.carregadas}</div></div>
+                  <div class="exec-mini-kv"><div class="exec-mini-k">Em Trânsito</div><div class="exec-mini-v">${r.transito}</div></div>
+                  <div class="exec-mini-kv"><div class="exec-mini-k">Entregues</div><div class="exec-mini-v">${r.entregues}</div></div>
+                </div>
+              </div>`).join('')}</div>
+          </div>`).join('')}</div>
+      </div>`).join('')}</div>`
     :'<span class="leg">Sem dados</span>');
   html('execMobStats',`
     <div class="kv-item"><div class="kv-k">Pendentes</div><div class="kv-v">${mobOpen.length}</div></div>
@@ -1992,7 +2052,7 @@ function renderEXEC(){
     <div class="kv-item"><div class="kv-k">Entregues</div><div class="kv-v">${mobEntregues}</div></div>
   `);
   html('execMobText',mobOpen.length||mobTotCargas
-    ?`Leitura simplificada da mobilização atual: <strong>${mobOpen.length}</strong> pendentes, organizadas por <strong>unidade / cliente / frota</strong>, com <strong>${mobTotCargas}</strong> cargas totais, <strong>${mobCarreg}</strong> carregadas, <strong>${mobTransito}</strong> em trânsito e <strong>${mobEntregues}</strong> entregues.`
+    ?`Leitura simplificada da mobilização atual: <strong>${mobOpen.length}</strong> pendentes, organizadas por <strong>unidade / cliente / frota</strong>, usando os mesmos quantitativos de cargas do controle de mobilizações.`
     :'Sem base suficiente de mobilização para leitura gerencial no momento.');
 
   set('execProgTag',activeProg.week||'semana ativa');
