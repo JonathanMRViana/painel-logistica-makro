@@ -1182,6 +1182,7 @@ tbody tr:hover td{background:var(--surface2)}
           <div class="select-group"><label class="select-label">Data Até</label><input class="f-select" type="date" id="inefDataAte" onchange="renderINEFtbl()"></div>
           <div class="select-group"><label class="select-label">Status</label><select class="f-select" id="inefStatus" onchange="renderINEFtbl()"><option value="TODOS">Todos</option><option value="FINALIZADO">Finalizado</option><option value="EM ABERTO">Em Aberto</option></select></div>
           <div class="select-group"><label class="select-label">Cobrança</label><select class="f-select" id="inefCob" onchange="renderINEFtbl()"><option value="TODOS">Todos</option><option value="FATURADO">Faturado</option><option value="PENDENTE">Pendente</option><option value="NAO COBRADO">Não Cobrado</option></select></div>
+          <div class="select-group"><label class="select-label">Cliente</label><select class="f-select" id="inefCliente" onchange="renderINEFtbl()"><option value="TODOS">Todos</option></select></div>
           <div class="select-group"><label class="select-label">Motivo</label><select class="f-select" id="inefMotivo" onchange="renderINEFtbl()"><option value="TODOS">Todos</option></select></div>
           <div class="select-group"><label class="select-label">Transportador</label><select class="f-select" id="inefTransp" onchange="renderINEFtbl()"><option value="TODOS">Todos</option></select></div>
           <button class="clear-filters-btn" onclick="clearINEFFilters()">
@@ -3302,6 +3303,10 @@ function processINEF(rows){
   const motEl=document.getElementById('inefMotivo');
   if(motEl)motEl.innerHTML='<option value="TODOS">Todos</option>'+motivos.map(m=>'<option value="'+m+'">'+m+'</option>').join('');
 
+  const clientes=[...new Set(inefData.map(r=>r.cliente).filter(c=>c&&c!==''))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  const clEl=document.getElementById('inefCliente');
+  if(clEl)clEl.innerHTML='<option value="TODOS">Todos</option>'+clientes.map(c=>'<option value="'+c+'">'+c+'</option>').join('');
+
   const transps=[...new Set(inefData.map(r=>r.transp).filter(t=>t&&t!==''))].sort();
   const trEl=document.getElementById('inefTransp');
   if(trEl)trEl.innerHTML='<option value="TODOS">Todos</option>'+transps.map(t=>'<option value="'+t+'">'+t+'</option>').join('');
@@ -3329,6 +3334,7 @@ function renderINEFtbl(){
     const mes=((document.getElementById('inefMes')||{}).value)||'TODOS';
     const status=((document.getElementById('inefStatus')||{}).value)||'TODOS';
     const cob=((document.getElementById('inefCob')||{}).value)||'TODOS';
+    const cliente=((document.getElementById('inefCliente')||{}).value)||'TODOS';
     const motivo=((document.getElementById('inefMotivo')||{}).value)||'TODOS';
     const transp=((document.getElementById('inefTransp')||{}).value)||'TODOS';
     const dataDe=((document.getElementById('inefDataDe')||{}).value)||'';
@@ -3340,6 +3346,7 @@ function renderINEFtbl(){
       if(mes!=='TODOS'&&r.mes!==mes)return false;
       if(status!=='TODOS'&&!r.status.includes(status))return false;
       if(cob!=='TODOS'&&!r.cobr.includes(cob))return false;
+      if(cliente!=='TODOS'&&r.cliente!==cliente)return false;
       if(motivo!=='TODOS'&&r.motivo!==motivo)return false;
       if(transp!=='TODOS'&&r.transp!==transp)return false;
       if((dataDe||dataAte)&&!dateInRange(r.dtCheg,dataDe,dataAte))return false;
@@ -3486,7 +3493,7 @@ function setInefView(v){
   renderINEFtbl();
 }
 function clearINEFFilters(){
-  ['inefMes','inefStatus','inefCob','inefMotivo','inefTransp'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
+  ['inefMes','inefStatus','inefCob','inefCliente','inefMotivo','inefTransp'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
   ['inefDataDe','inefDataAte'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const s=document.getElementById('inefSearch');if(s)s.value='';
   renderINEFtbl();
