@@ -267,6 +267,8 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 .select-group{display:flex;flex-direction:column;gap:4px;min-width:130px}
 .select-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;font-family:'Montserrat',sans-serif}
 .f-select{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 28px 7px 10px;font-size:12px;color:var(--text);font-family:'Nunito Sans',sans-serif;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:border .15s;width:100%}
+.f-select[multiple]{appearance:auto;-webkit-appearance:auto;background-image:none;padding:8px 10px;min-height:110px}
+.f-select[multiple] option{padding:4px 6px}
 .f-select:focus{border-color:var(--accent)}
 .f-select:hover{border-color:var(--border2)}
 [data-theme="dark"] .f-select option{background:#1e2022}
@@ -1175,16 +1177,16 @@ tbody tr:hover td{background:var(--surface2)}
           <div class="filter-divider"></div>
           <div class="search-wrap" style="flex:1;min-width:140px;margin-bottom:0">
             <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" class="search-input" id="inefSearch" placeholder="Buscar frota, cliente ou motivo..." oninput="renderINEFtbl()">
+            <input type="text" class="search-input" id="inefSearch" placeholder="Buscar frota, cliente ou motivo..." oninput="syncINEFSearch(this,'inefSearchBot')">
           </div>
-          <div class="select-group"><label class="select-label">Mês</label><select class="f-select" id="inefMes" onchange="renderINEFtbl()"><option value="TODOS">Todos</option></select></div>
-          <div class="select-group"><label class="select-label">Data De</label><input class="f-select" type="date" id="inefDataDe" onchange="renderINEFtbl()"></div>
-          <div class="select-group"><label class="select-label">Data Até</label><input class="f-select" type="date" id="inefDataAte" onchange="renderINEFtbl()"></div>
-          <div class="select-group"><label class="select-label">Status</label><select class="f-select" id="inefStatus" onchange="renderINEFtbl()"><option value="TODOS">Todos</option><option value="FINALIZADO">Finalizado</option><option value="EM ABERTO">Em Aberto</option></select></div>
-          <div class="select-group"><label class="select-label">Cobrança</label><select class="f-select" id="inefCob" onchange="renderINEFtbl()"><option value="TODOS">Todos</option><option value="FATURADO">Faturado</option><option value="PENDENTE">Pendente</option><option value="NAO COBRADO">Não Cobrado</option></select></div>
-          <div class="select-group"><label class="select-label">Cliente</label><select class="f-select" id="inefCliente" onchange="renderINEFtbl()"><option value="TODOS">Todos</option></select></div>
-          <div class="select-group"><label class="select-label">Motivo</label><select class="f-select" id="inefMotivo" onchange="renderINEFtbl()"><option value="TODOS">Todos</option></select></div>
-          <div class="select-group"><label class="select-label">Transportador</label><select class="f-select" id="inefTransp" onchange="renderINEFtbl()"><option value="TODOS">Todos</option></select></div>
+          <div class="select-group"><label class="select-label">Mês</label><select class="f-select" id="inefMes" onchange="syncINEFSelect(this,'inefMesBot')"><option value="TODOS">Todos</option></select></div>
+          <div class="select-group"><label class="select-label">Data De</label><input class="f-select" type="date" id="inefDataDe" onchange="syncINEFDate(this,'inefDataDeBot')"></div>
+          <div class="select-group"><label class="select-label">Data Até</label><input class="f-select" type="date" id="inefDataAte" onchange="syncINEFDate(this,'inefDataAteBot')"></div>
+          <div class="select-group"><label class="select-label">Status</label><select class="f-select" id="inefStatus" onchange="syncINEFSelect(this,'inefStatusBot')"><option value="TODOS">Todos</option><option value="FINALIZADO">Finalizado</option><option value="EM ABERTO">Em Aberto</option></select></div>
+          <div class="select-group"><label class="select-label">Cobrança</label><select class="f-select" id="inefCob" onchange="syncINEFSelect(this,'inefCobBot')"><option value="TODOS">Todos</option><option value="FATURADO">Faturado</option><option value="PENDENTE">Pendente</option><option value="NAO COBRADO">Não Cobrado</option></select></div>
+          <div class="select-group"><label class="select-label">Cliente</label><select class="f-select" id="inefCliente" onchange="syncINEFSelect(this,'inefClienteBot')"><option value="TODOS">Todos</option></select></div>
+          <div class="select-group"><label class="select-label">Motivo</label><select class="f-select" id="inefMotivo" onchange="syncINEFSelect(this,'inefMotivoBot')"><option value="TODOS">Todos</option></select></div>
+          <div class="select-group"><label class="select-label">Transportador</label><select class="f-select" id="inefTransp" onchange="syncINEFSelect(this,'inefTranspBot')"><option value="TODOS">Todos</option></select></div>
           <button class="clear-filters-btn" onclick="clearINEFFilters()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             Limpar
@@ -1238,6 +1240,24 @@ tbody tr:hover td{background:var(--surface2)}
         <!-- Table -->
         <div class="tbl-card">
           <div class="tbl-head"><span class="tbl-title">Detalhamento de Ocorrências</span><span class="count-tag" id="inefCnt">0 registros</span></div>
+          <div class="filter-bar-row">
+            <div class="search-wrap" style="flex:1;min-width:160px;margin-bottom:0">
+              <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="search-input" id="inefSearchBot" placeholder="Buscar frota, cliente ou motivo..." oninput="syncINEFSearch(this,'inefSearch')">
+            </div>
+            <div class="select-group"><label class="select-label">Mês</label><select class="f-select" id="inefMesBot" onchange="syncINEFSelect(this,'inefMes')"><option value="TODOS">Todos</option></select></div>
+            <div class="select-group"><label class="select-label">Data De</label><input class="f-select" type="date" id="inefDataDeBot" onchange="syncINEFDate(this,'inefDataDe')"></div>
+            <div class="select-group"><label class="select-label">Data Até</label><input class="f-select" type="date" id="inefDataAteBot" onchange="syncINEFDate(this,'inefDataAte')"></div>
+            <div class="select-group"><label class="select-label">Status</label><select class="f-select" id="inefStatusBot" onchange="syncINEFSelect(this,'inefStatus')"><option value="TODOS">Todos</option><option value="FINALIZADO">Finalizado</option><option value="EM ABERTO">Em Aberto</option></select></div>
+            <div class="select-group"><label class="select-label">Cobrança</label><select class="f-select" id="inefCobBot" onchange="syncINEFSelect(this,'inefCob')"><option value="TODOS">Todos</option><option value="FATURADO">Faturado</option><option value="PENDENTE">Pendente</option><option value="NAO COBRADO">Não Cobrado</option></select></div>
+            <div class="select-group"><label class="select-label">Cliente</label><select class="f-select" id="inefClienteBot" onchange="syncINEFSelect(this,'inefCliente')"><option value="TODOS">Todos</option></select></div>
+            <div class="select-group"><label class="select-label">Motivo</label><select class="f-select" id="inefMotivoBot" onchange="syncINEFSelect(this,'inefMotivo')"><option value="TODOS">Todos</option></select></div>
+            <div class="select-group"><label class="select-label">Transportador</label><select class="f-select" id="inefTranspBot" onchange="syncINEFSelect(this,'inefTransp')"><option value="TODOS">Todos</option></select></div>
+            <button class="clear-filters-btn" onclick="clearINEFFilters()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Limpar
+            </button>
+          </div>
           <div class="tbl-wrap">
             <table style="table-layout:auto">
               <thead><tr>
@@ -1450,14 +1470,14 @@ tbody tr:hover td{background:var(--surface2)}
           <div class="filter-divider"></div>
           <div class="search-wrap" style="flex:1;min-width:220px;margin-bottom:0">
             <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" class="search-input" id="progSearch" placeholder="Buscar conjunto, cliente, frota ou localização..." oninput="renderPROG()">
+            <input type="text" class="search-input" id="progSearch" placeholder="Buscar conjunto, cliente, frota ou localização..." oninput="syncPROGSearch(this,'progSearchBot')">
           </div>
-          <div class="select-group"><label class="select-label">Semana</label><select class="f-select" id="progWeek" onchange="renderPROG()"><option value="TODOS">Todas</option></select></div>
-          <div class="select-group"><label class="select-label">Cliente</label><select class="f-select" id="progCliente" onchange="renderPROG()"><option value="TODOS">Todos</option></select></div>
-          <div class="select-group"><label class="select-label">Frota</label><select class="f-select" id="progFrota" onchange="renderPROG()"><option value="TODOS">Todos</option></select></div>
-          <div class="select-group"><label class="select-label">UN</label><select class="f-select" id="progUn" onchange="renderPROG()"><option value="TODOS">Todos</option></select></div>
-          <div class="select-group"><label class="select-label">Status</label><select class="f-select" id="progStatus" onchange="renderPROG()"><option value="TODOS">Todos</option></select></div>
-          <div class="select-group"><label class="select-label">Realizado</label><select class="f-select" id="progRealizado" onchange="renderPROG()"><option value="TODOS">Todos</option></select></div>
+          <div class="select-group"><label class="select-label">Semana</label><select class="f-select" id="progWeek" onchange="syncPROGSelect(this,'progWeekBot')"><option value="TODOS">Todas</option></select></div>
+          <div class="select-group"><label class="select-label">Cliente</label><select class="f-select" id="progCliente" onchange="syncPROGSelect(this,'progClienteBot')"><option value="TODOS">Todos</option></select></div>
+          <div class="select-group"><label class="select-label">Frota</label><select class="f-select" id="progFrota" onchange="syncPROGSelect(this,'progFrotaBot')"><option value="TODOS">Todos</option></select></div>
+          <div class="select-group"><label class="select-label">UN</label><select class="f-select" id="progUn" onchange="syncPROGSelect(this,'progUnBot')"><option value="TODOS">Todos</option></select></div>
+          <div class="select-group"><label class="select-label">Status</label><select class="f-select" id="progStatus" onchange="syncPROGSelect(this,'progStatusBot')"><option value="TODOS">Todos</option></select></div>
+          <div class="select-group"><label class="select-label">Realizado</label><select class="f-select" id="progRealizado" onchange="syncPROGSelect(this,'progRealizadoBot')"><option value="TODOS">Todos</option></select></div>
           <button class="clear-filters-btn" onclick="clearPROGFilters()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Limpar</button>
         </div>
 
@@ -1512,6 +1532,19 @@ tbody tr:hover td{background:var(--surface2)}
 
         <div class="tbl-card" style="margin-bottom:20px">
           <div class="tbl-head"><span class="tbl-title">Programação Principal</span><span class="count-tag" id="progCnt">0 registros</span></div>
+          <div class="filter-bar-row">
+            <div class="search-wrap" style="flex:1;min-width:220px;margin-bottom:0">
+              <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="search-input" id="progSearchBot" placeholder="Buscar conjunto, cliente, frota ou localização..." oninput="syncPROGSearch(this,'progSearch')">
+            </div>
+            <div class="select-group"><label class="select-label">Semana</label><select class="f-select" id="progWeekBot" onchange="syncPROGSelect(this,'progWeek')"><option value="TODOS">Todas</option></select></div>
+            <div class="select-group"><label class="select-label">Cliente</label><select class="f-select" id="progClienteBot" onchange="syncPROGSelect(this,'progCliente')"><option value="TODOS">Todos</option></select></div>
+            <div class="select-group"><label class="select-label">Frota</label><select class="f-select" id="progFrotaBot" onchange="syncPROGSelect(this,'progFrota')"><option value="TODOS">Todos</option></select></div>
+            <div class="select-group"><label class="select-label">UN</label><select class="f-select" id="progUnBot" onchange="syncPROGSelect(this,'progUn')"><option value="TODOS">Todos</option></select></div>
+            <div class="select-group"><label class="select-label">Status</label><select class="f-select" id="progStatusBot" onchange="syncPROGSelect(this,'progStatus')"><option value="TODOS">Todos</option></select></div>
+            <div class="select-group"><label class="select-label">Realizado</label><select class="f-select" id="progRealizadoBot" onchange="syncPROGSelect(this,'progRealizado')"><option value="TODOS">Todos</option></select></div>
+            <button class="clear-filters-btn" onclick="clearPROGFilters()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Limpar</button>
+          </div>
           <div class="tbl-wrap"><table class="prog-main-table"><thead><tr><th>Semana</th><th>Conjunto</th><th>Tipo</th><th>UN</th><th>Cliente</th><th>Data Cliente</th><th>Data Saída</th><th>Localização</th><th>Frota Atendida</th><th>Status Atual</th><th>Data Liberação</th><th>Realizado?</th><th>Obs. Aderência</th><th>Observação</th></tr></thead><tbody id="progTbl"></tbody></table></div>
         </div>
 
@@ -1879,22 +1912,44 @@ function processPROG(sheets){
   populatePROGFilters();
   renderPROG();
 }
-function getPROGSelectedWeek(){const sel=(document.getElementById('progWeek')||{}).value||'';return sel&&sel!=='TODOS'?sel:(progSheetsData.length?progSheetsData[progSheetsData.length-1].week:'');}
+function getPROGSelectedWeeks(){
+  const sel=getSelectValues('progWeek');
+  if(isAllSelection(sel))return progSheetsData.length?[progSheetsData[progSheetsData.length-1].week]:[];
+  return sel;
+}
 function populatePROGFilters(){
   const weekSel=document.getElementById('progWeek');
-  const current=weekSel&&weekSel.value?weekSel.value:'';
+  const current=weekSel?getSelectedValuesFromEl(weekSel):['TODOS'];
   const weeks=progSheetsData.map(s=>s.week);
-  if(weekSel){weekSel.innerHTML='<option value="TODOS">Semana mais recente</option>'+weeks.map(w=>`<option value="${w}">${w}</option>`).join('');if(current&&weeks.includes(current))weekSel.value=current;}
+  const weekBotSel=document.getElementById('progWeekBot');
+  const weekHtml='<option value="TODOS">Semana mais recente</option>'+weeks.map(w=>`<option value="${w}">${w}</option>`).join('');
+  if(weekSel){weekSel.innerHTML=weekHtml;setSelectValues('progWeek',current.filter(v=>weeks.includes(v)));}
+  if(weekBotSel){weekBotSel.innerHTML=weekHtml;setSelectValues('progWeekBot',current.filter(v=>weeks.includes(v)));}
   const allRecords=progSheetsData.flatMap(s=>s.records);
   const allLoads=progSheetsData.flatMap(s=>s.loads||[]);
-  function fill(id,vals){const el=document.getElementById(id);if(!el)return;const cur=el.value;el.innerHTML='<option value="TODOS">Todos</option>'+vals.map(v=>`<option value="${progEsc(v)}">${progEsc(v)}</option>`).join('');if(vals.includes(cur))el.value=cur;}
-  fill('progCliente',[...new Set(allRecords.map(r=>r.cliente).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')));
-  fill('progFrota',[...new Set(allLoads.map(r=>r.frota).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true})));
-  fill('progUn',[...new Set(allRecords.map(r=>r.un).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')));
-  fill('progStatus',[...new Set(allRecords.map(r=>r.statusAtual).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')));
-  fill('progRealizado',[...new Set(allRecords.map(r=>r.realizado).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')));
+  function fill(ids,vals){ids.forEach(id=>{const el=document.getElementById(id);if(!el)return;const cur=el.value;el.innerHTML='<option value="TODOS">Todos</option>'+vals.map(v=>`<option value="${progEsc(v)}">${progEsc(v)}</option>`).join('');if(vals.includes(cur))el.value=cur;});}
+  fill(['progCliente','progClienteBot'],[...new Set(allRecords.map(r=>r.cliente).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')));
+  fill(['progFrota','progFrotaBot'],[...new Set(allLoads.map(r=>r.frota).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true})));
+  fill(['progUn','progUnBot'],[...new Set(allRecords.map(r=>r.un).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')));
+  fill(['progStatus','progStatusBot'],[...new Set(allRecords.map(r=>r.statusAtual).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')));
+  fill(['progRealizado','progRealizadoBot'],[...new Set(allRecords.map(r=>r.realizado).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR')));
 }
-function clearPROGFilters(){['progSearch'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});['progWeek','progCliente','progFrota','progUn','progStatus','progRealizado'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});renderPROG();}
+function clearPROGFilters(){['progSearch','progSearchBot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});['progWeek','progWeekBot','progCliente','progClienteBot','progFrota','progFrotaBot','progUn','progUnBot','progStatus','progStatusBot','progRealizado','progRealizadoBot'].forEach(resetSelectValue);renderPROG();}
+function syncPROGSearch(src,targetId){
+  const t=document.getElementById(targetId);
+  if(t&&t!==src)t.value=src.value;
+  const mirror=targetId==='progSearch'?'progSearchBot':'progSearch';
+  const m=document.getElementById(mirror);
+  if(m&&m!==src)m.value=src.value;
+  renderPROG();
+}
+function syncPROGSelect(src,targetId){
+  syncSelectValues(src,targetId);
+  const mirror=targetId.endsWith('Bot')?targetId.slice(0,-3):targetId+'Bot';
+  const m=document.getElementById(mirror);
+  if(m&&m!==src)syncSelectValues(src,m.id);
+  renderPROG();
+}
 function progObsCell(ref,text){
   const safeRef=progEsc(ref||'');
   const safeText=progEsc(text||'');
@@ -1905,28 +1960,35 @@ function progSplitFrotas(v){
 }
 function renderPROG(){
   if(!progSheetsData.length)return;
-  const baseSheet=progSheetsData.find(s=>s.week===getPROGSelectedWeek())||progSheetsData[progSheetsData.length-1];
+  const selectedWeeks=getPROGSelectedWeeks();
+  const selectedSheets=progSheetsData.filter(s=>selectedWeeks.includes(s.week));
+  const baseSheets=selectedSheets.length?selectedSheets:[progSheetsData[progSheetsData.length-1]];
+  const baseSheet=baseSheets[baseSheets.length-1];
   const q=((document.getElementById('progSearch')||{}).value||'').toLowerCase().trim();
-  const cliente=((document.getElementById('progCliente')||{}).value)||'TODOS';
-  const frota=((document.getElementById('progFrota')||{}).value)||'TODOS';
-  const un=((document.getElementById('progUn')||{}).value)||'TODOS';
-  const status=((document.getElementById('progStatus')||{}).value)||'TODOS';
-  const realizado=((document.getElementById('progRealizado')||{}).value)||'TODOS';
-  const records=(baseSheet.records||[]).filter(r=>{
-    if(cliente!=='TODOS'&&r.cliente!==cliente)return false;
-    if(frota!=='TODOS'&&!progKey(r.frotaAtendida).includes(progKey(frota)))return false;
-    if(un!=='TODOS'&&r.un!==un)return false;
-    if(status!=='TODOS'&&r.statusAtual!==status)return false;
-    if(realizado!=='TODOS'&&r.realizado!==realizado)return false;
+  const cliente=getSelectValues('progCliente');
+  const frota=getSelectValues('progFrota');
+  const un=getSelectValues('progUn');
+  const status=getSelectValues('progStatus');
+  const realizado=getSelectValues('progRealizado');
+  const sourceRecords=baseSheets.flatMap(s=>s.records||[]);
+  const sourceLoads=baseSheets.flatMap(s=>s.loads||[]);
+  const sourceExtras=baseSheets.flatMap(s=>s.extras||[]);
+  const sourceOccs=baseSheets.flatMap(s=>s.occurrences||[]);
+  const records=sourceRecords.filter(r=>{
+    if(!matchesValue(r.cliente,cliente))return false;
+    if(!matchesContains(r.frotaAtendida,frota))return false;
+    if(!matchesValue(r.un,un))return false;
+    if(!matchesValue(r.statusAtual,status))return false;
+    if(!matchesValue(r.realizado,realizado))return false;
     if(q){const hay=[r.week,r.conjunto,r.tipo,r.un,r.cliente,r.localizacao,r.frotaAtendida,r.statusAtual,r.realizado,r.aderencia,r.obs].join(' ').toLowerCase();if(!hay.includes(q))return false;}
     return true;
   });
-  const hasStructuredFilters=cliente!=='TODOS'||frota!=='TODOS'||un!=='TODOS'||status!=='TODOS'||realizado!=='TODOS';
+  const hasStructuredFilters=!isAllSelection(cliente)||!isAllSelection(frota)||!isAllSelection(un)||!isAllSelection(status)||!isAllSelection(realizado);
   const allowedFrotas=new Set(records.flatMap(r=>progSplitFrotas(r.frotaAtendida)).map(v=>progKey(v)));
   const allowedConjuntos=new Set(records.map(r=>progKey(r.conjunto)));
-  const loads=(baseSheet.loads||[]).filter(r=>{if(frota!=='TODOS'&&progKey(r.frota)!==progKey(frota))return false;if(hasStructuredFilters&&allowedFrotas.size>0&&!allowedFrotas.has(progKey(r.frota)))return false;if(q){const hay=[r.frota,r.tipoOp,r.cargas,r.entregues,r.emTransito,r.pendente].join(' ').toLowerCase();if(!hay.includes(q))return false;}return true;});
-  const extras=(baseSheet.extras||[]).filter(r=>{if(cliente!=='TODOS'&&r.cliente!==cliente)return false;if(frota!=='TODOS'&&!progKey([r.frotaAtendida,r.conjunto,r.motivo].join(' ')).includes(progKey(frota)))return false;if(hasStructuredFilters&&frota==='TODOS'&&allowedFrotas.size>0){const extraFrotas=progSplitFrotas(r.frotaAtendida).map(v=>progKey(v));if(extraFrotas.length&&!extraFrotas.some(v=>allowedFrotas.has(v)))return false;}if(q){const hay=[r.conjunto,r.tipo,r.solicitante,r.cliente,r.dataSolicitacao,r.dataSaida,r.motivo,r.frotaAtendida,r.status].join(' ').toLowerCase();if(!hay.includes(q))return false;}return true;});
-  const occs=(baseSheet.occurrences||[]).filter(r=>{if(frota!=='TODOS'){const hay=[r.conjunto,r.descricao,r.impacto].join(' ');if(!progKey(hay).includes(progKey(frota))&&!allowedConjuntos.has(progKey(r.conjunto)))return false;}if(hasStructuredFilters&&frota==='TODOS'&&allowedConjuntos.size>0&&!allowedConjuntos.has(progKey(r.conjunto))&&q==='')return false;if(q){const hay=[r.conjunto,r.dataHora,r.tipo,r.descricao,r.responsavel,r.impacto,r.status,r.dataResolucao].join(' ').toLowerCase();if(!hay.includes(q))return false;}return true;});
+  const loads=sourceLoads.filter(r=>{if(!matchesValue(r.frota,frota))return false;if(hasStructuredFilters&&allowedFrotas.size>0&&!allowedFrotas.has(progKey(r.frota)))return false;if(q){const hay=[r.frota,r.tipoOp,r.cargas,r.entregues,r.emTransito,r.pendente].join(' ').toLowerCase();if(!hay.includes(q))return false;}return true;});
+  const extras=sourceExtras.filter(r=>{if(!matchesValue(r.cliente,cliente))return false;if(!matchesContains([r.frotaAtendida,r.conjunto,r.motivo].join(' '),frota))return false;if(hasStructuredFilters&&isAllSelection(frota)&&allowedFrotas.size>0){const extraFrotas=progSplitFrotas(r.frotaAtendida).map(v=>progKey(v));if(extraFrotas.length&&!extraFrotas.some(v=>allowedFrotas.has(v)))return false;}if(q){const hay=[r.conjunto,r.tipo,r.solicitante,r.cliente,r.dataSolicitacao,r.dataSaida,r.motivo,r.frotaAtendida,r.status].join(' ').toLowerCase();if(!hay.includes(q))return false;}return true;});
+  const occs=sourceOccs.filter(r=>{if(!isAllSelection(frota)){const hay=[r.conjunto,r.descricao,r.impacto].join(' ');if(!matchesContains(hay,frota)&&!allowedConjuntos.has(progKey(r.conjunto)))return false;}if(hasStructuredFilters&&isAllSelection(frota)&&allowedConjuntos.size>0&&!allowedConjuntos.has(progKey(r.conjunto))&&q==='')return false;if(q){const hay=[r.conjunto,r.dataHora,r.tipo,r.descricao,r.responsavel,r.impacto,r.status,r.dataResolucao].join(' ').toLowerCase();if(!hay.includes(q))return false;}return true;});
   const ocorrOpen=occs.filter(o=>progIsOpenStatus(o.status)).length;
   const manutCount=records.filter(r=>progKey(r.statusAtual).includes('MANUTEN')).length;
   const dispCount=records.filter(r=>progKey(r.statusAtual).includes('DISPON')).length;
@@ -2336,24 +2398,105 @@ function dateInRange(v,start,end){
   if(end&&k>end)return false;
   return true;
 }
+function normText(v){return String(v==null?'':v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();}
+function getSelectedValuesFromEl(el){
+  if(!el)return['TODOS'];
+  if(!el.multiple){
+    const val=el.value||'TODOS';
+    return val&&val!=='TODOS'?[val]:['TODOS'];
+  }
+  const vals=[...el.options].filter(o=>o.selected&&o.value&&o.value!=='TODOS').map(o=>o.value);
+  return vals.length?vals:['TODOS'];
+}
+function getSelectValues(id){return getSelectedValuesFromEl(document.getElementById(id));}
+function isAllSelection(vals){return !vals||!vals.length||vals.includes('TODOS');}
+function setSelectValues(id,vals){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const list=(Array.isArray(vals)?vals:[vals]).filter(Boolean);
+  if(!el.multiple){
+    el.value=!list.length||list.includes('TODOS')?'TODOS':list[0];
+    return;
+  }
+  const set=new Set(!list.length||list.includes('TODOS')?[]:list.map(String));
+  [...el.options].forEach(opt=>{
+    opt.selected=opt.value!=='TODOS'&&set.has(opt.value);
+  });
+  const bind=(id,fn)=>{const el=document.getElementById(id);if(el)el.onchange=fn;};
+  bind('matTipo',function(){syncSelectValues(this,'matTipoBot');renderMATtbl();});
+  bind('matTipoBot',function(){syncSelectValues(this,'matTipo');renderMATtbl();});
+  bind('matStatus',function(){syncSelectValues(this,'matStatusBot');renderMATtbl();});
+  bind('matStatusBot',function(){syncSelectValues(this,'matStatus');renderMATtbl();});
+  bind('patStatus',function(){syncSelectValues(this,'patStatusBot');renderPATtbl();});
+  bind('patStatusBot',function(){syncSelectValues(this,'patStatus');renderPATtbl();});
+  bind('patCrit',function(){syncSelectValues(this,'patCritBot');renderPATtbl();});
+  bind('patCritBot',function(){syncSelectValues(this,'patCrit');renderPATtbl();});
+  bind('patSetor',function(){syncSelectValues(this,'patSetorBot');renderPATtbl();});
+  bind('patSetorBot',function(){syncSelectValues(this,'patSetor');renderPATtbl();});
+  bind('patAno',function(){syncSelectValues(this,'patAnoBot');renderPATtbl();});
+  bind('patAnoBot',function(){syncSelectValues(this,'patAno');renderPATtbl();});
+  bind('patMes',function(){syncSelectValues(this,'patMesBot');renderPATtbl();});
+  bind('patMesBot',function(){syncSelectValues(this,'patMes');renderPATtbl();});
+}
+function resetSelectValue(id){setSelectValues(id,['TODOS']);}
+function matchesValue(val,selected){return isAllSelection(selected)||selected.map(String).includes(String(val));}
+function matchesContains(val,selected){
+  if(isAllSelection(selected))return true;
+  const hay=normText(val);
+  return selected.some(item=>hay.includes(normText(item)));
+}
+function selectedCount(id){const vals=getSelectValues(id);return isAllSelection(vals)?0:vals.length;}
+function syncSelectValues(src,targetId){
+  if(!src)return;
+  setSelectValues(targetId,getSelectedValuesFromEl(src));
+}
+function fillSelectOptions(ids,vals,allLabel='Todos',labelFn){
+  const values=[...new Set((vals||[]).filter(v=>v!=null&&String(v).trim()!==''))];
+  ids.forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    const current=getSelectValuesFromEl(el);
+    el.innerHTML='<option value="TODOS">'+allLabel+'</option>'+values.map(v=>'<option value="'+String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'">'+String(labelFn?labelFn(v):v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</option>').join('');
+    const next=isAllSelection(current)?['TODOS']:current.filter(v=>values.map(String).includes(String(v)));
+    setSelectValues(id,next.length?next:['TODOS']);
+  });
+}
+function applyMultiSelectFilters(){
+  [
+    'aetSem','aetSemBot','aetTipo','aetTipoBot','aetRen','aetRenBot','aetAno','aetAnoTop','aetMes','aetMesTop',
+    'mobCrit','mobCritTop','mobTipo','mobTipoTop','mobStatus','mobStatusTop','mobSla','mobSlaTop','mobUnd','mobUndTop','mobAno','mobAnoTop','mobMes','mobMesTop',
+    'matTipo','matTipoBot','matStatus','matStatusBot',
+    'patStatus','patStatusBot','patCrit','patCritBot','patSetor','patSetorBot','patAno','patAnoBot','patMes','patMesBot',
+    'inefMes','inefMesBot','inefStatus','inefStatusBot','inefCob','inefCobBot','inefCliente','inefClienteBot','inefMotivo','inefMotivoBot','inefTransp','inefTranspBot',
+    'eflFrota','eflFrotaTop',
+    'rpdTipo','rpdTipoTop','rpdStatus','rpdStatusTop','rpdImpacto','rpdImpactoTop','rpdAno','rpdAnoTop','rpdMes','rpdMesTop',
+    'progWeek','progWeekBot','progCliente','progClienteBot','progFrota','progFrotaBot','progUn','progUnBot','progStatus','progStatusBot','progRealizado','progRealizadoBot'
+  ].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.multiple=true;
+    el.size=5;
+    el.title='Use Ctrl para selecionar mais de uma opção';
+  });
+}
 
 function renderAETtbl(){
   const q=((document.getElementById('aetSearch')||{}).value||'').toLowerCase().trim();
-  const sem=((document.getElementById('aetSem')||{}).value)||'TODOS';
-  const tipo=((document.getElementById('aetTipo')||{}).value)||'TODOS';
-  const ren=((document.getElementById('aetRen')||{}).value)||'TODOS';
-  const ano=((document.getElementById('aetAno')||{}).value)||'TODOS';
-  const mes=((document.getElementById('aetMes')||{}).value)||'TODOS';
+  const sem=getSelectValues('aetSem');
+  const tipo=getSelectValues('aetTipo');
+  const ren=getSelectValues('aetRen');
+  const ano=getSelectValues('aetAno');
+  const mes=getSelectValues('aetMes');
   const dataDe=((document.getElementById('aetDataDe')||{}).value)||'';
   const dataAte=((document.getElementById('aetDataAte')||{}).value)||'';
   const semMap={'VENCIDA':'V','C5':'C5','C15':'C15','C30':'C30','R':'R','SD':'SD'};
   const f=aetData.filter(r=>{
     const refDate=parseDate(r.val)||parseDate(r.dtSol);
-    if(sem!=='TODOS'&&r.sem!==semMap[sem])return false;
-    if(tipo!=='TODOS'&&r.tipo!==tipo)return false;
-    if(ren!=='TODOS'&&r.ren!==ren)return false;
-    if(ano!=='TODOS'){const y=getDateYear(r.val)||getDateYear(r.dtSol);if(String(y)!==ano)return false;}
-    if(mes!=='TODOS'){const m=getDateMonth(r.val)||getDateMonth(r.dtSol);if(String(m)!==mes)return false;}
+    if(!isAllSelection(sem)&&!sem.map(v=>semMap[v]).includes(r.sem))return false;
+    if(!matchesValue(r.tipo,tipo))return false;
+    if(!matchesValue(r.ren,ren))return false;
+    if(!isAllSelection(ano)){const y=getDateYear(r.val)||getDateYear(r.dtSol);if(!matchesValue(String(y),ano))return false;}
+    if(!isAllSelection(mes)){const m=getDateMonth(r.val)||getDateMonth(r.dtSol);if(!matchesValue(String(m),mes))return false;}
     if((dataDe||dataAte)&&!dateInRange(refDate,dataDe,dataAte))return false;
     if(q&&!r.frota.toLowerCase().includes(q)&&!r.lic.toLowerCase().includes(q))return false;
     return true;
@@ -2447,21 +2590,21 @@ function renderMOB(){
 function renderMOBtbl(){
   try{
     const q=((document.getElementById('mobSearch')||{}).value||'').toLowerCase().trim();
-    const crit=((document.getElementById('mobCrit')||{}).value)||'TODOS';
-    const tipo=((document.getElementById('mobTipo')||{}).value)||'TODOS';
-    const slaV=((document.getElementById('mobSla')||{}).value)||'TODOS';
-    const statV=((document.getElementById('mobStatus')||{}).value)||'TODOS';
-    const und=((document.getElementById('mobUnd')||{}).value)||'TODOS';
-    const ano=((document.getElementById('mobAno')||{}).value)||'TODOS';
-    const mes=((document.getElementById('mobMes')||{}).value)||'TODOS';
+    const crit=getSelectValues('mobCrit');
+    const tipo=getSelectValues('mobTipo');
+    const slaV=getSelectValues('mobSla');
+    const statV=getSelectValues('mobStatus');
+    const und=getSelectValues('mobUnd');
+    const ano=getSelectValues('mobAno');
+    const mes=getSelectValues('mobMes');
     const f=mobData.filter(r=>{
-      if(crit!=='TODOS'&&r.crit!==crit)return false;
-      if(tipo!=='TODOS'&&r.tipo!==tipo)return false;
-      if(statV!=='TODOS'&&!String(r.status).toUpperCase().includes(statV.toUpperCase()))return false;
-      if(slaV!=='TODOS'&&r.sla!==slaV)return false;
-      if(und!=='TODOS'&&r.und!==und)return false;
-      if(ano!=='TODOS'){const y=getDateYear(r.dtIni)||getDateYear(r.prev);if(String(y)!==ano)return false;}
-      if(mes!=='TODOS'){const m=getDateMonth(r.dtIni)||getDateMonth(r.prev);if(String(m)!==mes)return false;}
+      if(!matchesValue(r.crit,crit))return false;
+      if(!matchesValue(r.tipo,tipo))return false;
+      if(!matchesContains(r.status,statV))return false;
+      if(!matchesValue(r.sla,slaV))return false;
+      if(!matchesValue(r.und,und))return false;
+      if(!isAllSelection(ano)){const y=getDateYear(r.dtIni)||getDateYear(r.prev);if(!matchesValue(String(y),ano))return false;}
+      if(!isAllSelection(mes)){const m=getDateMonth(r.dtIni)||getDateMonth(r.prev);if(!matchesValue(String(m),mes))return false;}
       if(q&&!String(r.frota).toLowerCase().includes(q)&&!String(r.modelo).toLowerCase().includes(q)&&!String(r.cliente).toLowerCase().includes(q))return false;
       return true;
     });
@@ -2542,18 +2685,14 @@ function syncAETDate(src,targetId){
   if(aetData.length)renderAETcharts();
 }
 function syncAETSelect(src,targetId){
-  const t=document.getElementById(targetId);
+  syncSelectValues(src,targetId);
   const top=document.getElementById(targetId+'Top');
   const bot=document.getElementById(targetId+'Bot');
-  if(t&&t!==src)t.value=src.value;
-  if(top&&top!==src)top.value=src.value;
-  if(bot&&bot!==src)bot.value=src.value;
-  // sync sem specifically (top bar uses aetSem directly)
+  if(top&&top!==src)syncSelectValues(src,top.id);
+  if(bot&&bot!==src)syncSelectValues(src,bot.id);
   if(targetId==='aetSem'){
-    const semTop=document.getElementById('aetSem');
-    const semBot=document.getElementById('aetSemBot');
-    if(semTop&&semTop!==src)semTop.value=src.value;
-    if(semBot&&semBot!==src)semBot.value=src.value;
+    syncSelectValues(src,'aetSem');
+    syncSelectValues(src,'aetSemBot');
   }
   updateAETFilterCount();
   renderAETtbl();
@@ -2588,19 +2727,19 @@ function setPATCompareMode(mode){
 function getPATFilterState(){
   return{
     q:((document.getElementById('patSearch')||{}).value||'').toLowerCase().trim(),
-    status:((document.getElementById('patStatus')||{}).value)||'TODOS',
-    crit:((document.getElementById('patCrit')||{}).value)||'TODOS',
-    setor:((document.getElementById('patSetor')||{}).value)||'TODOS',
-    ano:((document.getElementById('patAno')||{}).value)||'TODOS',
-    mes:((document.getElementById('patMes')||{}).value)||'TODOS',
+    status:getSelectValues('patStatus'),
+    crit:getSelectValues('patCrit'),
+    setor:getSelectValues('patSetor'),
+    ano:getSelectValues('patAno'),
+    mes:getSelectValues('patMes'),
     dataDe:((document.getElementById('patDataDe')||{}).value)||'',
     dataAte:((document.getElementById('patDataAte')||{}).value)||''
   };
 }
 function patMatchNonDate(r,state){
-  if(state.status!=='TODOS'&&r.status!==state.status)return false;
-  if(state.crit!=='TODOS'&&r.crit!==state.crit)return false;
-  if(state.setor!=='TODOS'&&r.setor!==state.setor)return false;
+  if(!matchesValue(r.status,state.status))return false;
+  if(!matchesValue(r.crit,state.crit))return false;
+  if(!matchesValue(r.setor,state.setor))return false;
   if(state.q&&!r.ativ.toLowerCase().includes(state.q)&&!r.frota.toLowerCase().includes(state.q)&&!r.frotaMKT.toLowerCase().includes(state.q))return false;
   return true;
 }
@@ -2611,8 +2750,8 @@ function getPATFilteredData(rangeOverride){
     if(rangeOverride){
       return dateInRange(r.dtId,rangeOverride.start,rangeOverride.end);
     }
-    if(state.ano!=='TODOS'){const y=getDateYear(r.dtId);if(String(y)!==state.ano)return false;}
-    if(state.mes!=='TODOS'){const m=getDateMonth(r.dtId);if(String(m)!==state.mes)return false;}
+    if(!isAllSelection(state.ano)){const y=getDateYear(r.dtId);if(!matchesValue(String(y),state.ano))return false;}
+    if(!isAllSelection(state.mes)){const m=getDateMonth(r.dtId);if(!matchesValue(String(m),state.mes))return false;}
     if((state.dataDe||state.dataAte)&&!dateInRange(r.dtId,state.dataDe,state.dataAte))return false;
     return true;
   });
@@ -2637,7 +2776,7 @@ function diffDaysInclusive(start,end){
   return Math.floor((b-a)/86400000)+1;
 }
 function patHasComparablePeriod(state){
-  return !!(state.dataDe||state.dataAte||state.ano!=='TODOS');
+  return !!(state.dataDe||state.dataAte||!isAllSelection(state.ano));
 }
 function patResolveCurrentRange(currentData){
   const state=getPATFilterState();
@@ -2645,13 +2784,13 @@ function patResolveCurrentRange(currentData){
   if(state.dataDe||state.dataAte){
     return{start:state.dataDe||state.dataAte,end:state.dataAte||state.dataDe};
   }
-  if(state.ano!=='TODOS'&&state.mes!=='TODOS'){
-    const y=Number(state.ano),m=Number(state.mes);
+  if(!isAllSelection(state.ano)&&!isAllSelection(state.mes)&&state.ano.length===1&&state.mes.length===1){
+    const y=Number(state.ano[0]),m=Number(state.mes[0]);
     const endDay=new Date(y,m,0).getDate();
     return{start:`${y}-${pad2(m)}-01`,end:`${y}-${pad2(m)}-${pad2(endDay)}`};
   }
-  if(state.ano!=='TODOS'&&state.mes==='TODOS'){
-    return{start:`${state.ano}-01-01`,end:`${state.ano}-12-31`};
+  if(!isAllSelection(state.ano)&&isAllSelection(state.mes)&&state.ano.length===1){
+    return{start:`${state.ano[0]}-01-01`,end:`${state.ano[0]}-12-31`};
   }
   const keys=currentData.map(r=>dateKey(r.dtId)).filter(Boolean).sort();
   if(!keys.length)return{start:'',end:''};
@@ -2722,49 +2861,36 @@ function patComparisonText(cur,base,label,isAvg){
   return `${label} estável frente à base comparada.`;
 }
 function syncMOBSelect(src,targetId){
-  const t=document.getElementById(targetId);
+  syncSelectValues(src,targetId);
   const top=document.getElementById(targetId+'Top');
-  if(t&&t!==src)t.value=src.value;
-  if(top&&top!==src)top.value=src.value;
+  if(top&&top!==src)syncSelectValues(src,top.id);
   updateMOBFilterCount();
   renderMOBtbl();
   if(mobData.length)renderMOBcharts();
 }
 function updateAETFilterCount(){
-  const sem=(document.getElementById('aetSem')||{value:'TODOS'}).value;
-  const tipo=(document.getElementById('aetTipo')||{value:'TODOS'}).value;
-  const ren=(document.getElementById('aetRen')||{value:'TODOS'}).value;
   const q=(document.getElementById('aetSearch')||{value:''}).value;
-  const _ano=((document.getElementById('aetAno')||{}).value)||'TODOS';
-  const _mes=((document.getElementById('aetMes')||{}).value)||'TODOS';
   const _de=((document.getElementById('aetDataDe')||{}).value)||'';
   const _ate=((document.getElementById('aetDataAte')||{}).value)||'';
-  const n=[sem,tipo,ren,_ano,_mes].filter(v=>v!=='TODOS').length+(q?1:0)+(_de?1:0)+(_ate?1:0);
+  const n=selectedCount('aetSem')+selectedCount('aetTipo')+selectedCount('aetRen')+selectedCount('aetAno')+selectedCount('aetMes')+(q?1:0)+(_de?1:0)+(_ate?1:0);
   const el=document.getElementById('aetFilterCount');
   if(el){el.textContent=n;el.classList.toggle('show',n>0);}
 }
 function updateMOBFilterCount(){
-  const crit=(document.getElementById('mobCrit')||{value:'TODOS'}).value;
-  const tipo=(document.getElementById('mobTipo')||{value:'TODOS'}).value;
-  const slaVal=(document.getElementById('mobSla')||{value:'TODOS'}).value;
-  const und=(document.getElementById('mobUnd')||{value:'TODOS'}).value;
   const q=(document.getElementById('mobSearch')||{value:''}).value;
-  const _ano=((document.getElementById('mobAno')||{}).value)||'TODOS';
-  const _mes=((document.getElementById('mobMes')||{}).value)||'TODOS';
-  const mobStC=((document.getElementById('mobStatus')||{value:'TODOS'}).value)||'TODOS';
-  const n=[crit,tipo,mobStC,slaVal,und,_ano,_mes].filter(v=>v!=='TODOS').length+(q?1:0);
+  const n=selectedCount('mobCrit')+selectedCount('mobTipo')+selectedCount('mobStatus')+selectedCount('mobSla')+selectedCount('mobUnd')+selectedCount('mobAno')+selectedCount('mobMes')+(q?1:0);
   const el=document.getElementById('mobFilterCount');
   if(el){el.textContent=n;el.classList.toggle('show',n>0);}
 }
 function clearAETFilters(){
-  ['aetSem','aetSemTop','aetSemBot','aetTipo','aetTipoTop','aetTipoBot','aetRen','aetRenTop','aetRenBot','aetAno','aetAnoTop','aetMes','aetMesTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
+  ['aetSem','aetSemTop','aetSemBot','aetTipo','aetTipoTop','aetTipoBot','aetRen','aetRenTop','aetRenBot','aetAno','aetAnoTop','aetMes','aetMesTop'].forEach(resetSelectValue);
   ['aetSearch','aetSearchTop','aetDataDe','aetDataDeTop','aetDataAte','aetDataAteTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   updateAETFilterCount();
   renderAETtbl();
   renderAETcharts();
 }
 function clearMOBFilters(){
-  ['mobCrit','mobCritTop','mobTipo','mobTipoTop','mobStatus','mobStatusTop','mobSla','mobSlaTop','mobUnd','mobUndTop','mobAno','mobAnoTop','mobMes','mobMesTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
+  ['mobCrit','mobCritTop','mobTipo','mobTipoTop','mobStatus','mobStatusTop','mobSla','mobSlaTop','mobUnd','mobUndTop','mobAno','mobAnoTop','mobMes','mobMesTop'].forEach(resetSelectValue);
   ['mobSearch','mobSearchTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   updateMOBFilterCount();
   renderMOBtbl();
@@ -2778,21 +2904,21 @@ function renderAETAll(){
 }
 function renderAETcharts(){
   const semMap={'VENCIDA':'V','C5':'C5','C15':'C15','C30':'C30','R':'R','SD':'SD'};
-  const sem=(document.getElementById('aetSem')||{value:'TODOS'}).value;
-  const tipo=(document.getElementById('aetTipo')||{value:'TODOS'}).value;
-  const ren=(document.getElementById('aetRen')||{value:'TODOS'}).value;
+  const sem=getSelectValues('aetSem');
+  const tipo=getSelectValues('aetTipo');
+  const ren=getSelectValues('aetRen');
   const q=(document.getElementById('aetSearch')||{value:''}).value.toLowerCase();
-  const _ano=((document.getElementById('aetAno')||{}).value)||'TODOS';
-  const _mes=((document.getElementById('aetMes')||{}).value)||'TODOS';
+  const _ano=getSelectValues('aetAno');
+  const _mes=getSelectValues('aetMes');
   const _de=((document.getElementById('aetDataDe')||{}).value)||'';
   const _ate=((document.getElementById('aetDataAte')||{}).value)||'';
   const d=aetData.filter(r=>{
     const refDate=parseDate(r.val)||parseDate(r.dtSol);
-    if(sem!=='TODOS'&&r.sem!==semMap[sem])return false;
-    if(tipo!=='TODOS'&&r.tipo!==tipo)return false;
-    if(ren!=='TODOS'&&r.ren!==ren)return false;
-    if(_ano!=='TODOS'){const y=getDateYear(r.val)||getDateYear(r.dtSol);if(String(y)!==_ano)return false;}
-    if(_mes!=='TODOS'){const m=getDateMonth(r.val)||getDateMonth(r.dtSol);if(String(m)!==_mes)return false;}
+    if(!isAllSelection(sem)&&!sem.map(v=>semMap[v]).includes(r.sem))return false;
+    if(!matchesValue(r.tipo,tipo))return false;
+    if(!matchesValue(r.ren,ren))return false;
+    if(!isAllSelection(_ano)){const y=getDateYear(r.val)||getDateYear(r.dtSol);if(!matchesValue(String(y),_ano))return false;}
+    if(!isAllSelection(_mes)){const m=getDateMonth(r.val)||getDateMonth(r.dtSol);if(!matchesValue(String(m),_mes))return false;}
     if((_de||_ate)&&!dateInRange(refDate,_de,_ate))return false;
     if(q&&!r.frota.toLowerCase().includes(q)&&!r.lic.toLowerCase().includes(q))return false;
     return true;
@@ -2823,22 +2949,22 @@ function renderAETcharts(){
   document.getElementById('aBars').innerHTML=ts.map(([l,v],i)=>`<div class="bar-row"><span class="bar-lbl">${l}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/mx*100)}%;background:${bc[i]}"></div></div><span class="bar-num">${v}</span></div>`).join('');
 }
 function renderMOBcharts(){
-  const crit=(document.getElementById('mobCrit')||{value:'TODOS'}).value;
-  const tipo=(document.getElementById('mobTipo')||{value:'TODOS'}).value;
-  const slaVal=(document.getElementById('mobSla')||{value:'TODOS'}).value;
-  const statV=(document.getElementById('mobStatus')||{value:'TODOS'}).value;
-  const und=(document.getElementById('mobUnd')||{value:'TODOS'}).value;
+  const crit=getSelectValues('mobCrit');
+  const tipo=getSelectValues('mobTipo');
+  const slaVal=getSelectValues('mobSla');
+  const statV=getSelectValues('mobStatus');
+  const und=getSelectValues('mobUnd');
   const q=(document.getElementById('mobSearch')||{value:''}).value.toLowerCase();
-  const _ano=((document.getElementById('mobAno')||{}).value)||'TODOS';
-  const _mes=((document.getElementById('mobMes')||{}).value)||'TODOS';
+  const _ano=getSelectValues('mobAno');
+  const _mes=getSelectValues('mobMes');
   const d=mobData.filter(r=>{
-    if(crit!=='TODOS'&&r.crit!==crit)return false;
-    if(tipo!=='TODOS'&&r.tipo!==tipo)return false;
-    if(statV!=='TODOS'&&!String(r.status).toUpperCase().includes(statV.toUpperCase()))return false;
-    if(slaVal!=='TODOS'&&r.sla!==slaVal)return false;
-    if(und!=='TODOS'&&r.und!==und)return false;
-    if(_ano!=='TODOS'){const y=getDateYear(r.dtIni)||getDateYear(r.prev);if(String(y)!==_ano)return false;}
-    if(_mes!=='TODOS'){const m=getDateMonth(r.dtIni)||getDateMonth(r.prev);if(String(m)!==_mes)return false;}
+    if(!matchesValue(r.crit,crit))return false;
+    if(!matchesValue(r.tipo,tipo))return false;
+    if(!matchesContains(r.status,statV))return false;
+    if(!matchesValue(r.sla,slaVal))return false;
+    if(!matchesValue(r.und,und))return false;
+    if(!isAllSelection(_ano)){const y=getDateYear(r.dtIni)||getDateYear(r.prev);if(!matchesValue(String(y),_ano))return false;}
+    if(!isAllSelection(_mes)){const m=getDateMonth(r.dtIni)||getDateMonth(r.prev);if(!matchesValue(String(m),_mes))return false;}
     if(q&&!r.frota.toLowerCase().includes(q)&&!r.modelo.toLowerCase().includes(q)&&!r.cliente.toLowerCase().includes(q))return false;
     return true;
   });
@@ -2980,11 +3106,11 @@ function renderMAT(){
 function renderMATtbl(){
   try{
     const q=((document.getElementById('matSearch')||{}).value||'').toLowerCase().trim();
-    const tipo=((document.getElementById('matTipo')||{}).value)||'TODOS';
-    const status=((document.getElementById('matStatus')||{}).value)||'TODOS';
+    const tipo=getSelectValues('matTipo');
+    const status=getSelectValues('matStatus');
     const f=matData.filter(r=>{
-      if(tipo!=='TODOS'&&r.tipo!==tipo)return false;
-      if(status!=='TODOS'&&r.status!==status)return false;
+      if(!matchesValue(r.tipo,tipo))return false;
+      if(!matchesValue(r.status,status))return false;
       if(q&&!r.conj.toLowerCase().includes(q)&&!r.motorista.toLowerCase().includes(q))return false;
       return true;
     });
@@ -3047,7 +3173,7 @@ function renderMATtbl(){
 }
 
 function clearMATFilters(){
-  ['matTipo','matStatus'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
+  ['matTipo','matTipoBot','matStatus','matStatusBot'].forEach(resetSelectValue);
   const s=document.getElementById('matSearch');if(s)s.value='';
   renderMATtbl();
 }
@@ -3249,10 +3375,33 @@ function renderPATCompare(currentData){
 }
 
 function clearPATFilters(){
-  ['patStatus','patStatusBot','patCrit','patCritBot','patSetor','patSetorBot','patAno','patAnoBot','patMes','patMesBot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
+  ['patStatus','patStatusBot','patCrit','patCritBot','patSetor','patSetorBot','patAno','patAnoBot','patMes','patMesBot'].forEach(resetSelectValue);
   ['patDataDe','patDataDeBot','patDataAte','patDataAteBot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['patSearch','patSearchBot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   renderPATtbl();
+}
+function syncINEFSearch(src,targetId){
+  const t=document.getElementById(targetId);
+  if(t&&t!==src)t.value=src.value;
+  const mirror=targetId==='inefSearch'?'inefSearchBot':'inefSearch';
+  const m=document.getElementById(mirror);
+  if(m&&m!==src)m.value=src.value;
+  renderINEFtbl();
+}
+function syncINEFSelect(src,targetId){
+  syncSelectValues(src,targetId);
+  const mirror=targetId.endsWith('Bot')?targetId.slice(0,-3):targetId+'Bot';
+  const m=document.getElementById(mirror);
+  if(m&&m!==src)syncSelectValues(src,m.id);
+  renderINEFtbl();
+}
+function syncINEFDate(src,targetId){
+  const t=document.getElementById(targetId);
+  if(t&&t!==src)t.value=src.value;
+  const mirror=targetId.endsWith('Bot')?targetId.slice(0,-3):targetId+'Bot';
+  const m=document.getElementById(mirror);
+  if(m&&m!==src)m.value=src.value;
+  renderINEFtbl();
 }
 
 
@@ -3297,19 +3446,31 @@ function processINEF(rows){
   // Dynamic selects
   const meses=[...new Set(inefData.map(r=>r.mes).filter(m=>m&&m!==''))];
   const mesEl=document.getElementById('inefMes');
-  if(mesEl)mesEl.innerHTML='<option value="TODOS">Todos</option>'+meses.map(m=>'<option value="'+m+'">'+m+'</option>').join('');
+  const mesBotEl=document.getElementById('inefMesBot');
+  const mesesHtml='<option value="TODOS">Todos</option>'+meses.map(m=>'<option value="'+m+'">'+m+'</option>').join('');
+  if(mesEl)mesEl.innerHTML=mesesHtml;
+  if(mesBotEl)mesBotEl.innerHTML=mesesHtml;
 
   const motivos=[...new Set(inefData.map(r=>r.motivo).filter(m=>m&&m!==''))].sort();
   const motEl=document.getElementById('inefMotivo');
-  if(motEl)motEl.innerHTML='<option value="TODOS">Todos</option>'+motivos.map(m=>'<option value="'+m+'">'+m+'</option>').join('');
+  const motBotEl=document.getElementById('inefMotivoBot');
+  const motivosHtml='<option value="TODOS">Todos</option>'+motivos.map(m=>'<option value="'+m+'">'+m+'</option>').join('');
+  if(motEl)motEl.innerHTML=motivosHtml;
+  if(motBotEl)motBotEl.innerHTML=motivosHtml;
 
   const clientes=[...new Set(inefData.map(r=>r.cliente).filter(c=>c&&c!==''))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
   const clEl=document.getElementById('inefCliente');
-  if(clEl)clEl.innerHTML='<option value="TODOS">Todos</option>'+clientes.map(c=>'<option value="'+c+'">'+c+'</option>').join('');
+  const clBotEl=document.getElementById('inefClienteBot');
+  const clientesHtml='<option value="TODOS">Todos</option>'+clientes.map(c=>'<option value="'+c+'">'+c+'</option>').join('');
+  if(clEl)clEl.innerHTML=clientesHtml;
+  if(clBotEl)clBotEl.innerHTML=clientesHtml;
 
   const transps=[...new Set(inefData.map(r=>r.transp).filter(t=>t&&t!==''))].sort();
   const trEl=document.getElementById('inefTransp');
-  if(trEl)trEl.innerHTML='<option value="TODOS">Todos</option>'+transps.map(t=>'<option value="'+t+'">'+t+'</option>').join('');
+  const trBotEl=document.getElementById('inefTranspBot');
+  const transpsHtml='<option value="TODOS">Todos</option>'+transps.map(t=>'<option value="'+t+'">'+t+'</option>').join('');
+  if(trEl)trEl.innerHTML=transpsHtml;
+  if(trBotEl)trBotEl.innerHTML=transpsHtml;
 
   const il=document.getElementById('inefLoad');
   const ib=document.getElementById('inefBody');
@@ -3331,34 +3492,40 @@ function renderINEFtbl(){
   try{
     const ct=chartTheme();
     const q=((document.getElementById('inefSearch')||{}).value||'').toLowerCase().trim();
-    const mes=((document.getElementById('inefMes')||{}).value)||'TODOS';
-    const status=((document.getElementById('inefStatus')||{}).value)||'TODOS';
-    const cob=((document.getElementById('inefCob')||{}).value)||'TODOS';
-    const cliente=((document.getElementById('inefCliente')||{}).value)||'TODOS';
-    const motivo=((document.getElementById('inefMotivo')||{}).value)||'TODOS';
-    const transp=((document.getElementById('inefTransp')||{}).value)||'TODOS';
+    const mes=getSelectValues('inefMes');
+    const status=getSelectValues('inefStatus');
+    const cob=getSelectValues('inefCob');
+    const cliente=getSelectValues('inefCliente');
+    const motivo=getSelectValues('inefMotivo');
+    const transp=getSelectValues('inefTransp');
     const dataDe=((document.getElementById('inefDataDe')||{}).value)||'';
     const dataAte=((document.getElementById('inefDataAte')||{}).value)||'';
 
     const semDe=(document.getElementById('inefSemDe')||{}).value||'';
     const semAte=(document.getElementById('inefSemAte')||{}).value||'';
-    const f=inefData.filter(r=>{
-      if(mes!=='TODOS'&&r.mes!==mes)return false;
-      if(status!=='TODOS'&&!r.status.includes(status))return false;
-      if(cob!=='TODOS'&&!r.cobr.includes(cob))return false;
-      if(cliente!=='TODOS'&&r.cliente!==cliente)return false;
-      if(motivo!=='TODOS'&&r.motivo!==motivo)return false;
-      if(transp!=='TODOS'&&r.transp!==transp)return false;
+    const inefMatch=(r,skip='')=>{
+      if(skip!=='mes'&&!matchesValue(r.mes,mes))return false;
+      if(skip!=='status'&&!matchesContains(r.status,status))return false;
+      if(skip!=='cob'&&!matchesContains(r.cobr,cob))return false;
+      if(skip!=='cliente'&&!matchesValue(r.cliente,cliente))return false;
+      if(skip!=='motivo'&&!matchesValue(r.motivo,motivo))return false;
+      if(skip!=='transp'&&!matchesValue(r.transp,transp))return false;
       if((dataDe||dataAte)&&!dateInRange(r.dtCheg,dataDe,dataAte))return false;
       if(semDe||semAte){
-        // inefSemDe/inefSemAte contém chave de semana: "YYYY-SWW"
         const wk=getWeekKey(r.dtCheg);
         if(semDe&&wk&&wk<semDe)return false;
         if(semAte&&wk&&wk>semAte)return false;
       }
       if(q&&!r.frota.toLowerCase().includes(q)&&!r.cliente.toLowerCase().includes(q)&&!r.motivo.toLowerCase().includes(q)&&!r.conj.toLowerCase().includes(q))return false;
       return true;
-    });
+    };
+    fillSelectOptions(['inefMes','inefMesBot'],inefData.filter(r=>inefMatch(r,'mes')).map(r=>r.mes),'Todos');
+    fillSelectOptions(['inefStatus','inefStatusBot'],inefData.filter(r=>inefMatch(r,'status')).map(r=>r.status),'Todos');
+    fillSelectOptions(['inefCob','inefCobBot'],inefData.filter(r=>inefMatch(r,'cob')).map(r=>r.cobr),'Todos');
+    fillSelectOptions(['inefCliente','inefClienteBot'],inefData.filter(r=>inefMatch(r,'cliente')).map(r=>r.cliente),'Todos');
+    fillSelectOptions(['inefMotivo','inefMotivoBot'],inefData.filter(r=>inefMatch(r,'motivo')).map(r=>r.motivo),'Todos');
+    fillSelectOptions(['inefTransp','inefTranspBot'],inefData.filter(r=>inefMatch(r,'transp')).map(r=>r.transp),'Todos');
+    const f=inefData.filter(r=>inefMatch(r));
 
     // ── KPIs ──
     const tot=f.length,tot2=tot||1;
@@ -3493,9 +3660,9 @@ function setInefView(v){
   renderINEFtbl();
 }
 function clearINEFFilters(){
-  ['inefMes','inefStatus','inefCob','inefCliente','inefMotivo','inefTransp'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
-  ['inefDataDe','inefDataAte'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  const s=document.getElementById('inefSearch');if(s)s.value='';
+  ['inefMes','inefMesBot','inefStatus','inefStatusBot','inefCob','inefCobBot','inefCliente','inefClienteBot','inefMotivo','inefMotivoBot','inefTransp','inefTranspBot'].forEach(resetSelectValue);
+  ['inefDataDe','inefDataDeBot','inefDataAte','inefDataAteBot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['inefSearch','inefSearchBot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   renderINEFtbl();
 }
 
@@ -3663,11 +3830,11 @@ const EFL_PAGE_SIZE=12;
 
 function getEFLFiltered(){
   const q=((document.getElementById('eflSearch')||{}).value||'').toLowerCase().trim();
-  const frota=((document.getElementById('eflFrota')||{}).value)||'TODOS';
+  const frota=getSelectValues('eflFrota');
   const de=((document.getElementById('eflDe')||{}).value)||'';
   const ate=((document.getElementById('eflAte')||{}).value)||'';
   return eflData.map(r=>{
-    if(frota!=='TODOS'&&r.frota!==frota)return null;
+    if(!matchesValue(r.frota,frota))return null;
     if(q&&!r.frota.toLowerCase().includes(q)&&!r.motor.toLowerCase().includes(q)&&!r.modelo.toLowerCase().includes(q))return null;
     let days=r.days;
     if(de||ate){
@@ -3690,11 +3857,11 @@ function syncEFLSearch(src,targetId){
   renderEFL();
 }
 function syncEFLSelect(src,targetId){
-  const t=document.getElementById(targetId);if(t&&t!==src)t.value=src.value;
+  syncSelectValues(src,targetId);
   renderEFL();
 }
 function clearEFLFilters(){
-  ['eflFrota','eflFrotaTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
+  ['eflFrota','eflFrotaTop'].forEach(resetSelectValue);
   ['eflDe','eflDeTop','eflAte','eflAteTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['eflSearch','eflSearchTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   eflChartPage=0;
@@ -3880,20 +4047,22 @@ function setRPDView(mode){
 }
 function getRPDFiltered(){
   const q=((document.getElementById('rpdSearch')||{}).value||'').toLowerCase().trim();
-  const tipo=((document.getElementById('rpdTipo')||{}).value)||'TODOS';
-  const status=((document.getElementById('rpdStatus')||{}).value)||'TODOS';
-  const impacto=((document.getElementById('rpdImpacto')||{}).value)||'TODOS';
-  const ano=((document.getElementById('rpdAno')||{}).value)||'TODOS';
-  const mes=((document.getElementById('rpdMes')||{}).value)||'TODOS';
+  const tipo=getSelectValues('rpdTipo');
+  const status=getSelectValues('rpdStatus');
+  const impacto=getSelectValues('rpdImpacto');
+  const ano=getSelectValues('rpdAno');
+  const mes=getSelectValues('rpdMes');
   const dataDe=((document.getElementById('rpdDataDe')||{}).value)||'';
   const dataAte=((document.getElementById('rpdDataAte')||{}).value)||'';
   return getRPDBase().filter(r=>{
-    if(tipo!=='TODOS'&&r.tipo!==tipo)return false;
-    if(status!=='TODOS'&&r.status!==status)return false;
-    if(impacto==='SIM'&&r.impacto!=='SIM')return false;
-    if(impacto==='NAO'&&r.impacto==='SIM')return false;
-    if(ano!=='TODOS'&&(!r.dataObj||String(r.dataObj.getFullYear())!==String(ano)))return false;
-    if(mes!=='TODOS'&&(!r.dataObj||String(r.dataObj.getMonth()+1)!==String(mes)))return false;
+    if(!matchesValue(r.tipo,tipo))return false;
+    if(!matchesValue(r.status,status))return false;
+    if(!isAllSelection(impacto)){
+      if(impacto.includes('SIM')&&r.impacto!=='SIM')return false;
+      if(impacto.includes('NAO')&&r.impacto==='SIM')return false;
+    }
+    if(!isAllSelection(ano)&&(!r.dataObj||!matchesValue(String(r.dataObj.getFullYear()),ano)))return false;
+    if(!isAllSelection(mes)&&(!r.dataObj||!matchesValue(String(r.dataObj.getMonth()+1),mes)))return false;
     if(dataDe&&r.dataObj&&rpdDateKey(r.dataObj)<dataDe)return false;
     if(dataAte&&r.dataObj&&rpdDateKey(r.dataObj)>dataAte)return false;
     if(q){const hay=[r.frota,r.tipo,r.status,r.fornecedor,r.local,r.falha,r.statusAtual,r.prog,r.clienteImpactado].join(' ').toLowerCase();if(!hay.includes(q))return false;}
@@ -3901,10 +4070,10 @@ function getRPDFiltered(){
   });
 }
 function syncRPDSearch(src,targetId){const t=document.getElementById(targetId);if(t)t.value=src.value;renderRPD();}
-function syncRPDSelect(src,targetId){const t=document.getElementById(targetId);if(t&&t!==src)t.value=src.value;renderRPD();}
+function syncRPDSelect(src,targetId){syncSelectValues(src,targetId);renderRPD();}
 function syncRPDDate(src,targetId){const t=document.getElementById(targetId);if(t&&t!==src)t.value=src.value;renderRPD();}
 function clearRPDFilters(){
-  ['rpdTipo','rpdTipoTop','rpdStatus','rpdStatusTop','rpdImpacto','rpdImpactoTop','rpdAno','rpdAnoTop','rpdMes','rpdMesTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='TODOS';});
+  ['rpdTipo','rpdTipoTop','rpdStatus','rpdStatusTop','rpdImpacto','rpdImpactoTop','rpdAno','rpdAnoTop','rpdMes','rpdMesTop'].forEach(resetSelectValue);
   ['rpdDataDe','rpdDataDeTop','rpdDataAte','rpdDataAteTop','rpdSearch','rpdSearchTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   renderRPD();
 }
@@ -4057,6 +4226,7 @@ function renderRPD(){
   });
 })();
 
+applyMultiSelectFilters();
 loadAll();
 setInterval(loadAll,5*60*1000);
 </script>
