@@ -211,14 +211,19 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 
 
 /* Table column widths */
-.tbl-wrap table{table-layout:auto;width:100%;border-collapse:collapse}
+.tbl-wrap table{table-layout:auto;width:100%;min-width:100%;border-collapse:collapse}
 /* MOB columns - auto layout */
 
 /* AET columns - auto layout */
 
 /* Allow text wrap in cells */
-.tbl-wrap td{white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+.tbl-wrap td{white-space:normal;word-break:normal;overflow-wrap:break-word;hyphens:none;vertical-align:top}
 .tbl-wrap th{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+.tbl-scroll-top{display:none;overflow-x:auto;overflow-y:hidden;margin:0 0 8px;padding-bottom:2px}
+.tbl-scroll-top-inner{height:1px}
+.tbl-scroll-top::-webkit-scrollbar,.tbl-wrap::-webkit-scrollbar{height:10px}
+.tbl-scroll-top::-webkit-scrollbar-thumb,.tbl-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:999px}
+.tbl-scroll-top::-webkit-scrollbar-track,.tbl-wrap::-webkit-scrollbar-track{background:var(--surface2);border-radius:999px}
 .obs-cell{text-align:center}
 .obs-icon{cursor:pointer;font-size:15px;opacity:.7;transition:opacity .15s;display:inline-block;padding:3px 6px;border-radius:4px}
 .obs-icon:hover{opacity:1;background:var(--surface2)}
@@ -287,10 +292,10 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 .ftag{background:transparent;border:1px solid var(--border);color:var(--text3);padding:4px 10px;border-radius:4px;font-size:11px;font-family:'Nunito Sans',sans-serif;cursor:pointer;transition:all .15s}
 .ftag:hover{border-color:var(--border2);color:var(--text2)}
 .ftag.on{background:var(--accent-dim);border-color:rgba(79,142,247,.3);color:var(--accent)}
-.tbl-wrap{overflow-x:auto}
+.tbl-wrap{overflow-x:auto;overflow-y:hidden}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th{color:var(--text3);font-weight:600;text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;font-family:'Montserrat',sans-serif}
-td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text);white-space:normal;word-break:break-word;overflow-wrap:anywhere;vertical-align:middle;transition:background .1s;font-size:12px;line-height:1.5}
+td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text);white-space:normal;word-break:normal;overflow-wrap:break-word;hyphens:none;vertical-align:top;transition:background .1s;font-size:12px;line-height:1.5}
 tr:last-child td{border-bottom:none}
 tbody tr:hover td{background:var(--surface2)}
 .tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500;font-family:'DM Mono',monospace;white-space:nowrap;border:1px solid transparent}
@@ -1844,6 +1849,7 @@ async function loadAll(){
   try{processRPD(parseCSV(txtRpd));}catch(e){console.error('processRPD error:',e.message);}
   try{processPROG(progTexts.map((txt,i)=>({meta:PROG_SHEETS[i],rows:parseCSV(txt)})));}catch(e){console.error('processPROG error:',e.message);}
   try{renderEXEC();}catch(e){console.error('renderEXEC error:',e.message);}
+  requestAnimationFrame(refreshTableScrollbars);
   document.getElementById('updTxt').textContent=new Date().toLocaleTimeString('pt-BR');
 }
 
@@ -3763,6 +3769,33 @@ function msObserveSelect(id){
   obs.observe(el,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['value','label','selected']});
   st.obs=obs;
 }
+function refreshTableScrollbars(){
+  document.querySelectorAll('.tbl-wrap').forEach(wrap=>{
+    const table=wrap.querySelector('table');
+    if(!table)return;
+    let top=wrap.previousElementSibling;
+    if(!top||!top.classList||!top.classList.contains('tbl-scroll-top')){
+      top=document.createElement('div');
+      top.className='tbl-scroll-top';
+      top.innerHTML='<div class="tbl-scroll-top-inner"></div>';
+      wrap.parentNode.insertBefore(top,wrap);
+      const sync=(src,dst)=>{
+        if(src._syncing)return;
+        src._syncing=true;
+        dst.scrollLeft=src.scrollLeft;
+        requestAnimationFrame(()=>{src._syncing=false;});
+      };
+      top.addEventListener('scroll',()=>sync(top,wrap),{passive:true});
+      wrap.addEventListener('scroll',()=>sync(wrap,top),{passive:true});
+    }
+    const inner=top.firstElementChild;
+    const scrollWidth=Math.max(table.scrollWidth,wrap.scrollWidth,wrap.clientWidth);
+    if(inner)inner.style.width=scrollWidth+'px';
+    const hasOverflow=table.scrollWidth-wrap.clientWidth>4;
+    top.style.display=hasOverflow?'block':'none';
+    if(hasOverflow&&Math.abs(top.scrollLeft-wrap.scrollLeft)>1)top.scrollLeft=wrap.scrollLeft;
+  });
+}
 
 function _msRender(id){
   const w=document.getElementById('ms-wrap-'+id);if(!w)return;
@@ -4320,6 +4353,7 @@ const impTag=r=>r.impacto==='SIM'?`<span class="tag tag-red">SIM</span><div styl
 
 applyMultiSelectFilters();
 loadAll();
+window.addEventListener('resize',()=>requestAnimationFrame(refreshTableScrollbars));
 setInterval(loadAll,5*60*1000);
 </script>
 
