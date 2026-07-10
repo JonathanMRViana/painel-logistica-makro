@@ -2489,8 +2489,10 @@ function applyMultiSelectFilters(){
         el.value=isAllSelection(msGet(id))?'TODOS':msGet(id)[0]||'TODOS';
         if(typeof el.onchange==='function')el.onchange();
       });
+      msObserveSelect(id);
     }else if(_ms[id]){
       msRebuild(id,opts);
+      msObserveSelect(id);
     }
   });
   const bind=(id,fn)=>{const el=document.getElementById(id);if(el)el.onchange=fn;};
@@ -3705,6 +3707,25 @@ function clearINEFFilters(){
 const _msState={};
 const _ms=_msState;
 function msInit(id,opts,cb){_ms[id]={sel:new Set(['TODOS']),opts:[...opts],cb};_msRender(id);_msBind(id);}
+function msSyncFromSelect(id){
+  const el=document.getElementById(id);if(!el)return;
+  const st=_ms[id];if(!st)return;
+  const opts=[...el.options].filter(o=>o.value!=='TODOS').map(o=>({value:String(o.value),label:String(o.textContent||o.value)}));
+  const valid=new Set(opts.map(o=>o.value));
+  if(!st.sel.has('TODOS')){
+    st.sel=new Set([...st.sel].filter(v=>valid.has(v)));
+    if(!st.sel.size)st.sel=new Set(['TODOS']);
+  }
+  st.opts=opts;
+  _msRender(id);
+}
+function msObserveSelect(id){
+  const el=document.getElementById(id);if(!el)return;
+  const st=_ms[id];if(!st||st.obs)return;
+  const obs=new MutationObserver(()=>msSyncFromSelect(id));
+  obs.observe(el,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['value','label','selected']});
+  st.obs=obs;
+}
 
 function _msRender(id){
   const w=document.getElementById('ms-wrap-'+id);if(!w)return;
