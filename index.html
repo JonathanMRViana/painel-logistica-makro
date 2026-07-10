@@ -3549,13 +3549,17 @@ function renderINEFtbl(){
       if(q&&!r.frota.toLowerCase().includes(q)&&!r.cliente.toLowerCase().includes(q)&&!r.motivo.toLowerCase().includes(q)&&!r.conj.toLowerCase().includes(q))return false;
       return true;
     };
-    fillSelectOptions(['inefMes','inefMesBot'],inefData.filter(r=>inefMatch(r,'mes')).map(r=>r.mes),'Todos');
-    fillSelectOptions(['inefStatus','inefStatusBot'],inefData.filter(r=>inefMatch(r,'status')).map(r=>r.status),'Todos');
-    fillSelectOptions(['inefCob','inefCobBot'],inefData.filter(r=>inefMatch(r,'cob')).map(r=>r.cobr),'Todos');
-    fillSelectOptions(['inefCliente','inefClienteBot'],inefData.filter(r=>inefMatch(r,'cliente')).map(r=>r.cliente),'Todos');
-    fillSelectOptions(['inefMotivo','inefMotivoBot'],inefData.filter(r=>inefMatch(r,'motivo')).map(r=>r.motivo),'Todos');
-    fillSelectOptions(['inefTransp','inefTranspBot'],inefData.filter(r=>inefMatch(r,'transp')).map(r=>r.transp),'Todos');
     const f=inefData.filter(r=>inefMatch(r));
+    try{
+      fillSelectOptions(['inefMes','inefMesBot'],inefData.filter(r=>inefMatch(r,'mes')).map(r=>r.mes),'Todos');
+      fillSelectOptions(['inefStatus','inefStatusBot'],inefData.filter(r=>inefMatch(r,'status')).map(r=>r.status),'Todos');
+      fillSelectOptions(['inefCob','inefCobBot'],inefData.filter(r=>inefMatch(r,'cob')).map(r=>r.cobr),'Todos');
+      fillSelectOptions(['inefCliente','inefClienteBot'],inefData.filter(r=>inefMatch(r,'cliente')).map(r=>r.cliente),'Todos');
+      fillSelectOptions(['inefMotivo','inefMotivoBot'],inefData.filter(r=>inefMatch(r,'motivo')).map(r=>r.motivo),'Todos');
+      fillSelectOptions(['inefTransp','inefTranspBot'],inefData.filter(r=>inefMatch(r,'transp')).map(r=>r.transp),'Todos');
+    }catch(filterErr){
+      console.error('INEF filter rebuild:',filterErr);
+    }
 
     // â”€â”€ KPIs â”€â”€
     const tot=f.length,tot2=tot||1;
