@@ -752,11 +752,17 @@ tbody tr:hover td{background:var(--surface2)}
           </button>
         </div>
 
-                <div class="kpi-row">
+                <div class="kpi-row" style="grid-template-columns:repeat(4,minmax(0,1fr))">
           <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Total de Operações</div><div class="kpi-value" id="m0">—</div><div class="kpi-sub"> </div></div>
-          <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Alta Criticidade</div><div class="kpi-value" id="m1">—</div><div class="kpi-sub" id="m1s">—</div></div>
-          <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">SLA Atrasado</div><div class="kpi-value" id="m2">—</div><div class="kpi-sub">fora do prazo</div></div>
-          <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Finalizadas no Prazo</div><div class="kpi-value" id="m3">—</div><div class="kpi-sub" id="m3s">—</div></div>
+          <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Mobilizações Pendentes</div><div class="kpi-value" id="m1">—</div><div class="kpi-sub" id="m1s">—</div></div>
+          <div class="kpi c-blue" style="--stripe-color:#2ab0b8"><div class="kpi-stripe" style="background:#2ab0b8"></div><div class="kpi-label" style="color:var(--teal)">Pendentes no Prazo</div><div class="kpi-value" id="m2" style="color:var(--teal)">—</div><div class="kpi-sub" id="m2s">—</div></div>
+          <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">SLA Atrasado</div><div class="kpi-value" id="m3">—</div><div class="kpi-sub" id="m3s">fora do prazo</div></div>
+        </div>
+        <div class="kpi-row" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-top:-6px">
+          <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Alta Criticidade</div><div class="kpi-value" id="m4">—</div><div class="kpi-sub" id="m4s">—</div></div>
+          <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Finalizadas no Prazo</div><div class="kpi-value" id="m5">—</div><div class="kpi-sub" id="m5s">—</div></div>
+          <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Finalizadas Fora do Prazo</div><div class="kpi-value" id="m6">—</div><div class="kpi-sub" id="m6s">—</div></div>
+          <div class="kpi c-gray-light"><div class="kpi-stripe"></div><div class="kpi-label">Sem Prazo Definido</div><div class="kpi-value" id="m7">—</div><div class="kpi-sub" id="m7s">—</div></div>
         </div>
         <!-- CARGAS SECTION -->
         <div style="margin-bottom:8px;margin-top:4px">
@@ -764,8 +770,9 @@ tbody tr:hover td{background:var(--surface2)}
             <span>📦</span><span>Controle de Cargas</span>
             <span style="font-size:10px;font-weight:400;color:var(--text3);background:var(--surface2);padding:2px 8px;border-radius:4px;border:1px solid var(--border)">por mobilização</span>
           </div>
-          <div class="kpi-row" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px">
+          <div class="kpi-row" style="grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:16px">
             <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Total de Cargas</div><div class="kpi-value" id="mc0">—</div><div class="kpi-sub"> </div></div>
+            <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Cargas Pendentes</div><div class="kpi-value" id="mc4">—</div><div class="kpi-sub" id="mc4s"> </div></div>
             <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Carregadas</div><div class="kpi-value" id="mc1">—</div><div class="kpi-sub" id="mc1s"> </div></div>
             <div class="kpi c-blue" style="--stripe-color:#2ab0b8"><div class="kpi-stripe" style="background:#2ab0b8"></div><div class="kpi-label" style="color:var(--teal)">Em Trânsito</div><div class="kpi-value" id="mc2" style="color:var(--teal)">—</div><div class="kpi-sub" id="mc2s"> </div></div>
             <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Entregues</div><div class="kpi-value" id="mc3">—</div><div class="kpi-sub" id="mc3s"> </div></div>
@@ -2600,11 +2607,22 @@ function processMOB(rows){
 
 function renderMOB(){
   const mobL=document.getElementById('mobLoad');const mobB=document.getElementById('mobBody');if(mobL)mobL.style.display='none';if(mobB)mobB.style.display='block';
-  const tot=mobData.length,alt=mobData.filter(r=>r.crit==='ALTA').length,atr=mobData.filter(r=>r.sla==='AT').length,fin=mobData.filter(r=>r.sla==='FP').length;
-  document.getElementById('m0').textContent=tot;
-  document.getElementById('m1').textContent=alt;document.getElementById('m1s').textContent=Math.round(alt/tot*100)+'% da base';
-  document.getElementById('m2').textContent=atr;
-  document.getElementById('m3').textContent=fin;document.getElementById('m3s').textContent=Math.round(fin/tot*100)+'% concluídas';
+  const tot=mobData.length||1;
+  const pend=mobData.filter(r=>{const st=execStatusKey(r.status);return st&&!st.includes('FINALIZ')&&!st.includes('CANCEL');}).length;
+  const pendNoPrazo=mobData.filter(r=>{const st=execStatusKey(r.status);return st&&!st.includes('FINALIZ')&&!st.includes('CANCEL')&&r.sla==='OK';}).length;
+  const atr=mobData.filter(r=>r.sla==='AT').length;
+  const alt=mobData.filter(r=>r.crit==='ALTA').length;
+  const finPrazo=mobData.filter(r=>r.sla==='FP').length;
+  const finFora=mobData.filter(r=>r.sla==='FF').length;
+  const semPrazo=mobData.filter(r=>r.sla==='SP').length;
+  document.getElementById('m0').textContent=mobData.length;
+  document.getElementById('m1').textContent=pend;document.getElementById('m1s').textContent=Math.round(pend/tot*100)+'% da base';
+  document.getElementById('m2').textContent=pendNoPrazo;document.getElementById('m2s').textContent=pend?Math.round(pendNoPrazo/pend*100)+'% das pendentes':'0% das pendentes';
+  document.getElementById('m3').textContent=atr;document.getElementById('m3s').textContent=pend?Math.round(atr/pend*100)+'% das pendentes':'fora do prazo';
+  document.getElementById('m4').textContent=alt;document.getElementById('m4s').textContent=Math.round(alt/tot*100)+'% da base';
+  document.getElementById('m5').textContent=finPrazo;document.getElementById('m5s').textContent=Math.round(finPrazo/tot*100)+'% da base';
+  document.getElementById('m6').textContent=finFora;document.getElementById('m6s').textContent=Math.round(finFora/tot*100)+'% da base';
+  document.getElementById('m7').textContent=semPrazo;document.getElementById('m7s').textContent=Math.round(semPrazo/tot*100)+'% da base';
   const unds={};mobData.forEach(r=>{if(r.und)unds[r.und]=(unds[r.und]||0)+1;});
   const us=Object.entries(unds).sort((a,b)=>b[1]-a[1]).slice(0,7);
   const mu=us[0]?us[0][1]:1;
@@ -2645,8 +2663,11 @@ function renderMOBtbl(){
     const carrC=f.reduce((s,r)=>s+(r.nCarreg||0),0);
     const transC=f.reduce((s,r)=>s+(r.nTransit||0),0);
     const entC=f.reduce((s,r)=>s+(r.nEntreg||0),0);
+    const pendC=Math.max(totC-carrC-transC-entC,0);
     const tot2C=totC||1;
     const mc0=document.getElementById('mc0');if(mc0)mc0.textContent=totC;
+    const mc4=document.getElementById('mc4');if(mc4)mc4.textContent=pendC;
+    const mc4s=document.getElementById('mc4s');if(mc4s)mc4s.textContent=totC?Math.round(pendC/tot2C*100)+'% do total':'';
     const mc1=document.getElementById('mc1');if(mc1)mc1.textContent=carrC;
     const mc1s=document.getElementById('mc1s');if(mc1s)mc1s.textContent=totC?Math.round(carrC/tot2C*100)+'% do total':'';
     const mc2=document.getElementById('mc2');if(mc2)mc2.textContent=transC;
@@ -3001,11 +3022,21 @@ function renderMOBcharts(){
     return true;
   });
   const tot=d.length||1;
-  const alt=d.filter(r=>r.crit==='ALTA').length,atr=d.filter(r=>r.sla==='AT').length,fin=d.filter(r=>r.sla==='FP').length;
+  const pend=d.filter(r=>{const st=execStatusKey(r.status);return st&&!st.includes('FINALIZ')&&!st.includes('CANCEL');}).length;
+  const pendNoPrazo=d.filter(r=>{const st=execStatusKey(r.status);return st&&!st.includes('FINALIZ')&&!st.includes('CANCEL')&&r.sla==='OK';}).length;
+  const atr=d.filter(r=>r.sla==='AT').length;
+  const alt=d.filter(r=>r.crit==='ALTA').length;
+  const finPrazo=d.filter(r=>r.sla==='FP').length;
+  const finFora=d.filter(r=>r.sla==='FF').length;
+  const semPrazo=d.filter(r=>r.sla==='SP').length;
   document.getElementById('m0').textContent=d.length;
-  document.getElementById('m1').textContent=alt;document.getElementById('m1s').textContent=Math.round(alt/tot*100)+'% da base';
-  document.getElementById('m2').textContent=atr;
-  document.getElementById('m3').textContent=fin;document.getElementById('m3s').textContent=Math.round(fin/tot*100)+'% concluídas';
+  document.getElementById('m1').textContent=pend;document.getElementById('m1s').textContent=Math.round(pend/tot*100)+'% da base';
+  document.getElementById('m2').textContent=pendNoPrazo;document.getElementById('m2s').textContent=pend?Math.round(pendNoPrazo/pend*100)+'% das pendentes':'0% das pendentes';
+  document.getElementById('m3').textContent=atr;document.getElementById('m3s').textContent=pend?Math.round(atr/pend*100)+'% das pendentes':'fora do prazo';
+  document.getElementById('m4').textContent=alt;document.getElementById('m4s').textContent=Math.round(alt/tot*100)+'% da base';
+  document.getElementById('m5').textContent=finPrazo;document.getElementById('m5s').textContent=Math.round(finPrazo/tot*100)+'% da base';
+  document.getElementById('m6').textContent=finFora;document.getElementById('m6s').textContent=Math.round(finFora/tot*100)+'% da base';
+  document.getElementById('m7').textContent=semPrazo;document.getElementById('m7s').textContent=Math.round(semPrazo/tot*100)+'% da base';
   const unds={};d.forEach(r=>{if(r.und)unds[r.und]=(unds[r.und]||0)+1;});
   const us=Object.entries(unds).sort((a,b)=>b[1]-a[1]).slice(0,7),mu=us[0]?us[0][1]:1;
   document.getElementById('mBars').innerHTML=us.map(([l,v])=>`<div class="bar-row"><span class="bar-lbl">${l}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/mu*100)}%;background:var(--accent)"></div></div><span class="bar-num">${v}</span></div>`).join('');
