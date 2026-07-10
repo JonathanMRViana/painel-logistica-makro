@@ -1958,10 +1958,20 @@ function syncPROGSelect(src,targetId){
   if(m&&m!==src)syncSelectValues(src,m.id);
   renderPROG();
 }
+function normalizeObsText(text){
+  const raw=String(text==null?'':text).replace(/\s+/g,' ').trim();
+  if(!raw)return'';
+  const key=raw.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
+  if(['-','--','---','—','N/A','NA','N.D.','ND','N/I','NI','SEM OBS','SEM OBSERVACAO','SEM OBSERVAÇÃO','SEM OBS.','SEM INFORMACAO','SEM INFORMAÇÃO'].includes(key))return'';
+  return raw;
+}
+function obsCellHtml(ref,text){
+  const clean=normalizeObsText(text);
+  if(!clean)return'—';
+  return `<span class="obs-icon" data-frota="${progEsc(ref||'')}" data-obs="${progEsc(clean)}">⋯</span>`;
+}
 function progObsCell(ref,text){
-  const safeRef=progEsc(ref||'');
-  const safeText=progEsc(text||'');
-  return safeText?`<span class="obs-icon" data-frota="${safeRef}" data-obs="${safeText}">⋯</span>`:'—';
+  return obsCellHtml(ref,text);
 }
 function progSplitFrotas(v){
   return progTxt(v).split(/\s*,\s*|\s+e\s+/i).map(s=>progTxt(s)).filter(Boolean);
@@ -2554,7 +2564,7 @@ function renderAETtbl(){
       <td style="font-family:'DM Mono',monospace">${fD(r.val)}</td>
       <td style="font-family:'DM Mono',monospace;font-weight:500;color:${r.d!==null&&r.d<0?'var(--red)':r.d!==null&&r.d<=30?'var(--amber)':'var(--text3)'}">${r.d!==null?r.d+'d':'—'}</td>
       <td>${tagAET(r.sem)}</td><td>${tagRen(r.ren)}</td>
-      <td class="obs-cell">${r.obs?'<span class="obs-icon" data-frota="'+r.frota+'" data-obs="'+r.obs.replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")+'">⋯</span>':'—'}</td>
+      <td class="obs-cell">${obsCellHtml(r.frota,r.obs)}</td>
     </tr>`).join('');
 }
 
@@ -2683,11 +2693,7 @@ function renderMOBtbl(){
       return;
     }
     tbl.innerHTML=f.map(r=>{
-      const obsCell=r.obs
-        ?'<span class="obs-icon" data-frota="'+String(r.frota)
-          +'" data-obs="'+String(r.obs).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-          +'">⋯</span>'
-        :'—';
+      const obsCell=obsCellHtml(r.frota,r.obs);
       return '<tr>'
         +'<td style="font-family:\'DM Mono\',monospace;font-weight:500">'+String(r.frota||'')+'</td>'
         +'<td>'+String(r.modelo||'')+'</td>'
@@ -3219,7 +3225,7 @@ function renderMATtbl(){
       return`<td style="font-family:'DM Mono',monospace;font-weight:600;color:${col};text-align:center;border:1px solid var(--border)">${pre}${v}</td>`;
     };
     const stTag=(s)=>s==='DEFICIT'?'<span class="tag tag-red">Dá‰FICIT</span>':s==='EXCESSO'?'<span class="tag tag-teal">EXCESSO</span>':'<span class="tag tag-green">REGULAR</span>';
-    const obsCell=(r)=>r.obs?'<span class="obs-icon" data-frota="'+r.conj+'" data-obs="'+r.obs.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')+'">⋯</span>':'—';
+    const obsCell=(r)=>obsCellHtml(r.conj,r.obs);
     tbl.innerHTML=f.length===0
       ?'<tr><td colspan="17" style="text-align:center;color:var(--text3);padding:24px;border:1px solid var(--border)">Nenhum registro encontrado</td></tr>'
       :f.map(r=>'<tr>'
@@ -3330,7 +3336,7 @@ function renderPATtbl(){
     if(!tbl)return;
     const stTag=(s)=>{const c=s==='CONCLUÍDO'?'tag-green':s==='PENDENTE'?'tag-amber':s==='EM ANDAMENTO'?'tag-teal':s==='CANCELADO'?'tag-dim':'tag-dim';return'<span class="tag '+c+'">'+s+'</span>';};
     const crTag=(c)=>c==='ALTA'?'<span class="tag tag-red">ALTA</span>':c==='MÉDIA'?'<span class="tag tag-amber">MÉDIA</span>':c==='BAIXA'?'<span class="tag tag-green">BAIXA</span>':'<span class="tag tag-dim">'+c+'</span>';
-    const obsC=(r)=>r.obs?'<span class="obs-icon" data-frota="'+r.frota+'" data-obs="'+r.obs.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')+'">⋯</span>':'—';
+    const obsC=(r)=>obsCellHtml(r.frota,r.obs);
     tbl.innerHTML=f.length===0
       ?'<tr><td colspan="11" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro encontrado</td></tr>'
       :f.map(r=>'<tr>'
@@ -3677,7 +3683,7 @@ const cobMap={'FATURADO':'#2db87a','PENDENTE':'#e8943a','NAO COBRADO':'#6b7280',
     if(!tbl)return;
     const stTag=(s)=>s.includes('FINALIZADO')?'<span class="tag tag-green">FINALIZADO</span>':'<span class="tag tag-amber">EM ABERTO</span>';
     const cobTag=(s)=>s.includes('FATURADO')?'<span class="tag tag-teal">FATURADO</span>':s.includes('PENDENTE')?'<span class="tag tag-amber">PENDENTE</span>':'<span class="tag tag-dim">'+s+'</span>';
-    const obsC=(r)=>r.obs?'<span class="obs-icon" data-frota="'+r.conj+'" data-obs="'+r.obs.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')+'">⋯</span>':'—';
+    const obsC=(r)=>obsCellHtml(r.conj,r.obs);
     tbl.innerHTML=f.length===0
       ?'<tr><td colspan="16" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro encontrado</td></tr>'
       :f.map(r=>'<tr>'
