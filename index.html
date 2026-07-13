@@ -3943,26 +3943,39 @@ function processEFL(sheets){
     const rows=sheet&&sheet.rows?sheet.rows:[];
     const month=sheet&&sheet.meta&&sheet.meta.month?sheet.meta.month:'Base';
     if(!rows||rows.length<2)return;
-    const hdr=rows[0]||[];
+    let hRow=0;
+    for(let r=0;r<Math.min(rows.length,20);r++){
+      const keys=(rows[r]||[]).map(c=>String(c||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase());
+      if(keys.some(k=>k.includes('FROTA'))&&keys.some(k=>k.includes('INFORMA'))){hRow=r;break;}
+    }
+    const hdr=rows[hRow]||[];
+    const hdrKey=hdr.map(c=>String(c||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim());
+    const findCol=(needle)=>hdrKey.findIndex(k=>k.includes(needle));
+    const frotaCol=Math.max(0,findCol('FROTA'));
+    const modeloCol=findCol('MODELO');
+    const motorCol=findCol('MOTORISTA');
+    const infoCol=findCol('INFORMA');
+    const frotaAtCol=hdrKey.findIndex(k=>k.includes('FROTA ATENDIDA'))>=0?hdrKey.findIndex(k=>k.includes('FROTA ATENDIDA')):(modeloCol>=0&&motorCol>modeloCol+1?modeloCol+1:-1);
+    const rdeCol=infoCol>=0?infoCol+1:5;
     const dateCols=[];
-    for(let c=6;c<hdr.length;c++){
+    for(let c=0;c<hdr.length;c++){
       const parsed=eflParseDateParts(hdr[c]);
       if(parsed){dateCols.push({idx:c,label:parsed.label,key:parsed.key});allDateMap.set(parsed.key,parsed.label);}
     }
-    let i=1;
+    let i=hRow+1;
     while(i<rows.length){
       const r0=rows[i];
-      if(!r0||!String(r0[0]||'').trim()){i++;continue;}
-      const frota=String(r0[0]||'').trim();
-      const frotaAt=String(r0[1]||'').trim();
-      const modelo=String(r0[2]||'').trim();
-      const motor=String(r0[3]||'').trim();
-      const rdeTotal=String(r0[5]||'').trim();
+      if(!r0||!String(r0[frotaCol]||'').trim()){i++;continue;}
+      const frota=String(r0[frotaCol]||'').trim();
+      const frotaAt=frotaAtCol>=0?String(r0[frotaAtCol]||'').trim():'';
+      const modelo=modeloCol>=0?String(r0[modeloCol]||'').trim():'';
+      const motor=motorCol>=0?String(r0[motorCol]||'').trim():'';
+      const rdeTotal=String(r0[rdeCol]||'').trim();
       const r1=rows[i+1]||[];
       const r2=rows[i+2]||[];
       const r3=rows[i+3]||[];
-      const info1=String(r1[4]||'').toLowerCase();
-      const info3=String(r3[4]||'').toLowerCase();
+      const info1=String(r1[infoCol]||'').toLowerCase();
+      const info3=String(r3[infoCol]||'').toLowerCase();
       if(!info1.includes('km')&&!info3.includes('carregad')){i++;continue;}
       const key=[frota,frotaAt,modelo,motor].join('|');
       const base=merged.get(key)||{frota,frotaAt,modelo,motor,rdeTotal,days:[]};
