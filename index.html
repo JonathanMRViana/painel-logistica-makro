@@ -1305,6 +1305,10 @@ tbody tr:hover td{background:var(--surface2)}
             <select class="f-select" id="eflFrotaTop" onchange="syncEFLSelect(this,'eflFrota')"><option value="TODOS">Todas</option></select>
           </div>
           <div class="select-group">
+            <label class="select-label">Mês</label>
+            <select class="f-select" id="eflMesTop" onchange="syncEFLSelect(this,'eflMes')"><option value="TODOS">Todos</option></select>
+          </div>
+          <div class="select-group">
             <label class="select-label">Período De</label>
             <select class="f-select" id="eflDeTop" onchange="syncEFLSelect(this,'eflDe')"><option value="">Todas</option></select>
           </div>
@@ -1352,6 +1356,10 @@ tbody tr:hover td{background:var(--surface2)}
               <select class="f-select" id="eflFrota" onchange="syncEFLSelect(this,'eflFrotaTop')"><option value="TODOS">Todas</option></select>
             </div>
             <div class="select-group">
+              <label class="select-label">Mês</label>
+              <select class="f-select" id="eflMes" onchange="syncEFLSelect(this,'eflMesTop')"><option value="TODOS">Todos</option></select>
+            </div>
+            <div class="select-group">
               <label class="select-label">Período De</label>
               <select class="f-select" id="eflDe" onchange="syncEFLSelect(this,'eflDeTop')"><option value="">Todas</option></select>
             </div>
@@ -1368,7 +1376,7 @@ tbody tr:hover td{background:var(--surface2)}
           <div class="tbl-wrap">
             <table>
               <thead><tr>
-                <th>Frota</th><th>Frota Atendida</th><th>Modelo</th><th>Motorista</th>
+                <th>Mês</th><th>Frota</th><th>Frota Atendida</th><th>Modelo</th><th>Motorista</th>
                 <th>KM Total</th><th>KM Carregado</th><th>KM Vazio</th><th>% Carregado</th><th>Eficiência (DF)</th>
               </tr></thead>
               <tbody id="eflTbl"></tbody>
@@ -1656,7 +1664,7 @@ tbody tr:hover td{background:var(--surface2)}
 
 <!-- v1778869583 -->
 <script>
-let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],rpdData=[],progSheetsData=[],aC=null,mC=null,mAC=null,pC=null,pCompareLineC=null,pCompareStatusC=null,iC=null,iC2=null,progStatusChart=null,progClientChart=null,progLoadChart=null,dark=false;
+let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],eflDetailData=[],rpdData=[],progSheetsData=[],aC=null,mC=null,mAC=null,pC=null,pCompareLineC=null,pCompareStatusC=null,iC=null,iC2=null,progStatusChart=null,progClientChart=null,progLoadChart=null,dark=false;
 window._aet=()=>aetData;
 window._mob=()=>mobData;
 
@@ -2497,7 +2505,7 @@ function applyMultiSelectFilters(){
     'matTipo','matTipoBot','matStatus','matStatusBot',
     'patStatus','patStatusBot','patCrit','patCritBot','patSetor','patSetorBot','patAno','patAnoBot','patMes','patMesBot',
     'inefMes','inefMesBot','inefStatus','inefStatusBot','inefCob','inefCobBot','inefCliente','inefClienteBot','inefMotivo','inefMotivoBot','inefTransp','inefTranspBot',
-    'eflFrota','eflFrotaTop',
+    'eflFrota','eflFrotaTop','eflMes','eflMesTop',
     'rpdTipo','rpdTipoTop','rpdStatus','rpdStatusTop','rpdImpacto','rpdImpactoTop','rpdAno','rpdAnoTop','rpdMes','rpdMesTop',
     'progWeek','progWeekBot','progCliente','progClienteBot','progFrota','progFrotaBot','progUn','progUnBot','progStatus','progStatusBot','progRealizado','progRealizadoBot'
   ];
@@ -3899,22 +3907,28 @@ function eflParseDateParts(label){
   if(isNaN(dt.getTime()))return null;
   return{date:dt,key:`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`,label:`${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}/${dt.getFullYear()}`};
 }
+function eflMonthOrder(month){
+  return ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'].indexOf(month);
+}
 function eflComputeMetrics(days){
   let kmTotal=0,kmCarreg=0,kmVazio=0;
   let diasUteis=0,diasOp=0,diasAgDesc=0;
-  const months=new Set();
+  const agDescByMonth={};
   (days||[]).forEach(d=>{
     kmTotal+=d.km||0;
     if(d.isCarreg)kmCarreg+=d.km||0;
     if(d.isVazio)kmVazio+=d.km||0;
     const countable=d.dUtil&&!d.isManut;
     if(countable)diasUteis++;
-    if(countable&&d.isAgDesc)diasAgDesc++;
+    if(countable&&d.isAgDesc){
+      diasAgDesc++;
+      const mk=d.month||'Base';
+      agDescByMonth[mk]=(agDescByMonth[mk]||0)+1;
+    }
     if(countable&&(String(d.cond||'').includes('OP')||(d.km||0)>0))diasOp++;
-    if(d.month)months.add(d.month);
   });
-  const mesesBase=months.size||1;
-  const diasDF=Math.max(0,diasUteis-(mesesBase*6));
+  const descontoAgDesc=Object.values(agDescByMonth).reduce((s,v)=>s+Math.min(v,6),0);
+  const diasDF=Math.max(0,diasUteis-descontoAgDesc);
   const rdeCalc=diasDF>0?Math.round(diasOp/diasDF*100):null;
   const pctCarreg=kmTotal>0?Math.round(kmCarreg/kmTotal*100):0;
   return{diasUteis,diasDF,diasOp,diasAgDesc,kmTotal:Math.round(kmTotal),kmCarreg:Math.round(kmCarreg),kmVazio:Math.round(kmVazio),pctCarreg,rdeCalc};
@@ -3973,10 +3987,31 @@ function processEFL(sheets){
     r.days=(r.days||[]).sort((a,b)=>String(a.dateKey).localeCompare(String(b.dateKey)));
     return {...r,...eflComputeMetrics(r.days)};
   });
+  eflDetailData=[...merged.values()].flatMap(r=>{
+    const byMonth={};
+    (r.days||[]).forEach(d=>{
+      const mk=d.month||'Base';
+      if(!byMonth[mk])byMonth[mk]=[];
+      byMonth[mk].push(d);
+    });
+    return Object.entries(byMonth).map(([month,days])=>({
+      month,
+      frota:r.frota,
+      frotaAt:r.frotaAt,
+      modelo:r.modelo,
+      motor:r.motor,
+      rdeTotal:r.rdeTotal,
+      days:days.slice().sort((a,b)=>String(a.dateKey).localeCompare(String(b.dateKey))),
+      ...eflComputeMetrics(days)
+    }));
+  });
   // Populate selects - both top and bottom
   const frotas=[...new Set(eflData.map(r=>r.frota).filter(f=>f))].sort();
   const frotaHtml='<option value="TODOS">Todas</option>'+frotas.map(f=>'<option value="'+f+'">'+f+'</option>').join('');
   ['eflFrota','eflFrotaTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=frotaHtml;});
+  const meses=[...new Set(sheetList.map(s=>s&&s.meta&&s.meta.month).filter(Boolean))];
+  const mesHtml='<option value="TODOS">Todos</option>'+meses.map(m=>'<option value="'+m+'">'+m+'</option>').join('');
+  ['eflMes','eflMesTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=mesHtml;});
   const sortedDates=[...allDateMap.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
   if(sortedDates.length>0){
     const opts='<option value="">Todas as datas</option>'+sortedDates.map(([key,label])=>'<option value="'+key+'">'+label+'</option>').join('');
@@ -3991,10 +4026,34 @@ const EFL_PAGE_SIZE=12;
 function getEFLFiltered(){
   const q=((document.getElementById('eflSearch')||{}).value||'').toLowerCase().trim();
   const frota=getSelectValues('eflFrota');
+  const mes=getSelectValues('eflMes');
   const de=((document.getElementById('eflDe')||{}).value)||'';
   const ate=((document.getElementById('eflAte')||{}).value)||'';
   return eflData.map(r=>{
     if(!matchesValue(r.frota,frota))return null;
+    if(q&&!r.frota.toLowerCase().includes(q)&&!r.motor.toLowerCase().includes(q)&&!r.modelo.toLowerCase().includes(q))return null;
+    let days=r.days;
+    if(!isAllSelection(mes))days=days.filter(d=>matchesValue(d.month,mes));
+    if(de||ate){
+      days=days.filter(d=>{
+        if(de&&d.dateKey<de)return false;
+        if(ate&&d.dateKey>ate)return false;
+        return true;
+      });
+    }
+    if(!days.length)return null;
+    return {...r,...eflComputeMetrics(days),days};
+  }).filter(Boolean);
+}
+function getEFLDetailFiltered(){
+  const q=((document.getElementById('eflSearch')||{}).value||'').toLowerCase().trim();
+  const frota=getSelectValues('eflFrota');
+  const mes=getSelectValues('eflMes');
+  const de=((document.getElementById('eflDe')||{}).value)||'';
+  const ate=((document.getElementById('eflAte')||{}).value)||'';
+  return eflDetailData.map(r=>{
+    if(!matchesValue(r.frota,frota))return null;
+    if(!matchesValue(r.month,mes))return null;
     if(q&&!r.frota.toLowerCase().includes(q)&&!r.motor.toLowerCase().includes(q)&&!r.modelo.toLowerCase().includes(q))return null;
     let days=r.days;
     if(de||ate){
@@ -4004,7 +4063,8 @@ function getEFLFiltered(){
         return true;
       });
     }
-    return {...r,...eflComputeMetrics(days),days};
+    if(!days.length)return null;
+    return {...r,days,...eflComputeMetrics(days)};
   }).filter(Boolean);
 }
 
@@ -4017,7 +4077,7 @@ function syncEFLSelect(src,targetId){
   renderEFL();
 }
 function clearEFLFilters(){
-  ['eflFrota','eflFrotaTop'].forEach(resetSelectValue);
+  ['eflFrota','eflFrotaTop','eflMes','eflMesTop'].forEach(resetSelectValue);
   ['eflDe','eflDeTop','eflAte','eflAteTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['eflSearch','eflSearchTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   eflChartPage=0;
@@ -4073,12 +4133,14 @@ function renderEFL(){
   if(e2s)e2s.textContent=(totKm>0?Math.round(totVazio/totKm*100):0)+'% do total';
   renderEFLChart(f.sort((a,b)=>b.kmTotal-a.kmTotal));
   // Table
+  const detail=getEFLDetailFiltered();
   const cnt=document.getElementById('eflCnt');const tbl=document.getElementById('eflTbl');
-  if(cnt)cnt.textContent=f.length+' frotas';
+  if(cnt)cnt.textContent=detail.length+' registros';
   if(!tbl)return;
-  tbl.innerHTML=f.length===0
-    ?'<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro</td></tr>'
-    :f.sort((a,b)=>b.kmTotal-a.kmTotal).map(r=>`<tr>
+  tbl.innerHTML=detail.length===0
+    ?'<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro</td></tr>'
+    :detail.sort((a,b)=>(eflMonthOrder(a.month)-eflMonthOrder(b.month))||String(a.frota).localeCompare(String(b.frota),'pt-BR',{numeric:true})||String(a.motor).localeCompare(String(b.motor),'pt-BR')).map(r=>`<tr>
+      <td style="font-family:'DM Mono',monospace;font-weight:600">${r.month}</td>
       <td style="font-family:'DM Mono',monospace;font-weight:600">${r.frota}</td>
       <td style="font-family:'DM Mono',monospace">${r.frotaAt}</td>
       <td>${r.modelo}</td>
