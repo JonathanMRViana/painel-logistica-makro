@@ -1341,6 +1341,22 @@ tbody tr:hover td{background:var(--surface2)}
           </div>
           <div style="position:relative;height:280px"><canvas id="eflBar"></canvas></div>
         </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><span class="card-title">KM por Frota por Mês</span></div>
+            <div style="position:relative;height:300px"><canvas id="eflFrotaMesBar"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Quantitativo Mensal de KM</span></div>
+            <div style="position:relative;height:300px"><canvas id="eflMesBar"></canvas></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-head"><span class="card-title">Evolução Diária de KM</span></div>
+          <div style="position:relative;height:300px"><canvas id="eflDiaLine"></canvas></div>
+        </div>
         <!-- TABLE -->
         <div class="tbl-card">
           <div class="tbl-head"><span class="tbl-title">Detalhamento por Frota</span><span class="count-tag" id="eflCnt">0 frotas</span></div>
@@ -1692,7 +1708,7 @@ function goTo(id){
     if(id==='mob'&&mobData.length>0){if(mC){mC.destroy();mC=null;}renderMOBcharts();}
     if(id==='pat'&&patData.length>0){if(pC){pC.destroy();pC=null;}if(pCompareLineC){pCompareLineC.destroy();pCompareLineC=null;}if(pCompareStatusC){pCompareStatusC.destroy();pCompareStatusC=null;}renderPAT();}
     if(id==='inef'&&inefData.length>0){if(iC){iC.destroy();iC=null;}if(iC2){iC2.destroy();iC2=null;}renderINEF();}
-    if(id==='efl'){if(eflChart){eflChart.destroy();eflChart=null;}if(eflData.length>0)renderEFL();}
+    if(id==='efl'){if(eflChart){eflChart.destroy();eflChart=null;}if(eflFrotaMesChart){eflFrotaMesChart.destroy();eflFrotaMesChart=null;}if(eflMesChart){eflMesChart.destroy();eflMesChart=null;}if(eflDiaChart){eflDiaChart.destroy();eflDiaChart=null;}if(eflData.length>0)renderEFL();}
     if(id==='rpd'&&rpdData.length>0){if(rpdChart){rpdChart.destroy();rpdChart=null;}renderRPD();}
     if(id==='prog'&&progSheetsData.length>0){if(progStatusChart){progStatusChart.destroy();progStatusChart=null;}if(progClientChart){progClientChart.destroy();progClientChart=null;}if(progLoadChart){progLoadChart.destroy();progLoadChart=null;}renderPROG();}
     if(id==='mat'&&matData.length>0){if(mAC){mAC.destroy();mAC=null;}renderMAT();}
@@ -1715,6 +1731,9 @@ function toggleTheme(){
   if(mAC){mAC.destroy();mAC=null;}if(pC){pC.destroy();pC=null;}if(pCompareLineC){pCompareLineC.destroy();pCompareLineC=null;}if(pCompareStatusC){pCompareStatusC.destroy();pCompareStatusC=null;}
   if(iC){iC.destroy();iC=null;}if(iC2){iC2.destroy();iC2=null;}
   if(typeof eflChart!=='undefined'&&eflChart){eflChart.destroy();eflChart=null;}
+  if(typeof eflFrotaMesChart!=='undefined'&&eflFrotaMesChart){eflFrotaMesChart.destroy();eflFrotaMesChart=null;}
+  if(typeof eflMesChart!=='undefined'&&eflMesChart){eflMesChart.destroy();eflMesChart=null;}
+  if(typeof eflDiaChart!=='undefined'&&eflDiaChart){eflDiaChart.destroy();eflDiaChart=null;}
   if(typeof rpdChart!=='undefined'&&rpdChart){rpdChart.destroy();rpdChart=null;}
   if(typeof rpdBarChart!=='undefined'&&rpdBarChart){rpdBarChart.destroy();rpdBarChart=null;}
   if(typeof rpdImpactChart!=='undefined'&&rpdImpactChart){rpdImpactChart.destroy();rpdImpactChart=null;}
@@ -3871,7 +3890,7 @@ function toggleSB(){
 
 
 // -- EFL: EFICIáŠNCIA LOGáSTICA --
-let eflChart=null;
+let eflChart=null,eflFrotaMesChart=null,eflMesChart=null,eflDiaChart=null;
 
 // -- FERIADOS NACIONAIS BR (fixos) --
 const _feriadosBR=new Set(['01/01','21/04','01/05','07/09','12/10','02/11','15/11','25/12','20/11']);
@@ -4098,10 +4117,57 @@ function clearEFLFilters(){
 }
 
 function scrollEFLChart(dir){
-  const f=getEFLFiltered().sort((a,b)=>b.kmTotal-a.kmTotal);
+  const f=aggregateEFLByFrota(getEFLFiltered()).sort((a,b)=>b.kmTotal-a.kmTotal);
   const pages=Math.ceil(f.length/EFL_PAGE_SIZE);
   eflChartPage=Math.max(0,Math.min(pages-1,eflChartPage+dir));
   renderEFLChart(f);
+}
+function aggregateEFLByFrota(rows){
+  const map={};
+  (rows||[]).forEach(r=>{
+    const key=String(r.frota||'N/I');
+    if(!map[key])map[key]={frota:key,kmTotal:0,kmCarreg:0,kmVazio:0,days:[]};
+    map[key].kmTotal+=r.kmTotal||0;
+    map[key].kmCarreg+=r.kmCarreg||0;
+    map[key].kmVazio+=r.kmVazio||0;
+    map[key].days=map[key].days.concat(r.days||[]);
+  });
+  return Object.values(map).map(r=>({...r,pctCarreg:r.kmTotal?Math.round(r.kmCarreg/r.kmTotal*100):0}));
+}
+function aggregateEFLByFrotaMonth(detail){
+  const map={};
+  (detail||[]).forEach(r=>{
+    const key=String(r.frota||'N/I')+'|'+String(r.month||'Base');
+    if(!map[key])map[key]={frota:String(r.frota||'N/I'),month:r.month||'Base',kmTotal:0,kmCarreg:0,kmVazio:0};
+    map[key].kmTotal+=r.kmTotal||0;
+    map[key].kmCarreg+=r.kmCarreg||0;
+    map[key].kmVazio+=r.kmVazio||0;
+  });
+  return Object.values(map);
+}
+function aggregateEFLByMonth(detail){
+  const map={};
+  (detail||[]).forEach(r=>{
+    const key=r.month||'Base';
+    if(!map[key])map[key]={month:key,kmTotal:0,kmCarreg:0,kmVazio:0,frotas:new Set()};
+    map[key].kmTotal+=r.kmTotal||0;
+    map[key].kmCarreg+=r.kmCarreg||0;
+    map[key].kmVazio+=r.kmVazio||0;
+    if(r.frota)map[key].frotas.add(String(r.frota));
+  });
+  return Object.values(map).map(r=>({...r,qtdFrotas:r.frotas.size})).sort((a,b)=>eflMonthOrder(a.month)-eflMonthOrder(b.month));
+}
+function aggregateEFLByDay(rows){
+  const map={};
+  (rows||[]).forEach(r=>(r.days||[]).forEach(d=>{
+    const key=d.dateKey||d.date;
+    if(!key)return;
+    if(!map[key])map[key]={dateKey:key,date:d.date,kmTotal:0,kmCarreg:0,kmVazio:0};
+    map[key].kmTotal+=d.km||0;
+    if(d.isCarreg)map[key].kmCarreg+=d.km||0;
+    if(d.isVazio)map[key].kmVazio+=d.km||0;
+  }));
+  return Object.values(map).sort((a,b)=>String(a.dateKey).localeCompare(String(b.dateKey)));
 }
 
 function renderEFLChart(f){
@@ -4127,10 +4193,47 @@ function renderEFLChart(f){
         y:{stacked:true,grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:11},callback:v=>v.toLocaleString('pt-BR')+'km'}}
       }}});
 }
+function renderEFLFrotaMesChart(detail){
+  const ct=chartTheme();
+  const ctx=document.getElementById('eflFrotaMesBar');
+  if(!ctx)return;
+  if(eflFrotaMesChart){eflFrotaMesChart.destroy();eflFrotaMesChart=null;}
+  const rows=aggregateEFLByFrotaMonth(detail).sort((a,b)=>b.kmTotal-a.kmTotal).slice(0,16);
+  eflFrotaMesChart=new Chart(ctx,{type:'bar',data:{labels:rows.map(r=>r.frota+' · '+r.month),datasets:[
+    {label:'KM Carregado',data:rows.map(r=>r.kmCarreg),backgroundColor:'rgba(45,184,122,0.85)',borderRadius:4},
+    {label:'KM Vazio',data:rows.map(r=>r.kmVazio),backgroundColor:'rgba(232,148,58,0.75)',borderRadius:4}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{family:'Montserrat',size:11},color:ct.text3,boxWidth:12}},tooltip:{callbacks:{label:ctx2=>` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},maxRotation:45}},y:{stacked:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},callback:v=>v.toLocaleString('pt-BR')+'km'}}}}});
+}
+function renderEFLMonthChart(detail){
+  const ct=chartTheme();
+  const ctx=document.getElementById('eflMesBar');
+  if(!ctx)return;
+  if(eflMesChart){eflMesChart.destroy();eflMesChart=null;}
+  const rows=aggregateEFLByMonth(detail);
+  eflMesChart=new Chart(ctx,{type:'bar',data:{labels:rows.map(r=>r.month),datasets:[
+    {label:'KM Carregado',data:rows.map(r=>r.kmCarreg),backgroundColor:'rgba(45,184,122,0.85)',borderRadius:4},
+    {label:'KM Vazio',data:rows.map(r=>r.kmVazio),backgroundColor:'rgba(232,148,58,0.75)',borderRadius:4},
+    {label:'Frotas',data:rows.map(r=>r.qtdFrotas),type:'line',yAxisID:'y1',borderColor:'rgba(27,63,122,0.9)',backgroundColor:'rgba(27,63,122,0.2)',tension:.25,pointRadius:3}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{family:'Montserrat',size:11},color:ct.text3,boxWidth:12}},tooltip:{callbacks:{label:ctx2=>ctx2.dataset.yAxisID==='y1'?` Frotas: ${ctx2.raw}`:` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},scales:{x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:11}}},y:{stacked:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},callback:v=>v.toLocaleString('pt-BR')+'km'}},y1:{position:'right',grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},stepSize:1}}}}});
+}
+function renderEFLDayChart(rows){
+  const ct=chartTheme();
+  const ctx=document.getElementById('eflDiaLine');
+  if(!ctx)return;
+  if(eflDiaChart){eflDiaChart.destroy();eflDiaChart=null;}
+  const days=aggregateEFLByDay(rows);
+  eflDiaChart=new Chart(ctx,{type:'line',data:{labels:days.map(d=>d.date),datasets:[
+    {label:'KM Total',data:days.map(d=>Math.round(d.kmTotal)),borderColor:'rgba(27,63,122,0.95)',backgroundColor:'rgba(27,63,122,0.12)',tension:.25,pointRadius:2,fill:true},
+    {label:'KM Carregado',data:days.map(d=>Math.round(d.kmCarreg)),borderColor:'rgba(45,184,122,0.9)',backgroundColor:'rgba(45,184,122,0.08)',tension:.25,pointRadius:2},
+    {label:'KM Vazio',data:days.map(d=>Math.round(d.kmVazio)),borderColor:'rgba(232,148,58,0.85)',backgroundColor:'rgba(232,148,58,0.08)',tension:.25,pointRadius:2}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{family:'Montserrat',size:11},color:ct.text3,boxWidth:12}},tooltip:{callbacks:{label:ctx2=>` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},scales:{x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:9},maxRotation:45,autoSkip:true,maxTicksLimit:18}},y:{grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},callback:v=>v.toLocaleString('pt-BR')+'km'}}}}});
+}
 
 function renderEFL(){
   eflChartPage=0;
   const f=getEFLFiltered();
+  const detail=getEFLDetailFiltered();
+  const byFrota=aggregateEFLByFrota(f);
   const totKm=f.reduce((s,r)=>s+r.kmTotal,0);
   const totCarreg=f.reduce((s,r)=>s+r.kmCarreg,0);
   const totVazio=f.reduce((s,r)=>s+r.kmVazio,0);
@@ -4139,14 +4242,16 @@ function renderEFL(){
   const e1=document.getElementById('ef1');const e1s=document.getElementById('ef1s');
   const e2=document.getElementById('ef2');const e2s=document.getElementById('ef2s');
   if(e0)e0.textContent=totKm.toLocaleString('pt-BR')+'km';
-  if(e0s)e0s.textContent=f.length+' frotas';
+  if(e0s)e0s.textContent=byFrota.length+' frotas';
   if(e1)e1.textContent=totCarreg.toLocaleString('pt-BR')+'km';
   if(e1s)e1s.textContent=pct+'% do total';
   if(e2)e2.textContent=totVazio.toLocaleString('pt-BR')+'km';
   if(e2s)e2s.textContent=(totKm>0?Math.round(totVazio/totKm*100):0)+'% do total';
-  renderEFLChart(f.sort((a,b)=>b.kmTotal-a.kmTotal));
+  renderEFLChart(byFrota.sort((a,b)=>b.kmTotal-a.kmTotal));
+  renderEFLFrotaMesChart(detail);
+  renderEFLMonthChart(detail);
+  renderEFLDayChart(f);
   // Table
-  const detail=getEFLDetailFiltered();
   const cnt=document.getElementById('eflCnt');const tbl=document.getElementById('eflTbl');
   if(cnt)cnt.textContent=detail.length+' registros';
   if(!tbl)return;
