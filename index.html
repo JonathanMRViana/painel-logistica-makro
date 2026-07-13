@@ -1344,7 +1344,14 @@ tbody tr:hover td{background:var(--surface2)}
 
         <div class="grid-2">
           <div class="card">
-            <div class="card-head"><span class="card-title">KM por Frota por Mês</span></div>
+            <div class="card-head" style="display:flex;justify-content:space-between;align-items:center">
+              <span class="card-title">KM por Frota por Mês</span>
+              <div style="display:flex;gap:6px;align-items:center">
+                <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace" id="eflFrotaMesInfo"></span>
+                <button onclick="scrollEFLFrotaMesChart(-1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);width:24px;height:24px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1">‹</button>
+                <button onclick="scrollEFLFrotaMesChart(1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text2);width:24px;height:24px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1">›</button>
+              </div>
+            </div>
             <div style="position:relative;height:280px"><canvas id="eflFrotaMesBar"></canvas></div>
           </div>
           <div class="card">
@@ -4054,6 +4061,8 @@ function processEFL(sheets){
 
 let eflChartPage=0;
 const EFL_PAGE_SIZE=12;
+let eflFrotaMesPage=0;
+const EFL_FROTA_MES_PAGE_SIZE=6;
 
 function getEFLFiltered(){
   const q=((document.getElementById('eflSearch')||{}).value||'').toLowerCase().trim();
@@ -4102,10 +4111,12 @@ function getEFLDetailFiltered(){
 
 function syncEFLSearch(src,targetId){
   const t=document.getElementById(targetId);if(t)t.value=src.value;
+  eflFrotaMesPage=0;
   renderEFL();
 }
 function syncEFLSelect(src,targetId){
   syncSelectValues(src,targetId);
+  eflFrotaMesPage=0;
   renderEFL();
 }
 function clearEFLFilters(){
@@ -4113,6 +4124,7 @@ function clearEFLFilters(){
   ['eflDe','eflDeTop','eflAte','eflAteTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['eflSearch','eflSearchTop'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   eflChartPage=0;
+  eflFrotaMesPage=0;
   renderEFL();
 }
 
@@ -4121,6 +4133,12 @@ function scrollEFLChart(dir){
   const pages=Math.ceil(f.length/EFL_PAGE_SIZE);
   eflChartPage=Math.max(0,Math.min(pages-1,eflChartPage+dir));
   renderEFLChart(f);
+}
+function scrollEFLFrotaMesChart(dir){
+  const rows=aggregateEFLByFrotaMonth(getEFLDetailFiltered()).sort((a,b)=>b.kmTotal-a.kmTotal);
+  const pages=Math.ceil(rows.length/EFL_FROTA_MES_PAGE_SIZE)||1;
+  eflFrotaMesPage=Math.max(0,Math.min(pages-1,eflFrotaMesPage+dir));
+  renderEFLFrotaMesChart(getEFLDetailFiltered());
 }
 function aggregateEFLByFrota(rows){
   const map={};
@@ -4198,11 +4216,16 @@ function renderEFLFrotaMesChart(detail){
   const ctx=document.getElementById('eflFrotaMesBar');
   if(!ctx)return;
   if(eflFrotaMesChart){eflFrotaMesChart.destroy();eflFrotaMesChart=null;}
-  const rows=aggregateEFLByFrotaMonth(detail).sort((a,b)=>b.kmTotal-a.kmTotal).slice(0,10);
+  const allRows=aggregateEFLByFrotaMonth(detail).sort((a,b)=>b.kmTotal-a.kmTotal);
+  const pages=Math.ceil(allRows.length/EFL_FROTA_MES_PAGE_SIZE)||1;
+  eflFrotaMesPage=Math.max(0,Math.min(pages-1,eflFrotaMesPage));
+  const rows=allRows.slice(eflFrotaMesPage*EFL_FROTA_MES_PAGE_SIZE,(eflFrotaMesPage+1)*EFL_FROTA_MES_PAGE_SIZE);
+  const info=document.getElementById('eflFrotaMesInfo');
+  if(info)info.textContent=allRows.length>EFL_FROTA_MES_PAGE_SIZE?`${eflFrotaMesPage+1}/${pages} páginas · ${allRows.length} itens`:`${allRows.length} itens`;
   eflFrotaMesChart=new Chart(ctx,{type:'bar',data:{labels:rows.map(r=>r.frota+' · '+r.month),datasets:[
     {label:'KM Carregado',data:rows.map(r=>r.kmCarreg),backgroundColor:'rgba(45,184,122,0.85)',borderRadius:4},
     {label:'KM Vazio',data:rows.map(r=>r.kmVazio),backgroundColor:'rgba(232,148,58,0.75)',borderRadius:4}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Montserrat',size:10},color:ct.text3,boxWidth:10}},tooltip:{callbacks:{label:ctx2=>` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:9},maxRotation:35,autoSkip:false}},y:{stacked:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},callback:v=>v.toLocaleString('pt-BR')+'km'}}}}});
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Montserrat',size:10},color:ct.text3,boxWidth:10}},tooltip:{callbacks:{label:ctx2=>` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:9},maxRotation:0,autoSkip:false}},y:{stacked:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},callback:v=>v.toLocaleString('pt-BR')+'km'}}}}});
 }
 function renderEFLMonthChart(detail){
   const ct=chartTheme();
@@ -4230,6 +4253,7 @@ function renderEFLDayChart(rows){
 
 function renderEFL(){
   eflChartPage=0;
+  eflFrotaMesPage=Math.max(0,eflFrotaMesPage);
   const f=getEFLFiltered();
   const detail=getEFLDetailFiltered();
   const byFrota=aggregateEFLByFrota(f);
