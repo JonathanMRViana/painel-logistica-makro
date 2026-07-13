@@ -1345,17 +1345,17 @@ tbody tr:hover td{background:var(--surface2)}
         <div class="grid-2">
           <div class="card">
             <div class="card-head"><span class="card-title">KM por Frota por Mês</span></div>
-            <div style="position:relative;height:300px"><canvas id="eflFrotaMesBar"></canvas></div>
+            <div style="position:relative;height:280px"><canvas id="eflFrotaMesBar"></canvas></div>
           </div>
           <div class="card">
             <div class="card-head"><span class="card-title">Quantitativo Mensal de KM</span></div>
-            <div style="position:relative;height:300px"><canvas id="eflMesBar"></canvas></div>
+            <div style="position:relative;height:280px"><canvas id="eflMesBar"></canvas></div>
           </div>
         </div>
 
         <div class="card" style="margin-bottom:20px">
           <div class="card-head"><span class="card-title">Evolução Diária de KM</span></div>
-          <div style="position:relative;height:300px"><canvas id="eflDiaLine"></canvas></div>
+          <div style="position:relative;height:280px"><canvas id="eflDiaLine"></canvas></div>
         </div>
         <!-- TABLE -->
         <div class="tbl-card">
@@ -1392,7 +1392,7 @@ tbody tr:hover td{background:var(--surface2)}
           <div class="tbl-wrap">
             <table>
               <thead><tr>
-                <th>Mês</th><th>Frota</th><th>Frota Atendida</th><th>Modelo</th><th>Motorista</th>
+                <th>Mês</th><th>Frota</th><th>Modelo</th><th>Motorista</th>
                 <th>KM Total</th><th>KM Carregado</th><th>KM Vazio</th><th>% Carregado</th><th>Eficiência (DF)</th>
               </tr></thead>
               <tbody id="eflTbl"></tbody>
@@ -4198,11 +4198,11 @@ function renderEFLFrotaMesChart(detail){
   const ctx=document.getElementById('eflFrotaMesBar');
   if(!ctx)return;
   if(eflFrotaMesChart){eflFrotaMesChart.destroy();eflFrotaMesChart=null;}
-  const rows=aggregateEFLByFrotaMonth(detail).sort((a,b)=>b.kmTotal-a.kmTotal).slice(0,16);
+  const rows=aggregateEFLByFrotaMonth(detail).sort((a,b)=>b.kmTotal-a.kmTotal).slice(0,10);
   eflFrotaMesChart=new Chart(ctx,{type:'bar',data:{labels:rows.map(r=>r.frota+' · '+r.month),datasets:[
     {label:'KM Carregado',data:rows.map(r=>r.kmCarreg),backgroundColor:'rgba(45,184,122,0.85)',borderRadius:4},
     {label:'KM Vazio',data:rows.map(r=>r.kmVazio),backgroundColor:'rgba(232,148,58,0.75)',borderRadius:4}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{family:'Montserrat',size:11},color:ct.text3,boxWidth:12}},tooltip:{callbacks:{label:ctx2=>` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},maxRotation:45}},y:{stacked:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},callback:v=>v.toLocaleString('pt-BR')+'km'}}}}});
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Montserrat',size:10},color:ct.text3,boxWidth:10}},tooltip:{callbacks:{label:ctx2=>` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:9},maxRotation:35,autoSkip:false}},y:{stacked:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},callback:v=>v.toLocaleString('pt-BR')+'km'}}}}});
 }
 function renderEFLMonthChart(detail){
   const ct=chartTheme();
@@ -4214,7 +4214,7 @@ function renderEFLMonthChart(detail){
     {label:'KM Carregado',data:rows.map(r=>r.kmCarreg),backgroundColor:'rgba(45,184,122,0.85)',borderRadius:4},
     {label:'KM Vazio',data:rows.map(r=>r.kmVazio),backgroundColor:'rgba(232,148,58,0.75)',borderRadius:4},
     {label:'Frotas',data:rows.map(r=>r.qtdFrotas),type:'line',yAxisID:'y1',borderColor:'rgba(27,63,122,0.9)',backgroundColor:'rgba(27,63,122,0.2)',tension:.25,pointRadius:3}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{family:'Montserrat',size:11},color:ct.text3,boxWidth:12}},tooltip:{callbacks:{label:ctx2=>ctx2.dataset.yAxisID==='y1'?` Frotas: ${ctx2.raw}`:` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},scales:{x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:11}}},y:{stacked:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},callback:v=>v.toLocaleString('pt-BR')+'km'}},y1:{position:'right',grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},stepSize:1}}}}});
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Montserrat',size:10},color:ct.text3,boxWidth:10}},tooltip:{callbacks:{label:ctx2=>ctx2.dataset.yAxisID==='y1'?` Frotas: ${ctx2.raw}`:` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},scales:{x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:11}}},y:{stacked:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},callback:v=>v.toLocaleString('pt-BR')+'km'}},y1:{position:'right',grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},stepSize:1}}}}});
 }
 function renderEFLDayChart(rows){
   const ct=chartTheme();
@@ -4223,10 +4223,9 @@ function renderEFLDayChart(rows){
   if(eflDiaChart){eflDiaChart.destroy();eflDiaChart=null;}
   const days=aggregateEFLByDay(rows);
   eflDiaChart=new Chart(ctx,{type:'line',data:{labels:days.map(d=>d.date),datasets:[
-    {label:'KM Total',data:days.map(d=>Math.round(d.kmTotal)),borderColor:'rgba(27,63,122,0.95)',backgroundColor:'rgba(27,63,122,0.12)',tension:.25,pointRadius:2,fill:true},
-    {label:'KM Carregado',data:days.map(d=>Math.round(d.kmCarreg)),borderColor:'rgba(45,184,122,0.9)',backgroundColor:'rgba(45,184,122,0.08)',tension:.25,pointRadius:2},
-    {label:'KM Vazio',data:days.map(d=>Math.round(d.kmVazio)),borderColor:'rgba(232,148,58,0.85)',backgroundColor:'rgba(232,148,58,0.08)',tension:.25,pointRadius:2}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{family:'Montserrat',size:11},color:ct.text3,boxWidth:12}},tooltip:{callbacks:{label:ctx2=>` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},scales:{x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:9},maxRotation:45,autoSkip:true,maxTicksLimit:18}},y:{grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},callback:v=>v.toLocaleString('pt-BR')+'km'}}}}});
+    {label:'KM Carregado',data:days.map(d=>Math.round(d.kmCarreg)),borderColor:'rgba(45,184,122,0.9)',backgroundColor:'rgba(45,184,122,0.08)',tension:.25,pointRadius:1.5},
+    {label:'KM Vazio',data:days.map(d=>Math.round(d.kmVazio)),borderColor:'rgba(232,148,58,0.85)',backgroundColor:'rgba(232,148,58,0.08)',tension:.25,pointRadius:1.5}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Montserrat',size:10},color:ct.text3,boxWidth:10}},tooltip:{callbacks:{label:ctx2=>` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},scales:{x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:9},maxRotation:35,autoSkip:true,maxTicksLimit:14}},y:{grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},callback:v=>v.toLocaleString('pt-BR')+'km'}}}}});
 }
 
 function renderEFL(){
@@ -4256,11 +4255,10 @@ function renderEFL(){
   if(cnt)cnt.textContent=detail.length+' registros';
   if(!tbl)return;
   tbl.innerHTML=detail.length===0
-    ?'<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro</td></tr>'
+    ?'<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro</td></tr>'
     :detail.sort((a,b)=>(eflMonthOrder(a.month)-eflMonthOrder(b.month))||String(a.frota).localeCompare(String(b.frota),'pt-BR',{numeric:true})||String(a.motor).localeCompare(String(b.motor),'pt-BR')).map(r=>`<tr>
       <td style="font-family:'DM Mono',monospace;font-weight:600">${r.month}</td>
       <td style="font-family:'DM Mono',monospace;font-weight:600">${r.frota}</td>
-      <td style="font-family:'DM Mono',monospace">${r.frotaAt}</td>
       <td>${r.modelo}</td>
       <td>${r.motor}</td>
       <td style="font-family:'DM Mono',monospace;font-weight:600;color:var(--makro-blue)">${r.kmTotal.toLocaleString('pt-BR')}</td>
