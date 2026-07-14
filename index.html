@@ -81,6 +81,12 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 .topbar-right{display:flex;align-items:center;gap:8px}
 .refresh-btn{display:flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--border);color:var(--text2);padding:6px 14px;border-radius:var(--radius-sm);font-size:12px;font-family:'Nunito Sans',sans-serif;cursor:pointer;transition:all .15s}
 .refresh-btn:hover{border-color:var(--border2);color:var(--text);background:var(--surface2)}
+.info-btn{width:32px;height:32px;padding:0;justify-content:center;border-radius:50%;font-weight:700;font-family:'DM Mono',monospace}
+.premise-list{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.premise-item{border:1px solid var(--border);background:var(--surface2);border-radius:var(--radius-sm);padding:12px 14px}
+.premise-k{font-size:10px;font-weight:700;color:var(--text3);font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.premise-v{font-size:13px;line-height:1.5;color:var(--text);font-family:'Nunito Sans',sans-serif}
+.premise-v code{font-family:'DM Mono',monospace;font-size:12px;color:var(--accent)}
 
 .main{padding:36px 24px 24px;flex:1;min-width:0;overflow-x:hidden}
 .panel{display:none}.panel.active{display:block;padding:16px 32px 40px;}
@@ -568,6 +574,7 @@ tbody tr:hover td{background:var(--surface2)}
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
         Atualizar
       </button>
+      <button class="refresh-btn info-btn" id="premiseBtn" onclick="openPremises()" title="Premissas do painel" aria-label="Premissas do painel">i</button>
     </div>
   </header>
 
@@ -1678,24 +1685,110 @@ let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],eflDetail
 window._aet=()=>aetData;
 window._mob=()=>mobData;
 
+let currentPanelId='mob';
 const pages={aet:{t:'Gestão de AET\'s',s:'licenças especiais de trânsito'},mob:{t:'Gestão de Mobilizações',s:'operações de mobilização e desmobilização'},
   mat:{t:'Mat. de Amarração & Segurança',s:'controle de materiais por frota'},
   pat:{t:'Gestão de Pátio',s:'controle de atividades e operações de pátio'},
   inef:{t:'Controle de Ineficiências Op. (Diárias)',s:'monitoramento de equipamentos parados e diárias'},
+  efl:{t:'Relatório de Eficiência Logística',s:'eficiência de KM por frota · operação diária'},
   exec:{t:'Resumo Executivo',s:'visão gerencial consolidada das operações'},
   fatprev:{t:'Prévia de Faturamento',s:'aguardando dados via Google Sheets'},
-  rpd:{t:'Relatório de Eficiência Logística',s:'eficiência de KM por frota · operação diária'}};
+  rpd:{t:'Relatório de Frotas em Manutenção (RPD)',s:'frotas em manutenção · operação diária'}};
 
 pages.prog={t:'Programação Logística Semanal',s:'planejamento operacional por semanas'};
-pages.rpd={t:'Relatório de Frotas em Manutenção (RPD)',s:'frotas em manutenção · operação diária'};
+
+const panelPremises={
+  mob:[
+    ['Fonte','Controle de Mobilizações publicado via Google Sheets. A leitura considera as linhas carregadas da base e os filtros ativos no painel.'],
+    ['Operações pendentes','Conta mobilizações cujo status não indica finalização nem cancelamento.'],
+    ['SLA','O SLA é calculado pela data prevista de finalização: atraso quando a previsão está vencida; no prazo quando ainda está vigente; sem prazo quando não há data válida.'],
+    ['Cargas','Cargas pendentes = total de cargas - carregadas - em trânsito - entregues. Os percentuais usam o total de cargas filtrado como base.']
+  ],
+  aet:[
+    ['Fonte','Base de Gestão de AET publicada via Google Sheets. Os indicadores respeitam filtros de tipo, renovação, ano, mês e período.'],
+    ['Status de vencimento','A leitura compara a validade da licença com a data atual e classifica vencida, crítica, vencendo ou regular conforme janela de dias.'],
+    ['Renovação','O campo de renovação vem da base e é tratado como Sim/Não para filtro e análise.'],
+    ['Período','Quando o usuário seleciona data inicial/final, o painel prioriza o recorte por datas em vez de apenas mês fechado.']
+  ],
+  mat:[
+    ['Fonte','Controle de materiais de amarração e segurança carregado da base publicada.'],
+    ['Déficit','Um item entra como déficit quando o saldo calculado do material fica abaixo do mínimo esperado por frota/conjunto.'],
+    ['Itens em falta','Soma absoluta dos déficits identificados por tipo de material.'],
+    ['Regularidade','Frotas regulares são aquelas sem déficit no recorte filtrado.']
+  ],
+  pat:[
+    ['Fonte','Gestão de Pátio publicada via Google Sheets. O painel considera atividades operacionais dentro dos filtros selecionados.'],
+    ['Média por dia','Média de atividades = total de atividades do período dividido pela quantidade de dias analisados no recorte.'],
+    ['Comparativos','Período anterior equivalente usa a mesma duração imediatamente anterior ao recorte atual. Ano contra ano compara o mesmo intervalo no ano anterior.'],
+    ['Criticidade','Alta criticidade é lida diretamente do campo de criticidade da base e usada para sinalizar risco operacional.']
+  ],
+  inef:[
+    ['Fonte','Controle de Ineficiências Operacionais (diárias), com leitura por frota, cliente, status, cobrança, motivo, transportador e período.'],
+    ['Ocorrências','Total de ocorrências corresponde às linhas filtradas da base.'],
+    ['Valores','Valor total, pendente de cobrança e faturado são somados a partir dos campos financeiros disponíveis na base.'],
+    ['Evolução','A evolução mensal/semanal agrupa os registros pela data da ocorrência dentro do recorte ativo.']
+  ],
+  prog:[
+    ['Fonte','Programação Logística Semanal - MKT & LOG, consolidada pelas semanas publicadas via GID.'],
+    ['Taxa de aderência','Aderência = pontos de execução / total programado. Realizado vale 1 ponto, Parcial vale 0,5 ponto e Pendente/Não Realizado vale 0.'],
+    ['Disponibilidade','Disponíveis, em manutenção e sem previsão são calculados pela leitura do status atual dos conjuntos programados.'],
+    ['Cargas por frota','As cargas são vinculadas à programação pela frota e agregadas em entregues, em trânsito e pendentes de carregamento.'],
+    ['Extras e ocorrências','Extras programadas são demandas adicionadas depois da programação. Ocorrências são eventos fora da programação, como desvios, acidentes ou impedimentos.']
+  ],
+  efl:[
+    ['Fonte','Relatório de Eficiência Logística consolidado por abas mensais publicadas via Google Sheets.'],
+    ['KM carregado/vazio','O painel identifica KM carregado e KM vazio pelos campos de informação da linha e soma os quilômetros válidos.'],
+    ['% carregado','Percentual carregado = KM carregado / KM total. KM total = KM carregado + KM vazio.'],
+    ['Consolidação','O ranking por frota consolida todos os meses selecionados. A coluna Mês no detalhamento preserva a origem mensal da linha.']
+  ],
+  rpd:[
+    ['Fonte','Relatório de Frotas em Manutenção (RPD), com filtros de tipo, status, impacto, mês, ano e período.'],
+    ['Frotas em manutenção','No cenário atual, considera frotas com status diferente de OP, conforme regra operacional adotada no painel.'],
+    ['Dias parado','Dias parado usa a diferença entre a data de parada e a data de referência/liberação disponível no registro.'],
+    ['Impacto no cliente','Impacto é lido do campo próprio da base e usado para separar frotas com reflexo direto no atendimento.']
+  ],
+  exec:[
+    ['Fonte','Resumo Executivo consolida leituras dos painéis de Mobilizações, Programação Logística e Relatório de Eficiência Logística.'],
+    ['Mobilizações atuais','Mostra pendências por unidade, cliente e frota, usando o avanço e os totais de cargas do controle de mobilizações.'],
+    ['Programação semanal','Aponta exposição operacional pela proporção de conjuntos em manutenção sobre o total programado da semana ativa.'],
+    ['Ineficiências D-1','Usa a leitura do dia anterior no relatório de eficiência para status AC, AD, DOC F e MNT, além de baixa rodagem abaixo de 350 km/dia.']
+  ],
+  fatprev:[
+    ['Fonte','Painel reservado para base futura de faturamento via Google Sheets.'],
+    ['Situação atual','Sem dados publicados; por isso o painel permanece indisponível/escurecido.'],
+    ['Premissa futura','Quando a base for conectada, os indicadores deverão respeitar filtros de período, cliente, status de cobrança e valores.']
+  ]
+};
+
+function premiseEsc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function updatePremiseButton(id){
+  const btn=document.getElementById('premiseBtn');
+  if(btn)btn.style.display=panelPremises[id]?'flex':'none';
+}
+function openPremises(){
+  const data=panelPremises[currentPanelId]||[];
+  const overlay=document.getElementById('premiseOverlay');
+  const title=document.getElementById('premiseModalTitle');
+  const body=document.getElementById('premiseModalBody');
+  if(!overlay||!title||!body||!data.length)return;
+  title.textContent='Premissas · '+(pages[currentPanelId]?.t||'Painel');
+  body.innerHTML='<div class="premise-list">'+data.map(([k,v])=>`<div class="premise-item"><div class="premise-k">${premiseEsc(k)}</div><div class="premise-v">${premiseEsc(v)}</div></div>`).join('')+'</div>';
+  overlay.classList.add('open');
+}
+function closePremises(){
+  const overlay=document.getElementById('premiseOverlay');
+  if(overlay)overlay.classList.remove('open');
+}
 
 function goTo(id){
+  currentPanelId=id;
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item:not(.nav-disabled)').forEach(n=>n.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
   document.getElementById('nav-'+id).classList.add('active');
   document.getElementById('pgTitle').textContent=pages[id].t;
   document.getElementById('pgSub').textContent=pages[id].s;
+  updatePremiseButton(id);
   // Re-render charts when panel becomes visible
   setTimeout(function(){
     if(id==='aet'&&aetData.length>0){if(aC){aC.destroy();aC=null;}renderAETcharts();}
@@ -1767,10 +1860,13 @@ const progBarValueLabelsPlugin={
     const mode=(pluginOptions&&pluginOptions.mode)||'top';
     const fontSize=((pluginOptions&&pluginOptions.fontSize)||10);
     const color=(pluginOptions&&pluginOptions.color)||ct.text2;
+    const formatter=(pluginOptions&&pluginOptions.formatter)||null;
+    const minSegmentHeight=(pluginOptions&&pluginOptions.minSegmentHeight)||16;
     ctx.save();
     ctx.font=`600 ${fontSize}px 'DM Mono', monospace`;
     ctx.textAlign='center';
     chart.data.datasets.forEach((dataset,datasetIndex)=>{
+      if(dataset.showDataLabels===false||dataset.type==='line')return;
       const meta=chart.getDatasetMeta(datasetIndex);
       if(meta.hidden)return;
       meta.data.forEach((bar,index)=>{
@@ -1779,13 +1875,14 @@ const progBarValueLabelsPlugin={
         if(!isFinite(value)||value<=0)return;
         const pos=bar.tooltipPosition();
         const props=bar.getProps(['x','y','base'],true);
-        const label=String(value).replace('.',',');
+        const label=formatter?formatter(value,dataset,index):String(value).replace('.',',');
+        if(!label)return;
         ctx.fillStyle=color;
         if(mode==='stacked-inside'){
           const segTop=Math.min(props.y,props.base);
           const segBottom=Math.max(props.y,props.base);
           const segHeight=segBottom-segTop;
-          if(segHeight<16)return;
+          if(segHeight<minSegmentHeight)return;
           ctx.textBaseline='middle';
           ctx.fillText(label,props.x,segTop+(segHeight/2));
           return;
@@ -1798,6 +1895,14 @@ const progBarValueLabelsPlugin={
     ctx.restore();
   }
 };
+
+function compactKmLabel(value){
+  const n=Number(value||0);
+  if(!isFinite(n)||n<=0)return '';
+  if(n>=1000000)return (n/1000000).toFixed(n>=10000000?0:1).replace('.',',')+'M';
+  if(n>=1000)return (n/1000).toFixed(n>=10000?0:1).replace('.',',')+'k';
+  return Math.round(n).toLocaleString('pt-BR');
+}
 
 
 
@@ -4185,13 +4290,16 @@ function renderEFLChart(f){
   if(!ctx)return;
   if(eflChart){eflChart.destroy();eflChart=null;}
   eflChart=new Chart(ctx,{type:'bar',
+    plugins:[progBarValueLabelsPlugin],
     data:{labels:slice.map(r=>r.frota),
       datasets:[
         {label:'KM Carregado',data:slice.map(r=>r.kmCarreg),backgroundColor:'rgba(45,184,122,0.85)',borderRadius:4},
         {label:'KM Vazio',data:slice.map(r=>r.kmVazio),backgroundColor:'rgba(232,148,58,0.75)',borderRadius:4},
       ]},
     options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top',labels:{font:{family:'Montserrat',size:11},color:ct.text3,boxWidth:12}},
+      layout:{padding:{top:8}},
+      plugins:{progBarValueLabels:{color:ct.text,fontSize:9,mode:'stacked-inside',formatter:compactKmLabel,minSegmentHeight:18},
+        legend:{position:'top',labels:{font:{family:'Montserrat',size:11},color:ct.text3,boxWidth:12}},
         tooltip:{callbacks:{label:ctx2=>` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},
       scales:{
         x:{stacked:true,grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:11}}},
@@ -4222,11 +4330,11 @@ function renderEFLMonthChart(detail){
   if(!ctx)return;
   if(eflMesChart){eflMesChart.destroy();eflMesChart=null;}
   const rows=aggregateEFLByMonth(detail);
-  eflMesChart=new Chart(ctx,{type:'bar',data:{labels:rows.map(r=>r.month),datasets:[
+  eflMesChart=new Chart(ctx,{type:'bar',plugins:[progBarValueLabelsPlugin],data:{labels:rows.map(r=>r.month),datasets:[
     {label:'KM Carregado',data:rows.map(r=>r.kmCarreg),backgroundColor:'rgba(45,184,122,0.85)',borderRadius:4},
     {label:'KM Vazio',data:rows.map(r=>r.kmVazio),backgroundColor:'rgba(232,148,58,0.75)',borderRadius:4},
-    {label:'Frotas',data:rows.map(r=>r.qtdFrotas),type:'line',yAxisID:'y1',borderColor:'rgba(27,63,122,0.9)',backgroundColor:'rgba(27,63,122,0.2)',tension:.25,pointRadius:3}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Montserrat',size:10},color:ct.text3,boxWidth:10}},tooltip:{callbacks:{label:ctx2=>ctx2.dataset.yAxisID==='y1'?` Frotas: ${ctx2.raw}`:` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},scales:{x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:11}}},y:{stacked:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},callback:v=>v.toLocaleString('pt-BR')+'km'}},y1:{position:'right',grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},stepSize:1}}}}});
+    {label:'Frotas',data:rows.map(r=>r.qtdFrotas),type:'line',yAxisID:'y1',borderColor:'rgba(27,63,122,0.9)',backgroundColor:'rgba(27,63,122,0.2)',tension:.25,pointRadius:3,showDataLabels:false}
+  ]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:8}},plugins:{progBarValueLabels:{color:ct.text,fontSize:9,mode:'stacked-inside',formatter:compactKmLabel,minSegmentHeight:18},legend:{position:'bottom',labels:{font:{family:'Montserrat',size:10},color:ct.text3,boxWidth:10}},tooltip:{callbacks:{label:ctx2=>ctx2.dataset.yAxisID==='y1'?` Frotas: ${ctx2.raw}`:` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},scales:{x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:11}}},y:{stacked:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},callback:v=>v.toLocaleString('pt-BR')+'km'}},y1:{position:'right',grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},stepSize:1}}}}});
 }
 function renderEFLDayChart(rows){
   const ct=chartTheme();
@@ -4576,6 +4684,7 @@ applyMultiSelectFilters();
 loadAll();
 window.addEventListener('resize',()=>requestAnimationFrame(refreshTableScrollbars));
 setInterval(loadAll,5*60*1000);
+updatePremiseButton(currentPanelId);
 </script>
 
 <div class="obs-modal-overlay" id="obsOverlay" onclick="if(event.target===this)closeObs()">
@@ -4584,6 +4693,13 @@ setInterval(loadAll,5*60*1000);
     <div class="obs-modal-title">Observações</div>
     <div class="obs-modal-frota" id="obsModalFrota"></div>
     <div class="obs-modal-body" id="obsModalBody"></div>
+  </div>
+</div>
+<div class="obs-modal-overlay" id="premiseOverlay" onclick="if(event.target===this)closePremises()">
+  <div class="obs-modal" style="max-width:620px">
+    <button class="obs-modal-close" onclick="closePremises()">✕</button>
+    <div class="obs-modal-title" id="premiseModalTitle">Premissas</div>
+    <div class="obs-modal-body" id="premiseModalBody" style="max-height:460px"></div>
   </div>
 </div>
 </body>
