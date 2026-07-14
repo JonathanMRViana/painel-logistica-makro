@@ -87,6 +87,14 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 .premise-k{font-size:10px;font-weight:700;color:var(--text3);font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
 .premise-v{font-size:13px;line-height:1.5;color:var(--text);font-family:'Nunito Sans',sans-serif}
 .premise-v code{font-family:'DM Mono',monospace;font-size:12px;color:var(--accent)}
+.premise-tooltip{display:none;position:fixed;right:28px;top:54px;width:min(420px,calc(100vw - 56px));max-height:70vh;overflow:auto;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);box-shadow:0 14px 38px rgba(0,0,0,.22);z-index:1200;padding:16px}
+.premise-tooltip.open{display:block}
+.premise-tooltip:before{content:"";position:absolute;top:-7px;right:18px;width:12px;height:12px;background:var(--surface);border-left:1px solid var(--border2);border-top:1px solid var(--border2);transform:rotate(45deg)}
+.premise-tooltip-title{font-size:11px;font-weight:700;color:var(--text3);font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding-right:18px}
+.premise-tooltip .premise-list{gap:8px;margin-top:0}
+.premise-tooltip .premise-item{padding:9px 10px}
+.premise-tooltip .premise-v{font-size:12px;line-height:1.45}
+.premise-tooltip-hint{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:10px;border-top:1px solid var(--border);padding-top:8px}
 
 .main{padding:36px 24px 24px;flex:1;min-width:0;overflow-x:hidden}
 .panel{display:none}.panel.active{display:block;padding:16px 32px 40px;}
@@ -139,6 +147,21 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 .kv-k{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-family:'Montserrat',sans-serif;margin-bottom:6px}
 .kv-v{font-size:20px;font-weight:600;line-height:1.1;color:var(--text);font-family:'Montserrat',sans-serif}
 .exec-panel{display:grid;gap:20px}
+.exec-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:-4px}
+.exec-tab-content{display:none}
+.exec-tab-content.active{display:block}
+.exec-overview-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:20px}
+.exec-priority-list{display:grid;gap:10px}
+.exec-priority-item{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;border:1px solid var(--border);background:var(--surface2);border-radius:8px;padding:12px 14px}
+.exec-priority-rank{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;font-family:'DM Mono',monospace}
+.exec-priority-main{min-width:0}
+.exec-priority-title{font-size:12px;font-weight:700;color:var(--text);font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.exec-priority-body{font-size:12px;line-height:1.55;color:var(--text2)}
+.exec-heat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.exec-heat-card{border:1px solid var(--border);background:var(--surface2);border-radius:8px;padding:12px}
+.exec-heat-k{font-size:10px;font-weight:700;color:var(--text3);font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+.exec-heat-v{font-size:24px;font-weight:500;color:var(--text);font-family:'Montserrat',sans-serif;line-height:1}
+.exec-heat-s{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:7px;line-height:1.4}
 .exec-kpis{margin-top:0}
 .exec-card{padding:20px 20px 18px}
 .exec-card .card-head{margin-bottom:14px}
@@ -181,6 +204,7 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 #panel-exec .kpi-sub{min-height:30px;line-height:1.4}
 #panel-exec .tbl-wrap table{table-layout:fixed}
 #panel-exec .tbl-wrap th:nth-child(1),#panel-exec .tbl-wrap td:nth-child(1){width:84px}
+@media(max-width:1100px){.exec-overview-grid{grid-template-columns:1fr}.exec-heat-grid{grid-template-columns:1fr}}
 #panel-exec .tbl-wrap th:nth-child(2),#panel-exec .tbl-wrap td:nth-child(2){width:110px}
 #panel-exec .tbl-wrap th:nth-child(3),#panel-exec .tbl-wrap td:nth-child(3){width:140px}
 #panel-exec .tbl-wrap th:nth-child(4),#panel-exec .tbl-wrap td:nth-child(4){width:110px}
@@ -574,7 +598,7 @@ tbody tr:hover td{background:var(--surface2)}
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
         Atualizar
       </button>
-      <button class="refresh-btn info-btn" id="premiseBtn" onclick="openPremises()" title="Premissas do painel" aria-label="Premissas do painel">i</button>
+      <button class="refresh-btn info-btn" id="premiseBtn" onclick="openPremises()" onmouseenter="showPremiseTooltip()" onmouseleave="scheduleHidePremiseTooltip()" onfocus="showPremiseTooltip()" onblur="hidePremiseTooltip()" title="Premissas do painel" aria-label="Premissas do painel">i</button>
     </div>
   </header>
 
@@ -1607,6 +1631,14 @@ tbody tr:hover td{background:var(--surface2)}
     <!-- EXECUTIVE SUMMARY PANEL -->
     <div id="panel-exec" class="panel">
       <div class="exec-panel">
+        <div class="exec-tabs">
+          <button class="ftag on" id="execTabOverview" onclick="setExecTab('overview')">Visão Geral</button>
+          <button class="ftag" id="execTabMob" onclick="setExecTab('mob')">Mobilizações</button>
+          <button class="ftag" id="execTabProg" onclick="setExecTab('prog')">Programação</button>
+          <button class="ftag" id="execTabInef" onclick="setExecTab('inef')">Ineficiência</button>
+          <button class="ftag" id="execTabActions" onclick="setExecTab('actions')">Ações e Prioridades</button>
+        </div>
+
         <div class="kpi-row exec-kpis">
           <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Mobilizações Pendentes</div><div class="kpi-value" id="execK0">—</div><div class="kpi-sub" id="execK0s"> </div></div>
           <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Cargas Entregues</div><div class="kpi-value" id="execK1">—</div><div class="kpi-sub" id="execK1s"> </div></div>
@@ -1614,13 +1646,29 @@ tbody tr:hover td{background:var(--surface2)}
           <div class="kpi c-blue"><div class="kpi-stripe"></div><div class="kpi-label">Ineficiências D-1</div><div class="kpi-value" id="execK3">—</div><div class="kpi-sub" id="execK3s"> </div></div>
         </div>
 
-        <div class="grid-2">
+        <div class="exec-tab-content active" id="execContentOverview">
+          <div class="exec-overview-grid">
+            <div class="card exec-card">
+              <div class="card-head"><span class="card-title">Leitura Gerencial</span><span class="count-tag">visão consolidada</span></div>
+              <div class="exec-alerts" id="execAlerts"></div>
+            </div>
+            <div class="card exec-card">
+              <div class="card-head"><span class="card-title">Radar Executivo</span><span class="count-tag" id="execRadarTag">atual</span></div>
+              <div class="exec-heat-grid" id="execRadar"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="exec-tab-content" id="execContentMob">
           <div class="card exec-card">
             <div class="card-head"><span class="card-title">Mobilizações Atuais</span><span class="count-tag" id="execMobTag">0 unidades</span></div>
             <div class="kv" id="execMobStats" style="margin-top:14px"></div>
             <div class="bar-list exec-mob-bars" id="execMobBars" style="margin-top:14px"></div>
             <div class="exec-body-copy" id="execMobText"></div>
           </div>
+        </div>
+
+        <div class="exec-tab-content" id="execContentProg">
           <div class="card exec-card">
             <div class="card-head"><span class="card-title">Programação Semanal</span><span class="count-tag" id="execProgTag">semana ativa</span></div>
             <div class="bar-list" id="execProgBars"></div>
@@ -1629,35 +1677,39 @@ tbody tr:hover td{background:var(--surface2)}
           </div>
         </div>
 
-        <div class="grid-2">
+        <div class="exec-tab-content" id="execContentInef">
           <div class="card exec-card">
             <div class="card-head"><span class="card-title">Ineficiências Operacionais</span><span class="count-tag" id="execInefTag">D-1</span></div>
             <div class="bar-list" id="execInefBars"></div>
             <div class="kv" id="execInefStats" style="margin-top:14px"></div>
             <div class="exec-body-copy" id="execInefText"></div>
           </div>
-          <div class="card exec-card">
-            <div class="card-head"><span class="card-title">Leitura Gerencial</span></div>
-            <div class="exec-alerts" id="execAlerts"></div>
-          </div>
         </div>
 
-        <div class="tbl-card">
-          <div class="tbl-head"><span class="tbl-title">Detalhamento Crítico D-1</span><span class="count-tag" id="execDtlCnt">0 registros</span></div>
-          <div class="tbl-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Frota</th>
-                  <th>Frota Atendida</th>
-                  <th>Modelo</th>
-                  <th>Status D-1</th>
-                  <th>KM D-1</th>
-                  <th>Faixa</th>
-                </tr>
-              </thead>
-              <tbody id="execDtlTbl"></tbody>
-            </table>
+        <div class="exec-tab-content" id="execContentActions">
+          <div class="grid-2">
+            <div class="card exec-card">
+              <div class="card-head"><span class="card-title">Prioridades Recomendadas</span><span class="count-tag" id="execPriorityTag">0 ações</span></div>
+              <div class="exec-priority-list" id="execPriorities"></div>
+            </div>
+            <div class="tbl-card">
+              <div class="tbl-head"><span class="tbl-title">Detalhamento Crítico D-1</span><span class="count-tag" id="execDtlCnt">0 registros</span></div>
+              <div class="tbl-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Frota</th>
+                      <th>Frota Atendida</th>
+                      <th>Modelo</th>
+                      <th>Status D-1</th>
+                      <th>KM D-1</th>
+                      <th>Faixa</th>
+                    </tr>
+                  </thead>
+                  <tbody id="execDtlTbl"></tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1699,71 +1751,86 @@ pages.prog={t:'Programação Logística Semanal',s:'planejamento operacional por
 
 const panelPremises={
   mob:[
-    ['Fonte','Controle de Mobilizações publicado via Google Sheets. A leitura considera as linhas carregadas da base e os filtros ativos no painel.'],
-    ['Operações pendentes','Conta mobilizações cujo status não indica finalização nem cancelamento.'],
-    ['SLA','O SLA é calculado pela data prevista de finalização: atraso quando a previsão está vencida; no prazo quando ainda está vigente; sem prazo quando não há data válida.'],
-    ['Cargas','Cargas pendentes = total de cargas - carregadas - em trânsito - entregues. Os percentuais usam o total de cargas filtrado como base.']
+    ['Objetivo','Acompanhar o que ainda está em mobilização ou desmobilização e onde há maior risco de atraso.'],
+    ['Origem dos dados','As informações vêm do controle de mobilizações alimentado pela operação no Google Sheets.'],
+    ['Como ler os números','Pendentes são operações ainda não finalizadas ou canceladas. O SLA mostra se a previsão acordada ainda está no prazo ou já venceu.'],
+    ['Cargas','As cargas mostram o avanço físico da mobilização: total previsto, carregadas, em trânsito, entregues e o que ainda falta concluir.'],
+    ['Ponto de atenção','Pendências com SLA atrasado, alta criticidade ou muitas cargas em aberto devem ser priorizadas na rotina de acompanhamento.']
   ],
   aet:[
-    ['Fonte','Base de Gestão de AET publicada via Google Sheets. Os indicadores respeitam filtros de tipo, renovação, ano, mês e período.'],
-    ['Status de vencimento','A leitura compara a validade da licença com a data atual e classifica vencida, crítica, vencendo ou regular conforme janela de dias.'],
-    ['Renovação','O campo de renovação vem da base e é tratado como Sim/Não para filtro e análise.'],
-    ['Período','Quando o usuário seleciona data inicial/final, o painel prioriza o recorte por datas em vez de apenas mês fechado.']
+    ['Objetivo','Controlar licenças AET e antecipar documentos vencidos ou próximos do vencimento.'],
+    ['Origem dos dados','A base vem do controle de AET publicado no Google Sheets.'],
+    ['Como ler os status','A licença é classificada conforme a data de validade: regular, vencendo, crítica ou vencida.'],
+    ['Renovação','O painel separa o que já está marcado para renovação do que ainda precisa de tratativa.'],
+    ['Ponto de atenção','Licenças vencidas ou em janela crítica podem impactar liberação de transporte e devem ser tratadas antes da operação.']
   ],
   mat:[
-    ['Fonte','Controle de materiais de amarração e segurança carregado da base publicada.'],
-    ['Déficit','Um item entra como déficit quando o saldo calculado do material fica abaixo do mínimo esperado por frota/conjunto.'],
-    ['Itens em falta','Soma absoluta dos déficits identificados por tipo de material.'],
-    ['Regularidade','Frotas regulares são aquelas sem déficit no recorte filtrado.']
+    ['Objetivo','Mostrar se as frotas estão com os materiais mínimos de amarração e segurança para operar.'],
+    ['Origem dos dados','A leitura vem do controle de materiais informado pela operação.'],
+    ['Como ler o déficit','Déficit indica que a frota está abaixo do nível esperado para determinado material.'],
+    ['Itens em falta','O total de itens em falta soma todos os déficits identificados no recorte selecionado.'],
+    ['Ponto de atenção','Frotas com déficit devem ser regularizadas antes de novas programações para evitar risco operacional e bloqueio de atendimento.']
   ],
   pat:[
-    ['Fonte','Gestão de Pátio publicada via Google Sheets. O painel considera atividades operacionais dentro dos filtros selecionados.'],
-    ['Média por dia','Média de atividades = total de atividades do período dividido pela quantidade de dias analisados no recorte.'],
-    ['Comparativos','Período anterior equivalente usa a mesma duração imediatamente anterior ao recorte atual. Ano contra ano compara o mesmo intervalo no ano anterior.'],
-    ['Criticidade','Alta criticidade é lida diretamente do campo de criticidade da base e usada para sinalizar risco operacional.']
+    ['Objetivo','Acompanhar o volume de atividades de pátio, pendências e concentração de criticidade.'],
+    ['Origem dos dados','As atividades vêm da base de Gestão de Pátio publicada no Google Sheets.'],
+    ['Média diária','Mostra a intensidade operacional do período: quantidade de atividades dividida pelos dias analisados.'],
+    ['Comparativos','O painel compara o período atual com um período anterior de mesma duração e com o mesmo período do ano anterior.'],
+    ['Ponto de atenção','Alta criticidade e aumento relevante de pendências indicam necessidade de reforço operacional ou revisão de prioridade.']
   ],
   inef:[
-    ['Fonte','Controle de Ineficiências Operacionais (diárias), com leitura por frota, cliente, status, cobrança, motivo, transportador e período.'],
-    ['Ocorrências','Total de ocorrências corresponde às linhas filtradas da base.'],
-    ['Valores','Valor total, pendente de cobrança e faturado são somados a partir dos campos financeiros disponíveis na base.'],
-    ['Evolução','A evolução mensal/semanal agrupa os registros pela data da ocorrência dentro do recorte ativo.']
+    ['Objetivo','Dar visibilidade às diárias e ineficiências que geram custo, cobrança ou perda operacional.'],
+    ['Origem dos dados','A base vem do controle diário de ineficiências operacionais.'],
+    ['Como ler os totais','Cada ocorrência representa um registro filtrado da base. Os valores consolidam o que está totalizado, pendente de cobrança ou faturado.'],
+    ['Evolução','A visão mensal ou semanal mostra quando as ineficiências se concentraram dentro do período selecionado.'],
+    ['Ponto de atenção','Clientes, motivos ou transportadores recorrentes ajudam a identificar causa raiz e oportunidade de redução de custo.']
   ],
   prog:[
-    ['Fonte','Programação Logística Semanal - MKT & LOG, consolidada pelas semanas publicadas via GID.'],
-    ['Taxa de aderência','Aderência = pontos de execução / total programado. Realizado vale 1 ponto, Parcial vale 0,5 ponto e Pendente/Não Realizado vale 0.'],
-    ['Disponibilidade','Disponíveis, em manutenção e sem previsão são calculados pela leitura do status atual dos conjuntos programados.'],
-    ['Cargas por frota','As cargas são vinculadas à programação pela frota e agregadas em entregues, em trânsito e pendentes de carregamento.'],
-    ['Extras e ocorrências','Extras programadas são demandas adicionadas depois da programação. Ocorrências são eventos fora da programação, como desvios, acidentes ou impedimentos.']
+    ['Objetivo','Acompanhar se a programação semanal está executável e se as cargas estão avançando conforme o planejado.'],
+    ['Origem dos dados','As semanas vêm da planilha Programação Logística Semanal - MKT & LOG.'],
+    ['Aderência','Mostra o quanto da programação foi cumprido. Realizado conta como atendimento completo, parcial conta metade e pendente/não realizado não conta aderência.'],
+    ['Disponibilidade','Indica se os conjuntos programados estão disponíveis, em manutenção ou sem previsão para atendimento.'],
+    ['Extras e ocorrências','Extras são demandas incluídas depois da programação. Ocorrências são eventos fora do plano e devem ser lidas separadamente.'],
+    ['Ponto de atenção','Muita manutenção sobre o total programado ou muitas cargas pendentes elevam o risco de atendimento da semana.']
   ],
   efl:[
-    ['Fonte','Relatório de Eficiência Logística consolidado por abas mensais publicadas via Google Sheets.'],
-    ['KM carregado/vazio','O painel identifica KM carregado e KM vazio pelos campos de informação da linha e soma os quilômetros válidos.'],
-    ['% carregado','Percentual carregado = KM carregado / KM total. KM total = KM carregado + KM vazio.'],
-    ['Consolidação','O ranking por frota consolida todos os meses selecionados. A coluna Mês no detalhamento preserva a origem mensal da linha.']
+    ['Objetivo','Avaliar a eficiência de rodagem das frotas, separando KM produtivo e KM vazio.'],
+    ['Origem dos dados','O painel consolida as abas mensais publicadas no Relatório de Eficiência Logística.'],
+    ['KM carregado e vazio','KM carregado representa rodagem com carga. KM vazio representa deslocamento sem carga e deve ser acompanhado como oportunidade de eficiência.'],
+    ['% carregado','Indica a participação do KM carregado no total rodado. Quanto maior, melhor tende a ser o aproveitamento operacional.'],
+    ['Ponto de atenção','Frotas com alto KM vazio ou baixa participação de KM carregado precisam de análise de rota, programação ou retorno.']
   ],
   rpd:[
-    ['Fonte','Relatório de Frotas em Manutenção (RPD), com filtros de tipo, status, impacto, mês, ano e período.'],
-    ['Frotas em manutenção','No cenário atual, considera frotas com status diferente de OP, conforme regra operacional adotada no painel.'],
-    ['Dias parado','Dias parado usa a diferença entre a data de parada e a data de referência/liberação disponível no registro.'],
-    ['Impacto no cliente','Impacto é lido do campo próprio da base e usado para separar frotas com reflexo direto no atendimento.']
+    ['Objetivo','Monitorar frotas paradas, tempo de manutenção e impacto potencial no atendimento ao cliente.'],
+    ['Origem dos dados','As informações vêm do Relatório de Frotas em Manutenção (RPD).'],
+    ['Cenário atual','Considera como frota em manutenção aquilo que não está operacional no status atual da base.'],
+    ['Dias parado','Mostra há quanto tempo a frota está parada, usando as datas registradas no controle.'],
+    ['Ponto de atenção','Frotas com muitos dias paradas, manutenção corretiva ou impacto no cliente devem ser acompanhadas com prioridade.']
   ],
   exec:[
-    ['Fonte','Resumo Executivo consolida leituras dos painéis de Mobilizações, Programação Logística e Relatório de Eficiência Logística.'],
-    ['Mobilizações atuais','Mostra pendências por unidade, cliente e frota, usando o avanço e os totais de cargas do controle de mobilizações.'],
-    ['Programação semanal','Aponta exposição operacional pela proporção de conjuntos em manutenção sobre o total programado da semana ativa.'],
-    ['Ineficiências D-1','Usa a leitura do dia anterior no relatório de eficiência para status AC, AD, DOC F e MNT, além de baixa rodagem abaixo de 350 km/dia.']
+    ['Objetivo','Concentrar os principais alertas gerenciais em uma única leitura rápida.'],
+    ['Origem dos dados','Consolida informações de Mobilizações, Programação Logística e Eficiência Logística.'],
+    ['Mobilizações','Mostra pendências por unidade, cliente e frota, com visão do avanço e das cargas relacionadas.'],
+    ['Programação','Evidencia risco da semana quando há muitos conjuntos programados sem condição de atendimento.'],
+    ['Ineficiência operacional','Destaca sinais do dia anterior, incluindo status críticos e baixa rodagem diária.'],
+    ['Ponto de atenção','A leitura gerencial deve orientar prioridade de ação, não substituir a análise detalhada de cada painel.']
   ],
   fatprev:[
-    ['Fonte','Painel reservado para base futura de faturamento via Google Sheets.'],
-    ['Situação atual','Sem dados publicados; por isso o painel permanece indisponível/escurecido.'],
-    ['Premissa futura','Quando a base for conectada, os indicadores deverão respeitar filtros de período, cliente, status de cobrança e valores.']
+    ['Objetivo','Reservar a visão futura de faturamento antes da entrada oficial da base.'],
+    ['Situação atual','Ainda não há dados conectados; por isso o painel permanece indisponível.'],
+    ['Leitura futura','Quando a base for publicada, a prévia deve mostrar valores por período, cliente, status de cobrança e condição de faturamento.'],
+    ['Ponto de atenção','Até a conexão da base, nenhuma decisão financeira deve ser tomada a partir desta aba.']
   ]
 };
 
 function premiseEsc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function premiseHtml(data){
+  return '<div class="premise-list">'+data.map(([k,v])=>`<div class="premise-item"><div class="premise-k">${premiseEsc(k)}</div><div class="premise-v">${premiseEsc(v)}</div></div>`).join('')+'</div>';
+}
 function updatePremiseButton(id){
   const btn=document.getElementById('premiseBtn');
   if(btn)btn.style.display=panelPremises[id]?'flex':'none';
+  hidePremiseTooltip();
 }
 function openPremises(){
   const data=panelPremises[currentPanelId]||[];
@@ -1772,12 +1839,29 @@ function openPremises(){
   const body=document.getElementById('premiseModalBody');
   if(!overlay||!title||!body||!data.length)return;
   title.textContent='Premissas · '+(pages[currentPanelId]?.t||'Painel');
-  body.innerHTML='<div class="premise-list">'+data.map(([k,v])=>`<div class="premise-item"><div class="premise-k">${premiseEsc(k)}</div><div class="premise-v">${premiseEsc(v)}</div></div>`).join('')+'</div>';
+  body.innerHTML=premiseHtml(data);
   overlay.classList.add('open');
 }
 function closePremises(){
   const overlay=document.getElementById('premiseOverlay');
   if(overlay)overlay.classList.remove('open');
+}
+let premiseTooltipTimer=null;
+function showPremiseTooltip(){
+  clearTimeout(premiseTooltipTimer);
+  const data=panelPremises[currentPanelId]||[];
+  const tip=document.getElementById('premiseTooltip');
+  if(!tip||!data.length)return;
+  tip.innerHTML=`<div class="premise-tooltip-title">Premissas · ${premiseEsc(pages[currentPanelId]?.t||'Painel')}</div>${premiseHtml(data)}<div class="premise-tooltip-hint">Clique no i para manter esta leitura aberta.</div>`;
+  tip.classList.add('open');
+}
+function scheduleHidePremiseTooltip(){
+  premiseTooltipTimer=setTimeout(hidePremiseTooltip,140);
+}
+function hidePremiseTooltip(){
+  clearTimeout(premiseTooltipTimer);
+  const tip=document.getElementById('premiseTooltip');
+  if(tip)tip.classList.remove('open');
 }
 
 function goTo(id){
@@ -1799,7 +1883,7 @@ function goTo(id){
     if(id==='rpd'&&rpdData.length>0){if(rpdChart){rpdChart.destroy();rpdChart=null;}renderRPD();}
     if(id==='prog'&&progSheetsData.length>0){if(progStatusChart){progStatusChart.destroy();progStatusChart=null;}if(progClientChart){progClientChart.destroy();progClientChart=null;}if(progLoadChart){progLoadChart.destroy();progLoadChart=null;}renderPROG();}
     if(id==='mat'&&matData.length>0){if(mAC){mAC.destroy();mAC=null;}renderMAT();}
-    if(id==='exec'){renderEXEC();}
+    if(id==='exec'){setExecTab(execActiveTab||'overview');renderEXEC();}
   },50);
 }
 
@@ -2253,6 +2337,17 @@ function execTagClass(level){
 function execStatusKey(v){
   return String(v==null?'':v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
 }
+let execActiveTab='overview';
+function setExecTab(tab){
+  execActiveTab=tab;
+  ['overview','mob','prog','inef','actions'].forEach(k=>{
+    const btn=document.getElementById('execTab'+(k==='mob'?'Mob':k==='prog'?'Prog':k==='inef'?'Inef':k==='actions'?'Actions':'Overview'));
+    const body=document.getElementById('execContent'+(k==='mob'?'Mob':k==='prog'?'Prog':k==='inef'?'Inef':k==='actions'?'Actions':'Overview'));
+    if(btn)btn.classList.toggle('on',k===tab);
+    if(body)body.classList.toggle('active',k===tab);
+  });
+  requestAnimationFrame(refreshTableScrollbars);
+}
 function execParseSheetDate(label){
   const parts=String(label||'').trim().split(/[\/\-]/);
   if(parts.length<3)return null;
@@ -2313,6 +2408,8 @@ function renderEXEC(){
   const progEntregues=progLoads.reduce((s,r)=>s+(r.entregues||0),0);
   const progPendCarga=progLoads.reduce((s,r)=>s+(r.pendente||0),0);
   const progTransCarga=progLoads.reduce((s,r)=>s+(r.emTransito||0),0);
+  const progTotalCargas=progLoads.reduce((s,r)=>s+(r.cargas||0),0);
+  const progTaxaEntrega=progTotalCargas?progEntregues/progTotalCargas*100:0;
   const progBarsData=[
     ['Disponíveis',progDisp,'var(--green)'],
     ['Em manutenção',progMaint,'var(--red)'],
@@ -2346,6 +2443,11 @@ function renderEXEC(){
 
   const riskLevel=progRiskPct>=60?'critico':progRiskPct>=35?'atencao':'positivo';
   const ineffTotal=inefCounts.reduce((s,r)=>s+r.count,0)+lowKmRows.length;
+  const eflTotKm=eflData.reduce((s,r)=>s+(r.kmTotal||0),0);
+  const eflCarreg=eflData.reduce((s,r)=>s+(r.kmCarreg||0),0);
+  const eflPctCarreg=eflTotKm?eflCarreg/eflTotKm*100:0;
+  const patTotal=patData.length;
+  const patAlta=patData.filter(r=>r.crit==='ALTA').length;
 
   set('execK0',mobOpen.length);
   set('execK0s',(mobData.length?execPct(mobOpen.length/mobData.length*100):'0,0%')+' da base de mobilização');
@@ -2447,6 +2549,43 @@ body:lowKmRows.length?`${lowKmRows.length} frotas rodaram abaixo de 350 km/dia n
       <span class="tag ${execTagClass(a.level)}">${execEsc(a.level)}</span>
     </div>
     <div class="exec-alert-body">${a.body}</div>
+  </div>`).join(''));
+
+  set('execRadarTag',new Date().toLocaleDateString('pt-BR'));
+  html('execRadar',`
+    <div class="exec-heat-card"><div class="exec-heat-k">Mobilizações Pendentes</div><div class="exec-heat-v">${mobOpen.length}</div><div class="exec-heat-s">${mobData.length?execPct(mobOpen.length/mobData.length*100):'0,0%'} da base</div></div>
+    <div class="exec-heat-card"><div class="exec-heat-k">Entrega da Programação</div><div class="exec-heat-v">${execPct(progTaxaEntrega)}</div><div class="exec-heat-s">${progEntregues} de ${progTotalCargas} cargas</div></div>
+    <div class="exec-heat-card"><div class="exec-heat-k">KM Carregado</div><div class="exec-heat-v">${execPct(eflPctCarreg)}</div><div class="exec-heat-s">${eflTotKm.toLocaleString('pt-BR')} km analisados</div></div>
+    <div class="exec-heat-card"><div class="exec-heat-k">Pátio Alta Criticidade</div><div class="exec-heat-v">${patAlta}</div><div class="exec-heat-s">${patTotal?execPct(patAlta/patTotal*100):'0,0%'} das atividades</div></div>
+  `);
+
+  const priorities=[
+    {
+      level:riskLevel,
+      title:'Programação semanal',
+      body:progTotal?`Validar plano de atendimento da ${activeProg.week}: ${progMaint} conjuntos em manutenção e ${progPendCarga} cargas pendentes.`:'Conectar/atualizar a programação semanal para leitura de risco.'
+    },
+    {
+      level:mobOpen.length>=10?'atencao':'positivo',
+      title:'Mobilizações pendentes',
+      body:mobOpen.length?`Priorizar ${mobOpen.length} mobilizações abertas, começando por alta criticidade, SLA atrasado e maior volume de cargas em aberto.`:'Sem pendência relevante de mobilização no recorte atual.'
+    },
+    {
+      level:lowKmRows.length>=5||inefCounts.reduce((s,r)=>s+r.count,0)>=5?'critico':ineffTotal?'atencao':'positivo',
+      title:'Ineficiência operacional D-1',
+      body:ineffTotal?`Investigar ${ineffTotal} sinais de ineficiência no D-1, incluindo baixa rodagem e status AC/AD/DOC F/MNT.`:'Sem alerta operacional crítico no D-1.'
+    },
+    {
+      level:eflPctCarreg<60&&eflTotKm?'atencao':'positivo',
+      title:'Eficiência de KM',
+      body:eflTotKm?`Acompanhar aproveitamento de KM carregado em ${execPct(eflPctCarreg)}. Baixa participação pode indicar retorno vazio ou roteirização ruim.`:'Sem base suficiente de eficiência logística para consolidar KM.'
+    }
+  ];
+  set('execPriorityTag',priorities.filter(p=>p.level!=='positivo').length+' alertas');
+  html('execPriorities',priorities.map((p,i)=>`<div class="exec-priority-item">
+    <div class="exec-priority-rank">${i+1}</div>
+    <div class="exec-priority-main"><div class="exec-priority-title">${execEsc(p.title)}</div><div class="exec-priority-body">${execEsc(p.body)}</div></div>
+    <span class="tag ${execTagClass(p.level)}">${execEsc(p.level)}</span>
   </div>`).join(''));
 
   set('execDtlCnt',criticalRows.length+' registros');
@@ -4702,6 +4841,7 @@ updatePremiseButton(currentPanelId);
     <div class="obs-modal-body" id="premiseModalBody" style="max-height:460px"></div>
   </div>
 </div>
+<div class="premise-tooltip" id="premiseTooltip" onmouseenter="showPremiseTooltip()" onmouseleave="scheduleHidePremiseTooltip()"></div>
 </body>
 </html>
 
