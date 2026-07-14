@@ -1633,20 +1633,19 @@ tbody tr:hover td{background:var(--surface2)}
       <div class="exec-panel">
         <div class="exec-tabs">
           <button class="ftag on" id="execTabOverview" onclick="setExecTab('overview')">Visão Geral</button>
-          <button class="ftag" id="execTabMob" onclick="setExecTab('mob')">Mobilizações</button>
-          <button class="ftag" id="execTabProg" onclick="setExecTab('prog')">Programação</button>
-          <button class="ftag" id="execTabInef" onclick="setExecTab('inef')">Ineficiência</button>
+          <button class="ftag" id="execTabMob" onclick="setExecTab('mob')">Transporte</button>
+          <button class="ftag" id="execTabProg" onclick="setExecTab('prog')">Logística</button>
+          <button class="ftag" id="execTabInef" onclick="setExecTab('inef')">Eficiência e Custos</button>
           <button class="ftag" id="execTabActions" onclick="setExecTab('actions')">Ações e Prioridades</button>
         </div>
 
-        <div class="kpi-row exec-kpis">
-          <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Mobilizações Pendentes</div><div class="kpi-value" id="execK0">—</div><div class="kpi-sub" id="execK0s"> </div></div>
-          <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Cargas Entregues</div><div class="kpi-value" id="execK1">—</div><div class="kpi-sub" id="execK1s"> </div></div>
-          <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Risco na Programação</div><div class="kpi-value" id="execK2">—</div><div class="kpi-sub" id="execK2s"> </div></div>
-          <div class="kpi c-blue"><div class="kpi-stripe"></div><div class="kpi-label">Ineficiências D-1</div><div class="kpi-value" id="execK3">—</div><div class="kpi-sub" id="execK3s"> </div></div>
-        </div>
-
         <div class="exec-tab-content active" id="execContentOverview">
+          <div class="kpi-row exec-kpis">
+            <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Mobilizações Pendentes</div><div class="kpi-value" id="execK0">—</div><div class="kpi-sub" id="execK0s"> </div></div>
+            <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Cargas Pendentes</div><div class="kpi-value" id="execK1">—</div><div class="kpi-sub" id="execK1s"> </div></div>
+            <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Risco na Programação</div><div class="kpi-value" id="execK2">—</div><div class="kpi-sub" id="execK2s"> </div></div>
+            <div class="kpi c-blue"><div class="kpi-stripe"></div><div class="kpi-label">Ineficiências D-1</div><div class="kpi-value" id="execK3">—</div><div class="kpi-sub" id="execK3s"> </div></div>
+          </div>
           <div class="exec-overview-grid">
             <div class="card exec-card">
               <div class="card-head"><span class="card-title">Leitura Gerencial</span><span class="count-tag">visão consolidada</span></div>
@@ -1660,6 +1659,10 @@ tbody tr:hover td{background:var(--surface2)}
         </div>
 
         <div class="exec-tab-content" id="execContentMob">
+          <div class="card exec-card" style="margin-bottom:20px">
+            <div class="card-head"><span class="card-title">Radar de Transporte</span><span class="count-tag">mobilização · AET · RPD</span></div>
+            <div class="exec-heat-grid" id="execTransportRadar"></div>
+          </div>
           <div class="card exec-card">
             <div class="card-head"><span class="card-title">Mobilizações Atuais</span><span class="count-tag" id="execMobTag">0 unidades</span></div>
             <div class="kv" id="execMobStats" style="margin-top:14px"></div>
@@ -1669,6 +1672,10 @@ tbody tr:hover td{background:var(--surface2)}
         </div>
 
         <div class="exec-tab-content" id="execContentProg">
+          <div class="card exec-card" style="margin-bottom:20px">
+            <div class="card-head"><span class="card-title">Radar de Logística</span><span class="count-tag">programação · pátio · materiais</span></div>
+            <div class="exec-heat-grid" id="execLogRadar"></div>
+          </div>
           <div class="card exec-card">
             <div class="card-head"><span class="card-title">Programação Semanal</span><span class="count-tag" id="execProgTag">semana ativa</span></div>
             <div class="bar-list" id="execProgBars"></div>
@@ -1678,6 +1685,10 @@ tbody tr:hover td{background:var(--surface2)}
         </div>
 
         <div class="exec-tab-content" id="execContentInef">
+          <div class="card exec-card" style="margin-bottom:20px">
+            <div class="card-head"><span class="card-title">Radar de Eficiência e Custos</span><span class="count-tag">KM · diárias · cobrança</span></div>
+            <div class="exec-heat-grid" id="execEffRadar"></div>
+          </div>
           <div class="card exec-card">
             <div class="card-head"><span class="card-title">Ineficiências Operacionais</span><span class="count-tag" id="execInefTag">D-1</span></div>
             <div class="bar-list" id="execInefBars"></div>
@@ -2370,6 +2381,8 @@ function renderEXEC(){
   const mobEntregues=mobData.reduce((s,r)=>s+(r.nEntreg||0),0);
   const mobTransito=mobData.reduce((s,r)=>s+(r.nTransit||0),0);
   const mobCarreg=mobData.reduce((s,r)=>s+(r.nCarreg||0),0);
+  const mobRiskRows=mobOpen.filter(r=>r.sla==='AT'||r.crit==='ALTA'||Math.max((r.nCarg||0)-(r.nCarreg||0)-(r.nTransit||0)-(r.nEntreg||0),0)>0);
+  const mobPendingCargas=mobOpen.reduce((s,r)=>s+Math.max((r.nCarg||0)-(r.nCarreg||0)-(r.nTransit||0)-(r.nEntreg||0),0),0);
   const mobTree={};
   const mobProgressRows=mobOpen
     .map(r=>({
@@ -2410,6 +2423,7 @@ function renderEXEC(){
   const progTransCarga=progLoads.reduce((s,r)=>s+(r.emTransito||0),0);
   const progTotalCargas=progLoads.reduce((s,r)=>s+(r.cargas||0),0);
   const progTaxaEntrega=progTotalCargas?progEntregues/progTotalCargas*100:0;
+  const progServiceRisk=progMaint+progPendCarga+progOccs.length;
   const progBarsData=[
     ['Disponíveis',progDisp,'var(--green)'],
     ['Em manutenção',progMaint,'var(--red)'],
@@ -2432,8 +2446,8 @@ function renderEXEC(){
     {label:'MNT',match:k=>k.includes('MNT')||k.includes('MC')||k.includes('MP')||k.includes('RF')}
   ];
   const inefCounts=inefStatusDefs.map(def=>({label:def.label,count:eflD1.filter(r=>def.match(r.cond)).length}));
-  const lowKmRows=eflD1.filter(r=>r.km>0&&r.km<350).sort((a,b)=>a.km-b.km);
-  const criticalRows=eflD1.filter(r=>inefStatusDefs.some(def=>def.match(r.cond))||r.km>0&&r.km<350)
+  const lowKmRows=eflD1.filter(r=>r.km>0&&r.km<350&&r.cond.includes('OP')).sort((a,b)=>a.km-b.km);
+  const criticalRows=eflD1.filter(r=>inefStatusDefs.some(def=>def.match(r.cond))||(r.km>0&&r.km<350&&r.cond.includes('OP')))
     .sort((a,b)=>{
       const aCrit=(a.km>0&&a.km<350)?1:0;
       const bCrit=(b.km>0&&b.km<350)?1:0;
@@ -2441,18 +2455,34 @@ function renderEXEC(){
     });
   const inefBarMax=Math.max(...inefCounts.map(x=>x.count),1);
 
-  const riskLevel=progRiskPct>=60?'critico':progRiskPct>=35?'atencao':'positivo';
+  const riskLevel=progRiskPct>=60||progOccs.length>=3?'critico':progRiskPct>=35||progPendCarga>0||progOccs.length>0?'atencao':'positivo';
   const ineffTotal=inefCounts.reduce((s,r)=>s+r.count,0)+lowKmRows.length;
   const eflTotKm=eflData.reduce((s,r)=>s+(r.kmTotal||0),0);
   const eflCarreg=eflData.reduce((s,r)=>s+(r.kmCarreg||0),0);
   const eflPctCarreg=eflTotKm?eflCarreg/eflTotKm*100:0;
   const patTotal=patData.length;
-  const patAlta=patData.filter(r=>r.crit==='ALTA').length;
+  const patOpen=patData.filter(r=>r.status==='PENDENTE'||r.status==='EM ANDAMENTO');
+  const patCriticalOpen=patOpen.filter(r=>r.crit==='ALTA');
+  const patAlta=patCriticalOpen.length;
+  const patPend=patOpen.length;
+  const aetVencidas=aetData.filter(r=>r.sem==='V').length;
+  const aetCriticas=aetData.filter(r=>r.sem==='C5'||r.sem==='C15').length;
+  const rpdMaintRows=rpdData.filter(r=>!rpdIsOP(r.status));
+  const rpdImpactRows=rpdMaintRows.filter(r=>r.impacto==='SIM');
+  const rpdMaint=rpdMaintRows.length;
+  const rpdImpacto=rpdImpactRows.length;
+  const matDef=matData.filter(r=>r.status==='DEFICIT').length;
+  const matFalta=matData.reduce((s,r)=>{['dCor','dTen','dCin','dCat'].forEach(k=>{if(r[k]!==null&&r[k]<0)s+=Math.abs(r[k]);});return s;},0);
+  const inefPendenteRows=inefData.filter(r=>String(r.cobr||'').includes('PENDENTE'));
+  const inefTotal=inefPendenteRows.length;
+  const inefValorTotal=inefData.reduce((s,r)=>s+(r.vlTotal||0),0);
+  const inefValorPendente=inefPendenteRows.reduce((s,r)=>s+(r.vlTotal||0),0);
+  const execLiveRiskTotal=mobRiskRows.length+progServiceRisk+patAlta+aetVencidas+aetCriticas+rpdImpacto+matDef+lowKmRows.length+inefPendenteRows.length;
 
   set('execK0',mobOpen.length);
-  set('execK0s',(mobData.length?execPct(mobOpen.length/mobData.length*100):'0,0%')+' da base de mobilização');
-  set('execK1',mobEntregues);
-  set('execK1s',mobCarreg+' em carregamento · '+mobTransito+' em trânsito');
+  set('execK0s',mobRiskRows.length+' com risco vivo');
+  set('execK1',mobPendingCargas+progPendCarga);
+  set('execK1s',progPendCarga+' programação · '+mobPendingCargas+' mobilização');
   set('execK2',execPct(progRiskPct));
   set('execK2s',progMaint+' de '+progTotal+' conjuntos em manutenção');
   set('execK3',ineffTotal);
@@ -2523,14 +2553,14 @@ function renderEXEC(){
     <div class="kv-item"><div class="kv-k">Fonte</div><div class="kv-v">Rel. Eficiência</div></div>
   `);
   html('execInefText',eflD1.length
-?`No D-1 de <strong>${yesterday.toLocaleDateString('pt-BR')}</strong>, o painel encontrou <strong>${inefCounts.reduce((s,r)=>s+r.count,0)}</strong> apontamentos nos status críticos monitorados e <strong>${lowKmRows.length}</strong> frotas com rodagem abaixo de 350 km/dia.`
+?`No D-1 de <strong>${yesterday.toLocaleDateString('pt-BR')}</strong>, o painel encontrou <strong>${inefCounts.reduce((s,r)=>s+r.count,0)}</strong> apontamentos nos status críticos monitorados e <strong>${lowKmRows.length}</strong> frotas operacionais com rodagem abaixo de 350 km/dia.`
 :'Sem leitura de D-1 disponível no Relatório de Eficiência Logística.');
 
   const alerts=[
     {
 title:'Mobilização',
-      level:mobOpen.length>=10?'atencao':'positivo',
-body:mobProgressRows.length?`A leitura atual prioriza unidade, cliente e frota para localizar mais rápido as mobilizações pendentes. Exemplo: ${mobProgressRows[0].und} / ${mobProgressRows[0].cliente} / ${mobProgressRows[0].frota}, com ${mobProgressRows[0].pct}% de avanço.`:'Sem mobilizações pendentes relevantes no momento.'
+      level:mobRiskRows.length>=10?'critico':mobRiskRows.length?'atencao':'positivo',
+body:mobRiskRows.length?`${mobRiskRows.length} mobilizações abertas exigem atenção por SLA atrasado, alta criticidade ou carga pendente. A visão detalhada permanece organizada por unidade, cliente e frota.`:'Sem mobilização aberta com risco vivo relevante no momento.'
     },
     {
       title:'Programação',
@@ -2540,7 +2570,7 @@ body:progTotal?`${execPct(progRiskPct)} da programação semanal está em manute
     {
       title:'Ineficiência',
       level:lowKmRows.length>=5||inefCounts.reduce((s,r)=>s+r.count,0)>=5?'critico':ineffTotal?'atencao':'positivo',
-body:lowKmRows.length?`${lowKmRows.length} frotas rodaram abaixo de 350 km/dia no D-1. Prioridade imediata para validar causa operacional e status AC/AD/DOC F/MNT.`:'Sem frota crítica por baixa rodagem no D-1.'
+body:lowKmRows.length?`${lowKmRows.length} frotas operacionais rodaram abaixo de 350 km/dia no D-1. Prioridade imediata para validar causa operacional e oportunidade de melhor aproveitamento.`:'Sem frota operacional crítica por baixa rodagem no D-1.'
     }
   ];
   html('execAlerts',alerts.map(a=>`<div class="exec-alert">
@@ -2553,36 +2583,70 @@ body:lowKmRows.length?`${lowKmRows.length} frotas rodaram abaixo de 350 km/dia n
 
   set('execRadarTag',new Date().toLocaleDateString('pt-BR'));
   html('execRadar',`
-    <div class="exec-heat-card"><div class="exec-heat-k">Mobilizações Pendentes</div><div class="exec-heat-v">${mobOpen.length}</div><div class="exec-heat-s">${mobData.length?execPct(mobOpen.length/mobData.length*100):'0,0%'} da base</div></div>
-    <div class="exec-heat-card"><div class="exec-heat-k">Entrega da Programação</div><div class="exec-heat-v">${execPct(progTaxaEntrega)}</div><div class="exec-heat-s">${progEntregues} de ${progTotalCargas} cargas</div></div>
+    <div class="exec-heat-card"><div class="exec-heat-k">Riscos Vivos</div><div class="exec-heat-v">${execLiveRiskTotal}</div><div class="exec-heat-s">itens abertos/acionáveis no resumo</div></div>
+    <div class="exec-heat-card"><div class="exec-heat-k">Mobilizações em Risco</div><div class="exec-heat-v">${mobRiskRows.length}</div><div class="exec-heat-s">${mobOpen.length} mobilizações abertas no total</div></div>
+    <div class="exec-heat-card"><div class="exec-heat-k">Risco Programação</div><div class="exec-heat-v">${execPct(progRiskPct)}</div><div class="exec-heat-s">${progPendCarga} cargas pendentes · ${progOccs.length} ocorrências</div></div>
+    <div class="exec-heat-card"><div class="exec-heat-k">Pátio Crítico Pendente</div><div class="exec-heat-v">${patAlta}</div><div class="exec-heat-s">${patPend} tarefas abertas no pátio</div></div>
+  `);
+  html('execTransportRadar',`
+    <div class="exec-heat-card"><div class="exec-heat-k">Mobilizações em Risco</div><div class="exec-heat-v">${mobRiskRows.length}</div><div class="exec-heat-s">SLA, criticidade ou cargas em aberto</div></div>
+    <div class="exec-heat-card"><div class="exec-heat-k">AET em Risco</div><div class="exec-heat-v">${aetVencidas+aetCriticas}</div><div class="exec-heat-s">${aetVencidas} vencidas · ${aetCriticas} críticas/atenção</div></div>
+    <div class="exec-heat-card"><div class="exec-heat-k">Manutenção com Impacto</div><div class="exec-heat-v">${rpdImpacto}</div><div class="exec-heat-s">${rpdMaint} frotas não operacionais</div></div>
+    <div class="exec-heat-card"><div class="exec-heat-k">Cargas Pendentes</div><div class="exec-heat-v">${mobPendingCargas}</div><div class="exec-heat-s">em mobilizações abertas ou em fluxo</div></div>
+  `);
+  html('execLogRadar',`
+    <div class="exec-heat-card"><div class="exec-heat-k">Conjuntos Programados</div><div class="exec-heat-v">${progTotal}</div><div class="exec-heat-s">${progMaint} em manutenção · ${progDisp} disponíveis</div></div>
+    <div class="exec-heat-card"><div class="exec-heat-k">Extras Programadas</div><div class="exec-heat-v">${progExtras.length}</div><div class="exec-heat-s">${progOccs.length} ocorrências abertas</div></div>
+    <div class="exec-heat-card"><div class="exec-heat-k">Pátio Crítico Aberto</div><div class="exec-heat-v">${patAlta}</div><div class="exec-heat-s">${patPend} tarefas pendentes/andamento</div></div>
+    <div class="exec-heat-card"><div class="exec-heat-k">Materiais com Déficit</div><div class="exec-heat-v">${matDef}</div><div class="exec-heat-s">${matFalta} itens em falta</div></div>
+  `);
+  html('execEffRadar',`
     <div class="exec-heat-card"><div class="exec-heat-k">KM Carregado</div><div class="exec-heat-v">${execPct(eflPctCarreg)}</div><div class="exec-heat-s">${eflTotKm.toLocaleString('pt-BR')} km analisados</div></div>
-    <div class="exec-heat-card"><div class="exec-heat-k">Pátio Alta Criticidade</div><div class="exec-heat-v">${patAlta}</div><div class="exec-heat-s">${patTotal?execPct(patAlta/patTotal*100):'0,0%'} das atividades</div></div>
+    <div class="exec-heat-card"><div class="exec-heat-k">KM Vazio</div><div class="exec-heat-v">${eflTotKm?execPct((eflTotKm-eflCarreg)/eflTotKm*100):'0,0%'}</div><div class="exec-heat-s">${Math.max(eflTotKm-eflCarreg,0).toLocaleString('pt-BR')} km vazios</div></div>
+    <div class="exec-heat-card"><div class="exec-heat-k">Cobranças Pendentes</div><div class="exec-heat-v">${inefTotal}</div><div class="exec-heat-s">${fMoney(inefValorTotal)} em registros totais</div></div>
+    <div class="exec-heat-card"><div class="exec-heat-k">Pendente Cobrança</div><div class="exec-heat-v">${fMoney(inefValorPendente)}</div><div class="exec-heat-s">controle de ineficiências</div></div>
   `);
 
   const priorities=[
     {
       level:riskLevel,
       title:'Programação semanal',
-      body:progTotal?`Validar plano de atendimento da ${activeProg.week}: ${progMaint} conjuntos em manutenção e ${progPendCarga} cargas pendentes.`:'Conectar/atualizar a programação semanal para leitura de risco.'
+      body:progTotal?`Validar plano de atendimento da ${activeProg.week}: ${progMaint} conjuntos sem condição plena por manutenção e ${progPendCarga} cargas pendentes de carregamento.`:'Conectar/atualizar a programação semanal para leitura de risco.'
     },
     {
-      level:mobOpen.length>=10?'atencao':'positivo',
-      title:'Mobilizações pendentes',
-      body:mobOpen.length?`Priorizar ${mobOpen.length} mobilizações abertas, começando por alta criticidade, SLA atrasado e maior volume de cargas em aberto.`:'Sem pendência relevante de mobilização no recorte atual.'
+      level:mobRiskRows.length>=10?'critico':mobRiskRows.length?'atencao':'positivo',
+      title:'Mobilizações em risco',
+      body:mobRiskRows.length?`Priorizar ${mobRiskRows.length} mobilizações abertas com SLA atrasado, alta criticidade ou carga pendente.`:'Sem mobilização aberta com risco vivo no recorte atual.'
     },
     {
       level:lowKmRows.length>=5||inefCounts.reduce((s,r)=>s+r.count,0)>=5?'critico':ineffTotal?'atencao':'positivo',
       title:'Ineficiência operacional D-1',
-      body:ineffTotal?`Investigar ${ineffTotal} sinais de ineficiência no D-1, incluindo baixa rodagem e status AC/AD/DOC F/MNT.`:'Sem alerta operacional crítico no D-1.'
+      body:ineffTotal?`Investigar ${ineffTotal} sinais acionáveis no D-1: baixa rodagem em frota operacional e/ou status AC/AD/DOC F/MNT.`:'Sem alerta operacional crítico no D-1.'
     },
     {
-      level:eflPctCarreg<60&&eflTotKm?'atencao':'positivo',
+      level:eflPctCarreg<60&&eflTotKm&&lowKmRows.length?'atencao':'positivo',
       title:'Eficiência de KM',
-      body:eflTotKm?`Acompanhar aproveitamento de KM carregado em ${execPct(eflPctCarreg)}. Baixa participação pode indicar retorno vazio ou roteirização ruim.`:'Sem base suficiente de eficiência logística para consolidar KM.'
+      body:eflTotKm&&lowKmRows.length?`Acompanhar ${lowKmRows.length} frotas operacionais com baixa rodagem e aproveitamento carregado em ${execPct(eflPctCarreg)}.`:'Sem alerta operacional de baixa rodagem associado ao aproveitamento de KM.'
+    },
+    {
+      level:inefPendenteRows.length||inefValorPendente>0?'atencao':'positivo',
+      title:'Cobranças pendentes',
+      body:inefPendenteRows.length?`Tratar ${inefPendenteRows.length} registros pendentes de cobrança, somando ${fMoney(inefValorPendente)}.`:'Sem pendência de cobrança relevante no controle de ineficiências.'
+    },
+    {
+      level:aetVencidas||aetCriticas?'atencao':'positivo',
+      title:'AET e documentação',
+      body:aetVencidas||aetCriticas?`Regularizar ${aetVencidas} AET vencidas e acompanhar ${aetCriticas} em janela crítica/atenção.`:'Sem alerta relevante de AET vencida ou crítica.'
+    },
+    {
+      level:matDef||patAlta?'atencao':'positivo',
+      title:'Pátio e materiais',
+      body:matDef||patAlta?`Tratar ${matDef} frotas com déficit de material e ${patAlta} tarefas de pátio pendentes em alta criticidade.`:'Sem alerta relevante de pátio ou materiais.'
     }
-  ];
-  set('execPriorityTag',priorities.filter(p=>p.level!=='positivo').length+' alertas');
-  html('execPriorities',priorities.map((p,i)=>`<div class="exec-priority-item">
+  ].sort((a,b)=>({critico:0,atencao:1,positivo:2}[a.level]??3)-({critico:0,atencao:1,positivo:2}[b.level]??3));
+  const activePriorities=priorities.filter(p=>p.level!=='positivo');
+  set('execPriorityTag',activePriorities.length+' alertas');
+  html('execPriorities',(activePriorities.length?activePriorities:priorities.slice(0,3)).map((p,i)=>`<div class="exec-priority-item">
     <div class="exec-priority-rank">${i+1}</div>
     <div class="exec-priority-main"><div class="exec-priority-title">${execEsc(p.title)}</div><div class="exec-priority-body">${execEsc(p.body)}</div></div>
     <span class="tag ${execTagClass(p.level)}">${execEsc(p.level)}</span>
