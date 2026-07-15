@@ -916,12 +916,17 @@ tbody tr:hover td{background:var(--surface2)}
       <div id="matLoad" class="loading" style="display:none"><div class="spinner"></div><div class="loading-txt">carregando dados · materiais</div></div>
       <div id="matBody">
 
+        <div class="filter-bar-row" style="margin-bottom:16px;margin-top:4px">
+          <button class="ftag on" id="matViewTie" onclick="setMATView('tie')">Mat. de Amarração</button>
+          <button class="ftag" id="matViewSafety" onclick="setMATView('safety')">Mat. de Segurança</button>
+        </div>
+
         <div class="top-filter-bar">
           <span class="top-filter-bar-title">Filtros</span>
           <div class="filter-divider"></div>
           <div class="search-wrap" style="flex:1;min-width:160px;margin-bottom:0">
             <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" class="search-input" id="matSearch" placeholder="Buscar conjunto ou motorista..." oninput="renderMATtbl()">
+            <input type="text" class="search-input" id="matSearch" placeholder="Buscar conjunto ou motorista..." oninput="document.getElementById('matSearchBot').value=this.value;renderMATtbl()">
           </div>
           <div class="select-group"><label class="select-label">Tipo</label><select class="f-select" id="matTipo" onchange="renderMATtbl()"><option value="TODOS">Todos</option></select></div>
           <div class="select-group"><label class="select-label">Status</label><select class="f-select" id="matStatus" onchange="renderMATtbl()"><option value="TODOS">Todos</option><option value="DEFICIT">Déficit</option><option value="REGULAR">Regular</option><option value="EXCESSO">Excesso</option></select></div>
@@ -982,32 +987,7 @@ tbody tr:hover td{background:var(--surface2)}
           </div>
           <div class="tbl-wrap">
             <table style="table-layout:auto;border-collapse:collapse">
-              <thead>
-                <tr>
-                  <th rowspan="2" style="border:1px solid var(--border2);background:var(--surface2)">Conjunto</th>
-                  <th rowspan="2" style="border:1px solid var(--border2);background:var(--surface2)">Tipo</th>
-                  <th rowspan="2" style="border:1px solid var(--border2);background:var(--surface2)">Motorista</th>
-                  <th colspan="4" style="border:1px solid var(--border2);background:rgba(27,63,122,0.15);color:var(--makro-blue);text-align:center;font-family:'Montserrat',sans-serif">QUANTIDADE IDEAL</th>
-                  <th colspan="4" style="border:1px solid var(--border2);background:rgba(45,184,122,0.12);color:var(--green);text-align:center;font-family:'Montserrat',sans-serif">QUANTIDADE ATUAL</th>
-                  <th colspan="4" style="border:1px solid var(--border2);background:rgba(200,20,40,0.1);color:var(--accent);text-align:center;font-family:'Montserrat',sans-serif">DIFERENÇA</th>
-                  <th rowspan="2" style="border:1px solid var(--border2);background:var(--surface2)">Status</th>
-                  <th rowspan="2" style="border:1px solid var(--border2);background:var(--surface2)">Obs.</th>
-                </tr>
-                <tr>
-                  <th style="border:1px solid var(--border2);background:rgba(27,63,122,0.08);text-align:center">Corrente</th>
-                  <th style="border:1px solid var(--border2);background:rgba(27,63,122,0.08);text-align:center">Tensionador</th>
-                  <th style="border:1px solid var(--border2);background:rgba(27,63,122,0.08);text-align:center">Cinta</th>
-                  <th style="border:1px solid var(--border2);background:rgba(27,63,122,0.08);text-align:center">Catraca</th>
-                  <th style="border:1px solid var(--border2);background:rgba(45,184,122,0.06);text-align:center">Corrente</th>
-                  <th style="border:1px solid var(--border2);background:rgba(45,184,122,0.06);text-align:center">Tensionador</th>
-                  <th style="border:1px solid var(--border2);background:rgba(45,184,122,0.06);text-align:center">Cinta</th>
-                  <th style="border:1px solid var(--border2);background:rgba(45,184,122,0.06);text-align:center">Catraca</th>
-                  <th style="border:1px solid var(--border2);background:rgba(200,20,40,0.06);text-align:center">Corrente</th>
-                  <th style="border:1px solid var(--border2);background:rgba(200,20,40,0.06);text-align:center">Tensionador</th>
-                  <th style="border:1px solid var(--border2);background:rgba(200,20,40,0.06);text-align:center">Cinta</th>
-                  <th style="border:1px solid var(--border2);background:rgba(200,20,40,0.06);text-align:center">Catraca</th>
-                </tr>
-              </thead>
+              <thead id="matThead"></thead>
               <tbody id="matTbl"></tbody>
             </table>
           </div>
@@ -1478,7 +1458,7 @@ tbody tr:hover td{background:var(--surface2)}
           <div class="card" id="rpdImpactCard"><div class="card-head"><span class="card-title">Frotas por Cliente Impactado</span></div><div style="display:flex;gap:0;align-items:stretch;min-height:200px"><div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="position:relative;width:180px;height:180px"><canvas id="rpdImpactPie"></canvas></div></div><div style="width:1px;background:var(--border);margin:0 16px;flex-shrink:0"></div><div class="legend" id="rpdImpactLeg" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px"></div></div></div>
         </div>
 
-        <!-- CENáRIO ATUAL: Total de Dias Parados por Frota -->
+        <!-- CENÁRIO ATUAL: Total de Dias Parados por Frota -->
         <div class="card" id="rpdDiasCurrentCard" style="margin-bottom:20px">
           <div class="card-head"><span class="card-title">Total de Dias Parados por Frota</span><span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-left:8px">frotas em MC · fotografia atual</span></div>
           <div style="position:relative;height:260px"><canvas id="rpdDiasBarCurrent"></canvas></div>
@@ -1746,7 +1726,7 @@ tbody tr:hover td{background:var(--surface2)}
 
 <!-- v1778869583 -->
 <script>
-let aetData=[],mobData=[],matData=[],patData=[],inefData=[],eflData=[],eflDetailData=[],rpdData=[],progSheetsData=[],aC=null,mC=null,mAC=null,pC=null,pCompareLineC=null,pCompareStatusC=null,iC=null,iC2=null,progStatusChart=null,progClientChart=null,progLoadChart=null,dark=false;
+let aetData=[],mobData=[],matData=[],matSafetyData=[],patData=[],inefData=[],eflData=[],eflDetailData=[],rpdData=[],progSheetsData=[],aC=null,mC=null,mAC=null,pC=null,pCompareLineC=null,pCompareStatusC=null,iC=null,iC2=null,progStatusChart=null,progClientChart=null,progLoadChart=null,dark=false;
 window._aet=()=>aetData;
 window._mob=()=>mobData;
 
@@ -1779,8 +1759,10 @@ const panelPremises={
   ],
   mat:[
     ['Objetivo','Mostrar se as frotas estão com os materiais mínimos de amarração e segurança para operar.'],
-    ['Origem dos dados','A leitura vem do controle de materiais informado pela operação.'],
+    ['Origem dos dados','As duas abas usam os controles de material de amarração e de segurança publicados no mesmo Google Sheets.'],
+    ['Abas do painel','Mat. de Amarração acompanha correntes, tensionadores, cintas e catracas. Mat. de Segurança acompanha macaco hidráulico, chave de roda, triângulo, extintor e calço.'],
     ['Como ler o déficit','Déficit indica que a frota está abaixo do nível esperado para determinado material.'],
+    ['Quantidade atual','Quando a publicação deixa a quantidade atual vazia, mas informa quantidade ideal e diferença, o painel recompõe o valor atual pela relação: atual = ideal + diferença.'],
     ['Itens em falta','O total de itens em falta soma todos os déficits identificados no recorte selecionado.'],
     ['Ponto de atenção','Frotas com déficit devem ser regularizadas antes de novas programações para evitar risco operacional e bloqueio de atendimento.']
   ],
@@ -1895,7 +1877,7 @@ function goTo(id){
     if(id==='efl'){if(eflChart){eflChart.destroy();eflChart=null;}if(eflFrotaMesChart){eflFrotaMesChart.destroy();eflFrotaMesChart=null;}if(eflMesChart){eflMesChart.destroy();eflMesChart=null;}if(eflDiaChart){eflDiaChart.destroy();eflDiaChart=null;}if(eflData.length>0)renderEFL();}
     if(id==='rpd'&&rpdData.length>0){if(rpdChart){rpdChart.destroy();rpdChart=null;}renderRPD();}
     if(id==='prog'&&progSheetsData.length>0){if(progStatusChart){progStatusChart.destroy();progStatusChart=null;}if(progClientChart){progClientChart.destroy();progClientChart=null;}if(progLoadChart){progLoadChart.destroy();progLoadChart=null;}renderPROG();}
-    if(id==='mat'&&matData.length>0){if(mAC){mAC.destroy();mAC=null;}renderMAT();}
+    if(id==='mat'&&(matData.length>0||matSafetyData.length>0)){if(mAC){mAC.destroy();mAC=null;}renderMAT();}
     if(id==='exec'){setExecTab(execActiveTab||'overview');renderEXEC();}
   },50);
 }
@@ -1929,7 +1911,7 @@ function toggleTheme(){
   if(progLoadChart){progLoadChart.destroy();progLoadChart=null;}
   if(activeId==='aet'&&aetData.length)renderAET();
   if(activeId==='mob'&&mobData.length)renderMOB();
-  if(activeId==='mat'&&matData.length)renderMAT();
+  if(activeId==='mat'&&(matData.length||matSafetyData.length))renderMAT();
   if(activeId==='pat'&&patData.length)renderPAT();
   if(activeId==='inef'&&inefData.length)renderINEF();
   if(activeId==='efl'&&eflData.length)renderEFL();
@@ -2025,7 +2007,8 @@ const EFL_SHEETS=[
 ];
 const CSV_INEF = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQa_KB7NVqy6w4B2QRGFcNnvQEv3G_F2YjEprDxd9hZE2TDplS5RR_ZKmmoSypw5lwj2PKaAtOM4URz/pub?output=csv";
 const CSV_PATIO = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRuyDBTaz3bDMc7uelyXQ8t5GkpUjdr0pfK2xm9TZHHJL6uEVEo0GxrTImAyKs-PbjHhhmNIziyBXMO/pub?output=csv";
-const CSV_MAT = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1E33A1HGe5Qs178YvjZnrV_eA-RDIjVkxczBTHBwhk2w0_9LzGuhxLxzrIWu9jHEhKr6oZ66hoJYr/pub?output=csv";
+const CSV_MAT = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1E33A1HGe5Qs178YvjZnrV_eA-RDIjVkxczBTHBwhk2w0_9LzGuhxLxzrIWu9jHEhKr6oZ66hoJYr/pub?output=csv&gid=1385059435";
+const CSV_MAT_SAFETY = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1E33A1HGe5Qs178YvjZnrV_eA-RDIjVkxczBTHBwhk2w0_9LzGuhxLxzrIWu9jHEhKr6oZ66hoJYr/pub?output=csv&gid=1640125903";
 const CSV_RPD="https://docs.google.com/spreadsheets/d/e/2PACX-1vS_rfQGQXLNr0XsYzPab32cj30MbIJ2VLisoCZqio-qc_XP1p2J532LuNOEFNhu9fg52UW_zRTfQyN3/pub?gid=1614487064&single=true&output=csv";
 const CSV_MOB = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_Ry7aRW5A3zpaLdCu2u_xb3vgfOjnfHRmSH_OyvVX3wzmxvh4fSZBFvZakDRF2eDNA3DWJk9OFbml/pub?output=csv&gid=1729222115";
 const PROG_SHEETS=[
@@ -2064,14 +2047,14 @@ function parseCSV(text){
 async function loadAll(){
   document.getElementById('updTxt').textContent='atualizando...';
   const safeFetch=async(url)=>{try{const r=await fetch(url+'&t='+Date.now());return await r.text();}catch(e){console.warn('fetch failed:',url,e.message);return '';}};
-  const [txtAet,txtMob,txtMat,txtPat,txtInef,txtEfls,txtRpd,progTexts]=await Promise.all([
-    safeFetch(CSV_AET),safeFetch(CSV_MOB),safeFetch(CSV_MAT),
+  const [txtAet,txtMob,txtMat,txtMatSafety,txtPat,txtInef,txtEfls,txtRpd,progTexts]=await Promise.all([
+    safeFetch(CSV_AET),safeFetch(CSV_MOB),safeFetch(CSV_MAT),safeFetch(CSV_MAT_SAFETY),
     safeFetch(CSV_PATIO),safeFetch(CSV_INEF),Promise.all(EFL_SHEETS.map(s=>safeFetch(s.url))),safeFetch(CSV_RPD),
     Promise.all(PROG_SHEETS.map(s=>safeFetch(s.url)))
   ]);
   try{processAET(parseCSV(txtAet));}catch(e){console.error('processAET error:',e.message);}
   try{processMOB(parseCSV(txtMob));}catch(e){console.error('processMOB error:',e.message);}
-  try{processMAT(parseCSV(txtMat));}catch(e){console.error('processMAT error:',e.message);}
+  try{processMAT(parseCSV(txtMat),'tie',true);processMAT(parseCSV(txtMatSafety),'safety',true);refreshMATFilters();renderMAT();}catch(e){console.error('processMAT error:',e.message);}
   try{processPAT(parseCSV(txtPat));}catch(e){console.error('processPAT error:',e.message);}
   try{processINEF(parseCSV(txtInef));}catch(e){console.error('processINEF error:',e.message);}
   try{processEFL(txtEfls.map((txt,i)=>({meta:EFL_SHEETS[i],rows:parseCSV(txt)})));}catch(e){console.error('processEFL error:',e.message);}
@@ -2115,10 +2098,10 @@ function parsePROGSheet(rows,meta){
   const loadKeys=sliceKeys(loadStart,occStart>0?occStart:keys.length);
   const occKeys=sliceKeys(occStart,extraStart>0?extraStart:keys.length);
   const extraKeys=sliceKeys(extraStart,keys.length);
-  const C={conjunto:progFindHeader(mainKeys,['CONJUNTO DE TRANSPORTE','CONJUNTO']),tipo:progFindHeader(mainKeys,['TIPO']),un:progFindHeader(mainKeys,['UN']),cliente:progFindHeader(mainKeys,['CLIENTE']),dataCliente:progFindHeader(mainKeys,['DATA NO CLIENTE']),dataSaida:progFindHeader(mainKeys,['DATA DE SAáDA','DATA DE SAIDA']),localizacao:progFindHeader(mainKeys,['LOCALIZAÇáO','LOCALIZACAO']),frota:progFindHeader(mainKeys,['FROTA ATENDIDA']),statusAtual:progFindHeader(mainKeys,['STATUS ATUAL']),dataLiberacao:progFindHeader(mainKeys,['DATA DE LIBERAÇáO','DATA DE LIBERACAO']),realizado:progFindHeader(mainKeys,['REALIZADO']),aderencia:progFindHeader(mainKeys,['OBSERVAá‡áƒO DE ADERáŠNCIA','OBSERVACAO DE ADERENCIA']),obs:progFindHeader(mainKeys,['OBSERVAá‡áƒO','OBSERVACAO'])};
-  const L={frota:progFindHeader(loadKeys,['FROTA']),tipoOp:progFindHeader(loadKeys,['TIPO OP']),cargas:progFindHeader(loadKeys,['CARGAS']),entregues:progFindHeader(loadKeys,['ENTREGUES']),emTransito:progFindHeader(loadKeys,['EM TRá‚NSITO','EM TRANSITO']),pendente:progFindHeader(loadKeys,['PENDENTE CAR.','PENDENTE CAR']),conjuntos:progFindHeader(loadKeys,['CONJUNTOS'])};
-  const O={conjunto:progFindHeader(occKeys,['CONJUNTO']),dataHora:progFindHeader(occKeys,['DATA / HORA','DATA HORA']),tipo:progFindHeader(occKeys,['TIPO DE OCORRáŠNCIA','TIPO DE OCORRENCIA']),descricao:progFindHeader(occKeys,['DESCRIá‡áƒO','DESCRICAO']),responsavel:progFindHeader(occKeys,['RESPONSáVEL','RESPONSAVEL']),impacto:progFindHeader(occKeys,['IMPACTO']),status:progFindHeader(occKeys,['STATUS']),dataResolucao:progFindHeader(occKeys,['DATA RESOLUá‡áƒO','DATA RESOLUCAO'])};
-  const E={conjunto:progFindHeader(extraKeys,['CONJUNTO']),tipo:progFindHeader(extraKeys,['TIPO']),solicitante:progFindHeader(extraKeys,['SOLICITANTE']),cliente:progFindHeader(extraKeys,['CLIENTE']),dataSolicitacao:progFindHeader(extraKeys,['DATA SOLICITAá‡áƒO','DATA SOLICITACAO']),dataSaida:progFindHeader(extraKeys,['DATA DE SAáDA','DATA DE SAIDA']),motivo:progFindHeader(extraKeys,['MOTIVO / CONTEXTO','MOTIVO CONTEXTO']),frota:progFindHeader(extraKeys,['FROTA ATENDIDA']),status:progFindHeader(extraKeys,['STATUS'])};
+  const C={conjunto:progFindHeader(mainKeys,['CONJUNTO DE TRANSPORTE','CONJUNTO']),tipo:progFindHeader(mainKeys,['TIPO']),un:progFindHeader(mainKeys,['UN']),cliente:progFindHeader(mainKeys,['CLIENTE']),dataCliente:progFindHeader(mainKeys,['DATA NO CLIENTE']),dataSaida:progFindHeader(mainKeys,['DATA DE SAÍDA','DATA DE SAIDA']),localizacao:progFindHeader(mainKeys,['LOCALIZAÇÃO','LOCALIZACAO']),frota:progFindHeader(mainKeys,['FROTA ATENDIDA']),statusAtual:progFindHeader(mainKeys,['STATUS ATUAL']),dataLiberacao:progFindHeader(mainKeys,['DATA DE LIBERAÇÃO','DATA DE LIBERACAO']),realizado:progFindHeader(mainKeys,['REALIZADO']),aderencia:progFindHeader(mainKeys,['OBSERVAÇÃO DE ADERÊNCIA','OBSERVACAO DE ADERENCIA']),obs:progFindHeader(mainKeys,['OBSERVAÇÃO','OBSERVACAO'])};
+  const L={frota:progFindHeader(loadKeys,['FROTA']),tipoOp:progFindHeader(loadKeys,['TIPO OP']),cargas:progFindHeader(loadKeys,['CARGAS']),entregues:progFindHeader(loadKeys,['ENTREGUES']),emTransito:progFindHeader(loadKeys,['EM TRÂNSITO','EM TRANSITO']),pendente:progFindHeader(loadKeys,['PENDENTE CAR.','PENDENTE CAR']),conjuntos:progFindHeader(loadKeys,['CONJUNTOS'])};
+  const O={conjunto:progFindHeader(occKeys,['CONJUNTO']),dataHora:progFindHeader(occKeys,['DATA / HORA','DATA HORA']),tipo:progFindHeader(occKeys,['TIPO DE OCORRÊNCIA','TIPO DE OCORRENCIA']),descricao:progFindHeader(occKeys,['DESCRIÇÃO','DESCRICAO']),responsavel:progFindHeader(occKeys,['RESPONSÁVEL','RESPONSAVEL']),impacto:progFindHeader(occKeys,['IMPACTO']),status:progFindHeader(occKeys,['STATUS']),dataResolucao:progFindHeader(occKeys,['DATA RESOLUÇÃO','DATA RESOLUCAO'])};
+  const E={conjunto:progFindHeader(extraKeys,['CONJUNTO']),tipo:progFindHeader(extraKeys,['TIPO']),solicitante:progFindHeader(extraKeys,['SOLICITANTE']),cliente:progFindHeader(extraKeys,['CLIENTE']),dataSolicitacao:progFindHeader(extraKeys,['DATA SOLICITAÇÃO','DATA SOLICITACAO']),dataSaida:progFindHeader(extraKeys,['DATA DE SAÍDA','DATA DE SAIDA']),motivo:progFindHeader(extraKeys,['MOTIVO / CONTEXTO','MOTIVO CONTEXTO']),frota:progFindHeader(extraKeys,['FROTA ATENDIDA']),status:progFindHeader(extraKeys,['STATUS'])};
   const records=[],loads=[],occurrences=[],extras=[];
   for(let i=hRow+1;i<rows.length;i++){
     const row=rows[i]||[];
@@ -2334,7 +2317,7 @@ function renderPROG(){
   const cargaTbl=document.getElementById('progCargaTbl');
   if(cargaTbl){cargaTbl.innerHTML=loads.length?loads.map(r=>{const rate=r.cargas?Math.round(r.entregues/r.cargas*100):0;return`<tr><td style="font-family:'DM Mono',monospace">${progEsc(r.week)}</td><td style="font-family:'DM Mono',monospace;font-weight:600">${progEsc(r.frota)}</td><td>${progEsc(r.tipoOp||'—')}</td><td style="font-family:'DM Mono',monospace">${r.cargas}</td><td style="font-family:'DM Mono',monospace;color:var(--green)">${r.entregues}</td><td style="font-family:'DM Mono',monospace;color:var(--makro-blue)">${r.emTransito}</td><td style="font-family:'DM Mono',monospace;color:var(--amber)">${r.pendente}</td><td style="font-family:'DM Mono',monospace">${r.conjuntos}</td><td style="font-family:'DM Mono',monospace">${rate}%</td></tr>`;}).join(''):'<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro de cargas</td></tr>';}
   const occTbl=document.getElementById('progOccTbl');
-  if(occTbl){occTbl.innerHTML=occs.length?occs.map(r=>`<tr><td style="font-family:'DM Mono',monospace">${progEsc(r.conjunto||'—')}</td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataHora||'—')}</td><td>${progEsc(r.tipo||'—')}</td><td>${progEsc(r.descricao||'—')}</td><td>${progEsc(r.responsavel||'—')}</td><td>${progEsc(r.impacto||'—')}</td><td><span class="tag ${progIsOpenStatus(r.status)?'tag-red':'tag-green'}">${progEsc(r.status||'—')}</span></td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataResolucao||'—')}</td></tr>`).join(''):'<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">Nenhuma ocorráªncia registrada</td></tr>';}
+  if(occTbl){occTbl.innerHTML=occs.length?occs.map(r=>`<tr><td style="font-family:'DM Mono',monospace">${progEsc(r.conjunto||'—')}</td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataHora||'—')}</td><td>${progEsc(r.tipo||'—')}</td><td>${progEsc(r.descricao||'—')}</td><td>${progEsc(r.responsavel||'—')}</td><td>${progEsc(r.impacto||'—')}</td><td><span class="tag ${progIsOpenStatus(r.status)?'tag-red':'tag-green'}">${progEsc(r.status||'—')}</span></td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataResolucao||'—')}</td></tr>`).join(''):'<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">Nenhuma ocorrência registrada</td></tr>';}
   const extraTbl=document.getElementById('progExtraTbl');
 if(extraTbl){extraTbl.innerHTML=extras.length?extras.map(r=>`<tr><td style="font-family:'DM Mono',monospace">${progEsc(r.conjunto||'—')}</td><td>${progEsc(r.tipo||'—')}</td><td>${progEsc(r.solicitante||'—')}</td><td>${progEsc(r.cliente||'—')}</td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataSolicitacao||'—')}</td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataSaida||'—')}</td><td>${progEsc(r.motivo||'—')}</td><td>${progEsc(r.frotaAtendida||'—')}</td><td><span class="tag ${progTagDone(r.status)}">${progEsc(r.status||'—')}</span></td></tr>`).join(''):'<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:24px">Nenhuma solicitação extra registrada</td></tr>';}
 }
@@ -2480,8 +2463,11 @@ function renderEXEC(){
   const rpdImpactRows=rpdMaintRows.filter(r=>r.impacto==='SIM');
   const rpdMaint=rpdMaintRows.length;
   const rpdImpacto=rpdImpactRows.length;
-  const matDef=matData.filter(r=>r.status==='DEFICIT').length;
-  const matFalta=matData.reduce((s,r)=>{['dCor','dTen','dCin','dCat'].forEach(k=>{if(r[k]!==null&&r[k]<0)s+=Math.abs(r[k]);});return s;},0);
+  const matTieDef=matData.filter(r=>r.status==='DEFICIT').length;
+  const matSafetyDef=matSafetyData.filter(r=>r.status==='DEFICIT').length;
+  const matDefRows=[...matData,...matSafetyData].filter(r=>r.status==='DEFICIT');
+  const matDef=new Set(matDefRows.map(r=>r.conj)).size;
+  const matFalta=matMissingCount(matDefRows);
   const inefPendenteRows=inefData.filter(r=>String(r.cobr||'').includes('PENDENTE'));
   const inefTotal=inefPendenteRows.length;
   const inefValorPendente=inefPendenteRows.reduce((s,r)=>s+(r.vlTotal||0),0);
@@ -2524,7 +2510,7 @@ function renderEXEC(){
     progImpactOccs.length?`${progImpactOccs.length} ocorrências abertas com impacto informado`:'',
     progPendCarga?`${progPendCarga} cargas pendentes na semana`:'',
     patAlta?`${patAlta} tarefas críticas de pátio pendentes`:'',
-    matDef?`${matDef} frotas com déficit de material`:''
+    matDef?`${matDef} frotas com déficit de amarração e/ou segurança`:''
   ].filter(Boolean);
   const efficiencySignals=[
     d1CriticalStatusTotal?`${d1CriticalStatusTotal} frotas em AC, AD, DOC F ou MNT no D-1`:'',
@@ -2656,7 +2642,7 @@ function renderEXEC(){
     <div class="exec-heat-card"><div class="exec-heat-k">Programação Exposta</div><div class="exec-heat-v">${execPct(progRiskPct)}</div><div class="exec-heat-s">${progMaint} de ${progTotal} conjuntos em manutenção</div></div>
     <div class="exec-heat-card"><div class="exec-heat-k">Ocorrências com Impacto</div><div class="exec-heat-v">${progImpactOccs.length}</div><div class="exec-heat-s">${progOccs.length} ocorrências abertas na semana</div></div>
     <div class="exec-heat-card"><div class="exec-heat-k">Pátio Crítico Aberto</div><div class="exec-heat-v">${patAlta}</div><div class="exec-heat-s">${patPend} tarefas pendentes/andamento</div></div>
-    <div class="exec-heat-card"><div class="exec-heat-k">Materiais com Déficit</div><div class="exec-heat-v">${matDef}</div><div class="exec-heat-s">${matFalta} itens em falta</div></div>
+    <div class="exec-heat-card"><div class="exec-heat-k">Materiais com Déficit</div><div class="exec-heat-v">${matDef}</div><div class="exec-heat-s">${matTieDef} amarração · ${matSafetyDef} segurança · ${matFalta} itens</div></div>
   `);
   html('execEffRadar',`
     <div class="exec-heat-card"><div class="exec-heat-k">Status Críticos D-1</div><div class="exec-heat-v">${d1CriticalStatusTotal}</div><div class="exec-heat-s">AC · AD · DOC F · MNT</div></div>
@@ -2704,7 +2690,7 @@ function renderEXEC(){
     {
       level:yardMaterialsLevel,
       title:'Pátio e materiais',
-      body:matDef||patPend?`Tratar ${matDef} frotas com déficit de material e ${patAlta} tarefas de pátio pendentes em alta criticidade, dentro de ${patPend} tarefas abertas.`:'Sem alerta relevante de pátio ou materiais.'
+      body:matDef||patPend?`Tratar ${matDef} frotas com déficit de material (${matTieDef} em amarração e ${matSafetyDef} em segurança) e ${patAlta} tarefas de pátio pendentes em alta criticidade.`:'Sem alerta relevante de pátio ou materiais.'
     }
   ].sort((a,b)=>({critico:0,atencao:1,positivo:2}[a.level]??3)-({critico:0,atencao:1,positivo:2}[b.level]??3));
   const activePriorities=priorities.filter(p=>p.level!=='positivo');
@@ -3126,7 +3112,7 @@ function renderMOBtbl(){
 
 
 
-// -- FILTER SYNC: top â†” bottom --
+// -- FILTER SYNC: top <-> bottom --
 function syncAETSearch(src,targetId){
   const t=document.getElementById(targetId);
   if(t)t.value=src.value;
@@ -3505,148 +3491,142 @@ document.addEventListener('click',function(e){
 });
 
 
-function processMAT(rows){
+let matActiveView='tie';
+const MAT_SCHEMAS={
+  tie:{label:'Mat. de Amarração',items:['Corrente','Tensionador','Cinta','Catraca']},
+  safety:{label:'Mat. de Segurança',items:['Macaco Hidráulico','Chave de Roda','Triângulo','Extintor','Calço']}
+};
+function getMATSchema(){return MAT_SCHEMAS[matActiveView]||MAT_SCHEMAS.tie;}
+function getMATData(){return matActiveView==='safety'?matSafetyData:matData;}
+function matMissingCount(rows){return(rows||[]).reduce((sum,row)=>sum+row.items.reduce((s,item)=>s+(item.diff!==null&&item.diff<0?Math.abs(item.diff):0),0),0);}
+
+function processMAT(rows,view='tie',deferRender=false){
+  const schema=MAT_SCHEMAS[view]||MAT_SCHEMAS.tie;
   let hi=-1;
   for(let i=0;i<rows.length;i++){
     if(rows[i].some(c=>String(c).toUpperCase().trim()==='CONJUNTO')){hi=i;break;}
   }
   if(hi<0)hi=4;
-  matData=[];
+  const parsed=[];
+  const count=schema.items.length;
+  const n=x=>{const p=parseFloat(String(x==null?'':x).trim().replace(',','.'));return isNaN(p)?null:p;};
   for(let i=hi+1;i<rows.length;i++){
-    const v=rows[i];
+    const v=rows[i]||[];
     if(!v[0]||String(v[0]).trim()==='')continue;
-    const n=x=>{ const p=parseFloat(String(x||'').replace(',','.')); return isNaN(p)?null:p; };
-    const dCor=n(v[11]),dTen=n(v[12]),dCin=n(v[13]),dCat=n(v[14]);
-    const hasDef=[dCor,dTen,dCin,dCat].some(d=>d!==null&&d<0);
-    const hasExc=[dCor,dTen,dCin,dCat].some(d=>d!==null&&d>0)&&!hasDef;
-    const status=hasDef?'DEFICIT':hasExc?'EXCESSO':'REGULAR';
-    matData.push({
-      conj:String(v[0]||''),tipo:String(v[1]||'').toUpperCase(),motorista:String(v[2]||''),
-      corI:n(v[3]),tenI:n(v[4]),cinI:n(v[5]),catI:n(v[6]),
-      corA:n(v[7]),tenA:n(v[8]),cinA:n(v[9]),catA:n(v[10]),
-      dCor,dTen,dCin,dCat,status,obs:String(v[15]||'').replace(/"/g,'').trim()
+    const items=schema.items.map((label,idx)=>{
+      const ideal=n(v[3+idx]);
+      let actual=n(v[3+count+idx]);
+      let diff=n(v[3+(count*2)+idx]);
+      if(diff===null&&ideal!==null&&actual!==null)diff=actual-ideal;
+      if(actual===null&&ideal!==null&&diff!==null)actual=ideal+diff;
+      return{label,ideal,actual,diff};
+    });
+    const hasDef=items.some(item=>item.diff!==null&&item.diff<0);
+    const hasExc=items.some(item=>item.diff!==null&&item.diff>0)&&!hasDef;
+    parsed.push({
+      view,conj:String(v[0]||'').trim(),tipo:String(v[1]||'').trim().toUpperCase(),motorista:String(v[2]||'').trim(),
+      items,status:hasDef?'DEFICIT':hasExc?'EXCESSO':'REGULAR',obs:String(v[3+(count*3)]||'').replace(/"/g,'').trim()
     });
   }
-  // Build tipo select
-  const tipos=[...new Set(matData.map(r=>r.tipo).filter(t=>t&&t!==''))].sort();
-  const tipoSel=document.getElementById('matTipo');
-  if(tipoSel)tipoSel.innerHTML='<option value="TODOS">Todos</option>'+tipos.map(t=>`<option value="${t}">${t}</option>`).join('');
-  const tiposMAT=[...new Set(matData.map(r=>r.tipo).filter(t=>t))].sort();
+  if(view==='safety')matSafetyData=parsed;else matData=parsed;
+  if(!deferRender){refreshMATFilters();renderMAT();}
+}
+
+function refreshMATFilters(){
+  const tipos=getMATData().map(r=>r.tipo).filter(Boolean).sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true}));
+  fillSelectOptions(['matTipo','matTipoBot'],tipos);
+}
+
+function renderMATHeader(){
+  const schema=getMATSchema();
+  const count=schema.items.length;
+  const fixed='<th rowspan="2" style="border:1px solid var(--border2);background:var(--surface2)">';
+  const itemHeads=(bg)=>schema.items.map(label=>`<th style="border:1px solid var(--border2);background:${bg};text-align:center">${execEsc(label)}</th>`).join('');
+  const head=document.getElementById('matThead');
+  if(head)head.innerHTML=`<tr>
+    ${fixed}Conjunto</th>${fixed}Tipo</th>${fixed}Motorista</th>
+    <th colspan="${count}" style="border:1px solid var(--border2);background:rgba(27,63,122,0.15);color:var(--makro-blue);text-align:center;font-family:'Montserrat',sans-serif">QUANTIDADE IDEAL</th>
+    <th colspan="${count}" style="border:1px solid var(--border2);background:rgba(45,184,122,0.12);color:var(--green);text-align:center;font-family:'Montserrat',sans-serif">QUANTIDADE ATUAL</th>
+    <th colspan="${count}" style="border:1px solid var(--border2);background:rgba(200,20,40,0.1);color:var(--accent);text-align:center;font-family:'Montserrat',sans-serif">DIFERENÇA</th>
+    ${fixed}Status</th>${fixed}Obs.</th>
+  </tr><tr>${itemHeads('rgba(27,63,122,0.08)')}${itemHeads('rgba(45,184,122,0.06)')}${itemHeads('rgba(200,20,40,0.06)')}</tr>`;
+}
+
+function setMATView(view){
+  if(!MAT_SCHEMAS[view])return;
+  matActiveView=view;
+  const tie=document.getElementById('matViewTie');const safety=document.getElementById('matViewSafety');
+  if(tie)tie.classList.toggle('on',view==='tie');
+  if(safety)safety.classList.toggle('on',view==='safety');
+  ['matTipo','matTipoBot','matStatus','matStatusBot'].forEach(resetSelectValue);
+  ['matSearch','matSearchBot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  refreshMATFilters();
+  if(mAC){mAC.destroy();mAC=null;}
   renderMAT();
+  requestAnimationFrame(refreshTableScrollbars);
 }
 
 function renderMAT(){
-  const ml=document.getElementById('matLoad');
-  const mb=document.getElementById('matBody');
+  const ml=document.getElementById('matLoad');const mb=document.getElementById('matBody');
   if(ml)ml.style.display='none';if(mb)mb.style.display='block';
-  const tot=matData.length,tot2=tot||1;
-  const def=matData.filter(r=>r.status==='DEFICIT').length;
-  const reg=matData.filter(r=>r.status==='REGULAR').length;
-  const exc=matData.filter(r=>r.status==='EXCESSO').length;
-  const falta=matData.reduce((s,r)=>{
-    ['dCor','dTen','dCin','dCat'].forEach(k=>{if(r[k]!==null&&r[k]<0)s+=Math.abs(r[k]);});
-    return s;
-  },0);
-  const e0=document.getElementById('mt0');const e1=document.getElementById('mt1');
-  const e1s=document.getElementById('mt1s');const e2=document.getElementById('mt2');
-  const e3=document.getElementById('mt3');const e3s=document.getElementById('mt3s');
-  if(e0)e0.textContent=tot;
-  if(e1)e1.textContent=def;if(e1s)e1s.textContent=Math.round(def/tot2*100)+'% da base';
-  if(e2)e2.textContent=falta;
-  if(e3)e3.textContent=reg;if(e3s)e3s.textContent=Math.round(reg/tot2*100)+'% da base';
-  // Bars - deficit by material type
-  const tipos={Corrente:0,Tensionador:0,Cinta:0,Catraca:0};
-  matData.forEach(r=>{
-    if(r.dCor!==null&&r.dCor<0)tipos.Corrente+=Math.abs(r.dCor);
-    if(r.dTen!==null&&r.dTen<0)tipos.Tensionador+=Math.abs(r.dTen);
-    if(r.dCin!==null&&r.dCin<0)tipos.Cinta+=Math.abs(r.dCin);
-    if(r.dCat!==null&&r.dCat<0)tipos.Catraca+=Math.abs(r.dCat);
-  });
-  const mx=Math.max(...Object.values(tipos))||1;
-  const barColors=['#c81428','#e8943a','#2db87a','#2ab0b8'];
-  const barsEl=document.getElementById('matBars');
-  if(barsEl)barsEl.innerHTML=Object.entries(tipos).map(([l,v],i)=>`<div class="bar-row"><span class="bar-lbl">${l}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/mx*100)}%;background:${barColors[i]}"></div></div><span class="bar-num">${v}</span></div>`).join('');
-  // Donut
-  if(mAC)mAC.destroy();
-  const legEl=document.getElementById('matLeg');
-  if(legEl)legEl.innerHTML=[['#c81428','Déficit',def],['#f39c12','Excesso',exc],['#2db87a','Regular',reg]].map(([c,l,v])=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${c}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${v})</span></span>`).join('');
-  const donutEl=document.getElementById('matDonut');
-  if(donutEl&&donutEl.offsetParent!==null)mAC=new Chart(donutEl,{type:'doughnut',data:{labels:['Déficit','Excesso','Regular'],datasets:[{data:[def,exc,reg],backgroundColor:['#c81428','#f39c12','#2db87a'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});
+  const tie=document.getElementById('matViewTie');const safety=document.getElementById('matViewSafety');
+  if(tie)tie.classList.toggle('on',matActiveView==='tie');
+  if(safety)safety.classList.toggle('on',matActiveView==='safety');
+  renderMATHeader();
   renderMATtbl();
 }
 
 function renderMATtbl(){
   try{
+    const data=getMATData();const schema=getMATSchema();
     const q=((document.getElementById('matSearch')||{}).value||'').toLowerCase().trim();
-    const tipo=getSelectValues('matTipo');
-    const status=getSelectValues('matStatus');
-    const f=matData.filter(r=>{
-      if(!matchesValue(r.tipo,tipo))return false;
-      if(!matchesValue(r.status,status))return false;
-      if(q&&!r.conj.toLowerCase().includes(q)&&!r.motorista.toLowerCase().includes(q))return false;
-      return true;
-    });
-    // Update KPIs based on filtered data
+    const tipo=getSelectValues('matTipo');const status=getSelectValues('matStatus');
+    const f=data.filter(r=>matchesValue(r.tipo,tipo)&&matchesValue(r.status,status)&&(!q||r.conj.toLowerCase().includes(q)||r.motorista.toLowerCase().includes(q)));
     const tot2=f.length||1;
     const def=f.filter(r=>r.status==='DEFICIT').length;
     const reg=f.filter(r=>r.status==='REGULAR').length;
     const exc=f.filter(r=>r.status==='EXCESSO').length;
-    const falta=f.reduce((s,r)=>{['dCor','dTen','dCin','dCat'].forEach(k=>{if(r[k]!==null&&r[k]<0)s+=Math.abs(r[k]);});return s;},0);
-    const e0=document.getElementById('mt0');const e1=document.getElementById('mt1');
-    const e1s=document.getElementById('mt1s');const e2=document.getElementById('mt2');
-    const e3=document.getElementById('mt3');const e3s=document.getElementById('mt3s');
+    const falta=matMissingCount(f);
+    const e0=document.getElementById('mt0');const e1=document.getElementById('mt1');const e1s=document.getElementById('mt1s');
+    const e2=document.getElementById('mt2');const e3=document.getElementById('mt3');const e3s=document.getElementById('mt3s');
     if(e0)e0.textContent=f.length;
     if(e1)e1.textContent=def;if(e1s)e1s.textContent=Math.round(def/tot2*100)+'% da base';
     if(e2)e2.textContent=falta;
     if(e3)e3.textContent=reg;if(e3s)e3s.textContent=Math.round(reg/tot2*100)+'% da base';
-    // Update bars
-    const tipos={Corrente:0,Tensionador:0,Cinta:0,Catraca:0};
-    f.forEach(r=>{
-      if(r.dCor!==null&&r.dCor<0)tipos.Corrente+=Math.abs(r.dCor);
-      if(r.dTen!==null&&r.dTen<0)tipos.Tensionador+=Math.abs(r.dTen);
-      if(r.dCin!==null&&r.dCin<0)tipos.Cinta+=Math.abs(r.dCin);
-      if(r.dCat!==null&&r.dCat<0)tipos.Catraca+=Math.abs(r.dCat);
-    });
-    const mx=Math.max(...Object.values(tipos))||1;
-    const barColors=['#c81428','#e8943a','#2db87a','#2ab0b8'];
+
+    const deficits=Object.fromEntries(schema.items.map(label=>[label,0]));
+    f.forEach(row=>row.items.forEach(item=>{if(item.diff!==null&&item.diff<0)deficits[item.label]+=Math.abs(item.diff);}));
+    const mx=Math.max(...Object.values(deficits),1);
+    const barColors=['#c81428','#e8943a','#2db87a','#2ab0b8','#1b3f7a'];
     const barsEl=document.getElementById('matBars');
-    if(barsEl)barsEl.innerHTML=Object.entries(tipos).map(([l,v],i)=>'<div class="bar-row"><span class="bar-lbl">'+l+'</span><div class="bar-track"><div class="bar-fill" style="width:'+Math.round(v/mx*100)+'%;background:'+barColors[i]+'"></div></div><span class="bar-num">'+v+'</span></div>').join('');
-    // Update donut
+    if(barsEl)barsEl.innerHTML=Object.entries(deficits).map(([label,value],i)=>`<div class="bar-row"><span class="bar-lbl">${execEsc(label)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(value/mx*100)}%;background:${barColors[i%barColors.length]}"></div></div><span class="bar-num">${value}</span></div>`).join('');
+
     const legEl=document.getElementById('matLeg');
     if(legEl)legEl.innerHTML=[['#c81428','Déficit',def],['#f39c12','Excesso',exc],['#2db87a','Regular',reg]].map(([c,l,v])=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${c}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${l}</span></span><span style="font-family:'DM Mono',monospace;font-weight:600;font-size:11px;color:var(--text2)">(${v})</span></span>`).join('');
     const donutEl=document.getElementById('matDonut');
-    if(donutEl&&donutEl.offsetParent!==null){if(mAC){mAC.destroy();mAC=null;}mAC=new Chart(donutEl,{type:'doughnut',data:{labels:['Déficit','Excesso','Regular'],datasets:[{data:[def,exc,reg],backgroundColor:['#c81428','#f39c12','#2db87a'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});}
-    const cnt=document.getElementById('matCnt');
-    const tbl=document.getElementById('matTbl');
-    if(cnt)cnt.textContent=f.length+' registros';
+    if(donutEl&&donutEl.offsetParent!==null){if(mAC){mAC.destroy();mAC=null;}mAC=new Chart(donutEl,{type:'doughnut',data:{labels:['Déficit','Excesso','Regular'],datasets:[{data:[def,exc,reg],backgroundColor:['#c81428','#f39c12','#2db87a'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});}
+
+    const cnt=document.getElementById('matCnt');const tbl=document.getElementById('matTbl');
+    if(cnt)cnt.textContent=f.length+' registros · '+schema.label;
     if(!tbl)return;
-    const dCell=(v)=>v===null?'<td style="border:1px solid var(--border);text-align:center">—</td>':`<td style="font-family:'DM Mono',monospace;text-align:center;border:1px solid var(--border)">${v}</td>`;
-    const diffCell=(v)=>{
-      if(v===null)return'<td>—</td>';
-      const col=v<0?'var(--red)':v>0?'var(--green)':'var(--text3)';
-      const pre=v>0?'+':'';
-      return`<td style="font-family:'DM Mono',monospace;font-weight:600;color:${col};text-align:center;border:1px solid var(--border)">${pre}${v}</td>`;
-    };
-    const stTag=(s)=>s==='DEFICIT'?'<span class="tag tag-red">Dá‰FICIT</span>':s==='EXCESSO'?'<span class="tag tag-teal">EXCESSO</span>':'<span class="tag tag-green">REGULAR</span>';
-    const obsCell=(r)=>obsCellHtml(r.conj,r.obs);
-    tbl.innerHTML=f.length===0
-      ?'<tr><td colspan="17" style="text-align:center;color:var(--text3);padding:24px;border:1px solid var(--border)">Nenhum registro encontrado</td></tr>'
-      :f.map(r=>'<tr>'
-        +'<td style="font-family:\'DM Mono\',monospace;font-weight:500;border:1px solid var(--border)">'+r.conj+'</td>'
-        +'<td style="border:1px solid var(--border)">'+r.tipo+'</td>'
-        +'<td style="border:1px solid var(--border);max-width:160px">'+r.motorista+'</td>'
-        +dCell(r.corI)+dCell(r.tenI)+dCell(r.cinI)+dCell(r.catI)
-        +dCell(r.corA)+dCell(r.tenA)+dCell(r.cinA)+dCell(r.catA)
-        +diffCell(r.dCor)+diffCell(r.dTen)+diffCell(r.dCin)+diffCell(r.dCat)
-        +'<td style="border:1px solid var(--border)">'+stTag(r.status)+'</td>'
-        +'<td class="obs-cell" style="border:1px solid var(--border)">'+obsCell(r)+'</td>'
-        +'</tr>').join('');
+    const dCell=v=>v===null?'<td style="border:1px solid var(--border);text-align:center">—</td>':`<td style="font-family:'DM Mono',monospace;text-align:center;border:1px solid var(--border)">${v}</td>`;
+    const diffCell=v=>{if(v===null)return'<td style="border:1px solid var(--border);text-align:center">—</td>';const col=v<0?'var(--red)':v>0?'var(--green)':'var(--text3)';return`<td style="font-family:'DM Mono',monospace;font-weight:600;color:${col};text-align:center;border:1px solid var(--border)">${v>0?'+':''}${v}</td>`;};
+    const stTag=s=>s==='DEFICIT'?'<span class="tag tag-red">DÉFICIT</span>':s==='EXCESSO'?'<span class="tag tag-teal">EXCESSO</span>':'<span class="tag tag-green">REGULAR</span>';
+    const colspan=3+(schema.items.length*3)+2;
+    tbl.innerHTML=f.length?f.map(r=>'<tr>'
+      +'<td style="font-family:\'DM Mono\',monospace;font-weight:500;border:1px solid var(--border)">'+execEsc(r.conj)+'</td>'
+      +'<td style="border:1px solid var(--border)">'+execEsc(r.tipo)+'</td>'
+      +'<td style="border:1px solid var(--border);max-width:180px">'+execEsc(r.motorista||'—')+'</td>'
+      +r.items.map(item=>dCell(item.ideal)).join('')+r.items.map(item=>dCell(item.actual)).join('')+r.items.map(item=>diffCell(item.diff)).join('')
+      +'<td style="border:1px solid var(--border)">'+stTag(r.status)+'</td>'
+      +'<td class="obs-cell" style="border:1px solid var(--border)">'+obsCellHtml(r.conj,r.obs)+'</td></tr>').join('')
+      :`<tr><td colspan="${colspan}" style="text-align:center;color:var(--text3);padding:24px;border:1px solid var(--border)">Nenhum registro encontrado</td></tr>`;
   }catch(e){console.error('renderMATtbl error:',e);}
 }
 
 function clearMATFilters(){
   ['matTipo','matTipoBot','matStatus','matStatusBot'].forEach(resetSelectValue);
-  const s=document.getElementById('matSearch');if(s)s.value='';
+  ['matSearch','matSearchBot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   renderMATtbl();
 }
 
@@ -4038,7 +4018,7 @@ const cobMap={'FATURADO':'#2db87a','PENDENTE':'#e8943a','NAO COBRADO':'#6b7280',
     if(dEl){if(iC){iC.destroy();iC=null;}iC=new Chart(dEl,{type:'doughnut',data:{labels:cobKeys,datasets:[{data:cobKeys.map(k=>cobSc[k]),backgroundColor:cobKeys.map(k=>cobMap[k]||'#6b7280'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});}
 
     // -- Line: Evolução mensal ou semanal --
-    const MESES_ORDER=['JANEIRO','FEVEREIRO','MARá‡O','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
+    const MESES_ORDER=['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
     const lEl=document.getElementById('inefLine');
     if(lEl){
       if(iC2){iC2.destroy();iC2=null;}
@@ -4253,7 +4233,7 @@ function toggleSB(){
 }
 
 
-// -- EFL: EFICIáŠNCIA LOGáSTICA --
+// -- EFL: EFICIÊNCIA LOGÍSTICA --
 let eflChart=null,eflFrotaMesChart=null,eflMesChart=null,eflDiaChart=null;
 
 // -- FERIADOS NACIONAIS BR (fixos) --
@@ -4656,7 +4636,7 @@ function renderEFL(){
 
 
 
-// -- RPD: FROTAS EM MANUTENá‡áƒO --
+// -- RPD: FROTAS EM MANUTENÇÃO --
 let rpdChart=null, rpdBarChart=null, rpdImpactChart=null, rpdViewMode='current', rpdQbChart=null, rpdDiasChart=null, rpdQbPage=0, rpdDiasPage=0, rpdDiasCurrentChart=null;
 
 function rpdTxt(v){return String(v==null?'':v).trim();}
@@ -4707,9 +4687,9 @@ function processRPD(rows){
   };
   const C={
     frota:find(['FROTA']),tipo:find(['TIPO']),dtParada:find(['DATA DE PARADA','DATA PARADA','DT PARADA']),dias:find(['DIAS PARADO','DIAS PARADOS']),status:find(['STATUS']),
-    prazo1:find(['PRAZO DE LIBERAÇáO','PRAZO DE LIBERACAO']),prazo2:find(['PRAZO DE LIBERAÇáO 2','PRAZO DE LIBERACAO 2']),prazo3:find(['PRAZO DE LIBERAÇáO 3','PRAZO DE LIBERACAO 3']),
-    falha:find(['FALHA PRIMÁRIA','FALHA PRIMARIA','FALHA']),statusAtual:find(['STATUS ATUAL']),fornecedor:find(['FORNECEDOR']),local:find(['LOCALIZAÇáO','LOCALIZACAO','LOCAL']),
-    prog:find(['PROGRAMAÇáO','PROGRAMACAO']),impacto:find(['IMPACTO CLIENTE','IMPACTOCLIENTE','IMPACTO']),dtLib:find(['DATA LIBERAÇáO','DATA LIBERACAO','DATA DE LIBERAÇáO','DATA DE LIBERACAO'])
+    prazo1:find(['PRAZO DE LIBERAÇÃO','PRAZO DE LIBERACAO']),prazo2:find(['PRAZO DE LIBERAÇÃO 2','PRAZO DE LIBERACAO 2']),prazo3:find(['PRAZO DE LIBERAÇÃO 3','PRAZO DE LIBERACAO 3']),
+    falha:find(['FALHA PRIMÁRIA','FALHA PRIMARIA','FALHA']),statusAtual:find(['STATUS ATUAL']),fornecedor:find(['FORNECEDOR']),local:find(['LOCALIZAÇÃO','LOCALIZACAO','LOCAL']),
+    prog:find(['PROGRAMAÇÃO','PROGRAMACAO']),impacto:find(['IMPACTO CLIENTE','IMPACTOCLIENTE','IMPACTO']),dtLib:find(['DATA LIBERAÇÃO','DATA LIBERACAO','DATA DE LIBERAÇÃO','DATA DE LIBERACAO'])
   };
   const fallback={frota:0,tipo:1,dtParada:2,dias:3,status:4,prazo1:5,prazo2:6,prazo3:7,falha:8,statusAtual:9,fornecedor:10,local:11,prog:12,impacto:13,dtLib:14};
   Object.keys(fallback).forEach(k=>{if(C[k]<0)C[k]=fallback[k];});
