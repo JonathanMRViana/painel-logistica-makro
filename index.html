@@ -2007,8 +2007,8 @@ const EFL_SHEETS=[
 ];
 const CSV_INEF = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQa_KB7NVqy6w4B2QRGFcNnvQEv3G_F2YjEprDxd9hZE2TDplS5RR_ZKmmoSypw5lwj2PKaAtOM4URz/pub?output=csv";
 const CSV_PATIO = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRuyDBTaz3bDMc7uelyXQ8t5GkpUjdr0pfK2xm9TZHHJL6uEVEo0GxrTImAyKs-PbjHhhmNIziyBXMO/pub?output=csv";
-const CSV_MAT = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1E33A1HGe5Qs178YvjZnrV_eA-RDIjVkxczBTHBwhk2w0_9LzGuhxLxzrIWu9jHEhKr6oZ66hoJYr/pub?output=csv&gid=1385059435";
-const CSV_MAT_SAFETY = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1E33A1HGe5Qs178YvjZnrV_eA-RDIjVkxczBTHBwhk2w0_9LzGuhxLxzrIWu9jHEhKr6oZ66hoJYr/pub?output=csv&gid=1640125903";
+const CSV_MAT = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1E33A1HGe5Qs178YvjZnrV_eA-RDIjVkxczBTHBwhk2w0_9LzGuhxLxzrIWu9jHEhKr6oZ66hoJYr/pub?gid=1385059435&single=true&output=csv";
+const CSV_MAT_SAFETY = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1E33A1HGe5Qs178YvjZnrV_eA-RDIjVkxczBTHBwhk2w0_9LzGuhxLxzrIWu9jHEhKr6oZ66hoJYr/pub?gid=1640125903&single=true&output=csv";
 const CSV_RPD="https://docs.google.com/spreadsheets/d/e/2PACX-1vS_rfQGQXLNr0XsYzPab32cj30MbIJ2VLisoCZqio-qc_XP1p2J532LuNOEFNhu9fg52UW_zRTfQyN3/pub?gid=1614487064&single=true&output=csv";
 const CSV_MOB = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_Ry7aRW5A3zpaLdCu2u_xb3vgfOjnfHRmSH_OyvVX3wzmxvh4fSZBFvZakDRF2eDNA3DWJk9OFbml/pub?output=csv&gid=1729222115";
 const PROG_SHEETS=[
@@ -3509,6 +3509,15 @@ function processMAT(rows,view='tie',deferRender=false){
   if(hi<0)hi=4;
   const parsed=[];
   const count=schema.items.length;
+  const sourceItems=(rows[hi]||[]).slice(3,3+count).map(execStatusKey);
+  const expectedItems=schema.items.map(execStatusKey);
+  const validHeader=expectedItems.every((item,idx)=>sourceItems[idx]===item);
+  if(!validHeader){
+    console.error('Material '+view+': cabeçalho incompatível. Recebido:',sourceItems.join(' | '));
+    if(view==='safety')matSafetyData=[];else matData=[];
+    if(!deferRender){refreshMATFilters();renderMAT();}
+    return false;
+  }
   const n=x=>{const p=parseFloat(String(x==null?'':x).trim().replace(',','.'));return isNaN(p)?null:p;};
   for(let i=hi+1;i<rows.length;i++){
     const v=rows[i]||[];
@@ -3530,6 +3539,7 @@ function processMAT(rows,view='tie',deferRender=false){
   }
   if(view==='safety')matSafetyData=parsed;else matData=parsed;
   if(!deferRender){refreshMATFilters();renderMAT();}
+  return true;
 }
 
 function refreshMATFilters(){
@@ -3558,9 +3568,11 @@ function setMATView(view){
   const tie=document.getElementById('matViewTie');const safety=document.getElementById('matViewSafety');
   if(tie)tie.classList.toggle('on',view==='tie');
   if(safety)safety.classList.toggle('on',view==='safety');
-  ['matTipo','matTipoBot','matStatus','matStatusBot'].forEach(resetSelectValue);
-  ['matSearch','matSearchBot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  refreshMATFilters();
+  try{
+    ['matTipo','matTipoBot','matStatus','matStatusBot'].forEach(resetSelectValue);
+    ['matSearch','matSearchBot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    refreshMATFilters();
+  }catch(e){console.warn('Falha ao sincronizar filtros de materiais:',e.message);}
   if(mAC){mAC.destroy();mAC=null;}
   renderMAT();
   requestAnimationFrame(refreshTableScrollbars);
