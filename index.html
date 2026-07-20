@@ -1529,11 +1529,16 @@ tbody tr:hover td{background:var(--surface2)}
         <div class="kpi-row" style="grid-template-columns:repeat(7,minmax(0,1fr))">
           <div class="kpi c-blue"><div class="kpi-stripe"></div><div class="kpi-label">Semana Ativa</div><div class="kpi-value" id="progK0">—</div><div class="kpi-sub" id="progK0s">programação semanal</div></div>
           <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Programados</div><div class="kpi-value" id="progK1">—</div><div class="kpi-sub">conjuntos na semana</div></div>
-          <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Taxa de Aderência</div><div class="kpi-value" id="progK2">—</div><div class="kpi-sub">resumo operacional</div></div>
+          <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Taxa de Aderência</div><div class="kpi-value" id="progK2">—</div><div class="kpi-sub">cargas aderentes na semana</div></div>
           <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Cargas Planejadas</div><div class="kpi-value" id="progK3">—</div><div class="kpi-sub" id="progK3s">total da semana</div></div>
           <div class="kpi c-teal"><div class="kpi-stripe"></div><div class="kpi-label">Cargas Entregues</div><div class="kpi-value" id="progK4">—</div><div class="kpi-sub" id="progK4s">execução de cargas</div></div>
           <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Ocorrências em Aberto</div><div class="kpi-value" id="progK5">—</div><div class="kpi-sub" id="progK5s">registros abertos</div></div>
           <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Extras Programadas</div><div class="kpi-value" id="progK6">—</div><div class="kpi-sub" id="progK6s">demandas adicionais</div></div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-head"><span class="card-title">Comparativo Semanal de Aderência e Cargas</span><span class="count-tag" id="progTrendRange">—</span></div>
+          <div style="position:relative;height:290px"><canvas id="progTrendChart"></canvas></div>
         </div>
 
         <div class="grid-2">
@@ -1595,7 +1600,7 @@ tbody tr:hover td{background:var(--surface2)}
 
         <div class="tbl-card" style="margin-bottom:20px">
           <div class="tbl-head"><span class="tbl-title">Cargas</span><span class="count-tag" id="progCargaCnt">0 registros</span></div>
-          <div class="tbl-wrap"><table><thead><tr><th>Semana</th><th>Frota</th><th>Tipo Op.</th><th>Cargas</th><th>Entregues</th><th>Em Trânsito</th><th>Pendente</th><th>Conjuntos</th><th>Taxa Entrega</th></tr></thead><tbody id="progCargaTbl"></tbody></table></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Semana</th><th>Frota</th><th>Tipo Op.</th><th>Cargas</th><th>Entregues</th><th>Em Trânsito</th><th>Pendente</th><th>Não Entregues</th><th>Conjuntos</th><th>Aderência</th></tr></thead><tbody id="progCargaTbl"></tbody></table></div>
         </div>
 
         <div class="grid-2" style="margin-bottom:0">
@@ -1726,7 +1731,7 @@ tbody tr:hover td{background:var(--surface2)}
 
 <!-- v1778869583 -->
 <script>
-let aetData=[],mobData=[],matData=[],matSafetyData=[],patData=[],inefData=[],eflData=[],eflDetailData=[],rpdData=[],progSheetsData=[],aC=null,mC=null,mAC=null,pC=null,pCompareLineC=null,pCompareStatusC=null,iC=null,iC2=null,progStatusChart=null,progClientChart=null,progLoadChart=null,dark=false;
+let aetData=[],mobData=[],matData=[],matSafetyData=[],patData=[],inefData=[],eflData=[],eflDetailData=[],rpdData=[],progSheetsData=[],aC=null,mC=null,mAC=null,pC=null,pCompareLineC=null,pCompareStatusC=null,iC=null,iC2=null,progStatusChart=null,progClientChart=null,progLoadChart=null,progTrendChart=null,dark=false;
 window._aet=()=>aetData;
 window._mob=()=>mobData;
 
@@ -1783,7 +1788,7 @@ const panelPremises={
   prog:[
     ['Objetivo','Acompanhar se a programação semanal está executável e se as cargas estão avançando conforme o planejado.'],
     ['Origem dos dados','As semanas vêm da planilha Programação Logística Semanal - MKT & LOG.'],
-    ['Aderência','Mostra o quanto da programação foi cumprido. Realizado conta como atendimento completo, parcial conta metade e pendente/não realizado não conta aderência.'],
+    ['Aderência','Compara as cargas previstas com as não entregues. O cálculo é: cargas totais menos cargas não entregues, dividido pelas cargas totais. Quando a coluna Não Entregues estiver vazia ou inválida, o painel usa cargas totais menos cargas entregues.'],
     ['Disponibilidade','Indica se os conjuntos programados estão disponíveis, em manutenção ou sem previsão para atendimento.'],
     ['Extras e ocorrências','Extras são demandas incluídas depois da programação. Ocorrências são eventos fora do plano e devem ser lidas separadamente.'],
     ['Ponto de atenção','Muita manutenção sobre o total programado ou muitas cargas pendentes elevam o risco de atendimento da semana.']
@@ -1876,7 +1881,7 @@ function goTo(id){
     if(id==='inef'&&inefData.length>0){if(iC){iC.destroy();iC=null;}if(iC2){iC2.destroy();iC2=null;}renderINEF();}
     if(id==='efl'){if(eflChart){eflChart.destroy();eflChart=null;}if(eflFrotaMesChart){eflFrotaMesChart.destroy();eflFrotaMesChart=null;}if(eflMesChart){eflMesChart.destroy();eflMesChart=null;}if(eflDiaChart){eflDiaChart.destroy();eflDiaChart=null;}if(eflData.length>0)renderEFL();}
     if(id==='rpd'&&rpdData.length>0){if(rpdChart){rpdChart.destroy();rpdChart=null;}renderRPD();}
-    if(id==='prog'&&progSheetsData.length>0){if(progStatusChart){progStatusChart.destroy();progStatusChart=null;}if(progClientChart){progClientChart.destroy();progClientChart=null;}if(progLoadChart){progLoadChart.destroy();progLoadChart=null;}renderPROG();}
+    if(id==='prog'&&progSheetsData.length>0){if(progStatusChart){progStatusChart.destroy();progStatusChart=null;}if(progClientChart){progClientChart.destroy();progClientChart=null;}if(progLoadChart){progLoadChart.destroy();progLoadChart=null;}if(progTrendChart){progTrendChart.destroy();progTrendChart=null;}renderPROG();}
     if(id==='mat'&&(matData.length>0||matSafetyData.length>0)){if(mAC){mAC.destroy();mAC=null;}renderMAT();}
     if(id==='exec'){setExecTab(execActiveTab||'overview');renderEXEC();}
   },50);
@@ -1909,6 +1914,7 @@ function toggleTheme(){
   if(progStatusChart){progStatusChart.destroy();progStatusChart=null;}
   if(progClientChart){progClientChart.destroy();progClientChart=null;}
   if(progLoadChart){progLoadChart.destroy();progLoadChart=null;}
+  if(progTrendChart){progTrendChart.destroy();progTrendChart=null;}
   if(activeId==='aet'&&aetData.length)renderAET();
   if(activeId==='mob'&&mobData.length)renderMOB();
   if(activeId==='mat'&&(matData.length||matSafetyData.length))renderMAT();
@@ -1945,7 +1951,7 @@ const progBarValueLabelsPlugin={
     ctx.font=`600 ${fontSize}px 'DM Mono', monospace`;
     ctx.textAlign='center';
     chart.data.datasets.forEach((dataset,datasetIndex)=>{
-      if(dataset.showDataLabels===false||dataset.type==='line')return;
+      if(dataset.showDataLabels===false||(dataset.type==='line'&&!(pluginOptions&&pluginOptions.includeLines)))return;
       const meta=chart.getDatasetMeta(datasetIndex);
       if(meta.hidden)return;
       meta.data.forEach((bar,index)=>{
@@ -2072,6 +2078,7 @@ function progEsc(v){return String(v==null?'':v).replace(/[&<>'"]/g,function(m){r
 function progWeekNum(v){const m=progTxt(v).match(/W(\d{1,2})/i);return m?parseInt(m[1],10):0;}
 function progPct(v){const m=progTxt(v).match(/-?\d+(?:[.,]\d+)?/);return m?parseFloat(m[0].replace('.','').replace(',','.')):null;}
 function progNum(v){const raw=progTxt(v);if(!raw||raw==='-'||progKey(raw)==='AINICIAR')return 0;const n=parseFloat(raw.replace(/\./g,'').replace(',','.').replace(/[^0-9.-]/g,''));return isNaN(n)?0:n;}
+function progNullableNum(v){const raw=progTxt(v);if(!raw||raw==='-'||progKey(raw)==='AINICIAR')return null;const cleaned=raw.replace(/\./g,'').replace(',','.').replace(/[^0-9.-]/g,'');if(!cleaned)return null;const n=parseFloat(cleaned);return isFinite(n)?n:null;}
 function progTagStatus(v){const k=progKey(v);if(k.includes('MANUTEN'))return'tag-red';if(k.includes('DISPON'))return'tag-green';if(k.includes('OPERAC'))return'tag-blue';if(k.includes('PREVISAO'))return'tag-amber';return'tag-dim';}
 function progTagDone(v){const k=progKey(v);if(k==='REALIZADO'||k.includes('ATENDIDA'))return'tag-green';if(k==='PARCIAL')return'tag-amber';if(k==='PENDENTE')return'tag-blue';if(k.includes('NAOREALIZADO'))return'tag-red';return'tag-dim';}
 function progIsOpenStatus(v){const k=progKey(v);return !!k&&!['RESOLVIDA','RESOLVIDO','FECHADO','CONCLUIDO'].includes(k);}
@@ -2100,7 +2107,7 @@ function parsePROGSheet(rows,meta){
   const occKeys=sliceKeys(occStart,extraStart>0?extraStart:keys.length);
   const extraKeys=sliceKeys(extraStart,keys.length);
   const C={conjunto:progFindHeader(mainKeys,['CONJUNTO DE TRANSPORTE','CONJUNTO']),tipo:progFindHeader(mainKeys,['TIPO']),un:progFindHeader(mainKeys,['UN']),cliente:progFindHeader(mainKeys,['CLIENTE']),dataCliente:progFindHeader(mainKeys,['DATA NO CLIENTE']),dataSaida:progFindHeader(mainKeys,['DATA DE SAÍDA','DATA DE SAIDA']),localizacao:progFindHeader(mainKeys,['LOCALIZAÇÃO','LOCALIZACAO']),frota:progFindHeader(mainKeys,['FROTA ATENDIDA']),statusAtual:progFindHeader(mainKeys,['STATUS ATUAL']),dataLiberacao:progFindHeader(mainKeys,['DATA DE LIBERAÇÃO','DATA DE LIBERACAO']),realizado:progFindHeader(mainKeys,['REALIZADO']),aderencia:progFindHeader(mainKeys,['OBSERVAÇÃO DE ADERÊNCIA','OBSERVACAO DE ADERENCIA']),obs:progFindHeader(mainKeys,['OBSERVAÇÃO','OBSERVACAO'])};
-  const L={frota:progFindHeader(loadKeys,['FROTA']),tipoOp:progFindHeader(loadKeys,['TIPO OP']),cargas:progFindHeader(loadKeys,['CARGAS']),entregues:progFindHeader(loadKeys,['ENTREGUES']),emTransito:progFindHeader(loadKeys,['EM TRÂNSITO','EM TRANSITO']),pendente:progFindHeader(loadKeys,['PENDENTE CAR.','PENDENTE CAR']),conjuntos:progFindHeader(loadKeys,['CONJUNTOS'])};
+  const L={frota:progFindHeader(loadKeys,['FROTA']),tipoOp:progFindHeader(loadKeys,['TIPO OP']),cargas:progFindHeader(loadKeys,['CARGAS']),entregues:progFindHeader(loadKeys,['ENTREGUES']),emTransito:progFindHeader(loadKeys,['EM TRÂNSITO','EM TRANSITO']),pendente:progFindHeader(loadKeys,['PENDENTE CAR.','PENDENTE CAR']),naoEntregues:progFindHeader(loadKeys,['NÃO ENTREGUES','NAO ENTREGUES']),conjuntos:progFindHeader(loadKeys,['CONJUNTOS'])};
   const O={conjunto:progFindHeader(occKeys,['CONJUNTO']),dataHora:progFindHeader(occKeys,['DATA / HORA','DATA HORA']),tipo:progFindHeader(occKeys,['TIPO DE OCORRÊNCIA','TIPO DE OCORRENCIA']),descricao:progFindHeader(occKeys,['DESCRIÇÃO','DESCRICAO']),responsavel:progFindHeader(occKeys,['RESPONSÁVEL','RESPONSAVEL']),impacto:progFindHeader(occKeys,['IMPACTO']),status:progFindHeader(occKeys,['STATUS']),dataResolucao:progFindHeader(occKeys,['DATA RESOLUÇÃO','DATA RESOLUCAO'])};
   const E={conjunto:progFindHeader(extraKeys,['CONJUNTO']),tipo:progFindHeader(extraKeys,['TIPO']),solicitante:progFindHeader(extraKeys,['SOLICITANTE']),cliente:progFindHeader(extraKeys,['CLIENTE']),dataSolicitacao:progFindHeader(extraKeys,['DATA SOLICITAÇÃO','DATA SOLICITACAO']),dataSaida:progFindHeader(extraKeys,['DATA DE SAÍDA','DATA DE SAIDA']),motivo:progFindHeader(extraKeys,['MOTIVO / CONTEXTO','MOTIVO CONTEXTO']),frota:progFindHeader(extraKeys,['FROTA ATENDIDA']),status:progFindHeader(extraKeys,['STATUS'])};
   const records=[],loads=[],occurrences=[],extras=[];
@@ -2117,7 +2124,10 @@ function parsePROGSheet(rows,meta){
     const loadFrota=progTxt(loadCells[L.frota]);
     const loadSignal=loadFrota||progTxt(loadCells[L.cargas])||progTxt(loadCells[L.entregues])||progTxt(loadCells[L.emTransito])||progTxt(loadCells[L.pendente]);
     if(loadSignal&&loadFrota){
-      loads.push({week:week,frota:loadFrota,tipoOp:progTxt(loadCells[L.tipoOp]),cargas:progNum(loadCells[L.cargas]),entregues:progNum(loadCells[L.entregues]),emTransito:progNum(loadCells[L.emTransito]),pendente:progNum(loadCells[L.pendente]),conjuntos:progNum(loadCells[L.conjuntos])});
+      const cargas=progNum(loadCells[L.cargas]);
+      const entregues=progNum(loadCells[L.entregues]);
+      const naoEntreguesInformado=progNullableNum(loadCells[L.naoEntregues]);
+      loads.push({week:week,frota:loadFrota,tipoOp:progTxt(loadCells[L.tipoOp]),cargas:cargas,entregues:entregues,emTransito:progNum(loadCells[L.emTransito]),pendente:progNum(loadCells[L.pendente]),naoEntregues:naoEntreguesInformado==null?Math.max(cargas-entregues,0):Math.max(naoEntreguesInformado,0),naoEntreguesOrigem:naoEntreguesInformado==null?'calculado':'planilha',conjuntos:progNum(loadCells[L.conjuntos])});
     }
     const occConj=progTxt(occCells[O.conjunto]),occDesc=progTxt(occCells[O.descricao]);
     if(occConj||occDesc){
@@ -2236,19 +2246,19 @@ function renderPROG(){
   const cargasEntregues=loads.reduce((s,r)=>s+r.entregues,0);
   const cargasEmTransito=loads.reduce((s,r)=>s+r.emTransito,0);
   const cargasPendentes=loads.reduce((s,r)=>s+r.pendente,0);
+  const cargasNaoEntregues=loads.reduce((s,r)=>s+(r.naoEntregues||0),0);
   const taxaEntrega=totalCargas?cargasEntregues/totalCargas*100:0;
   const taxaDisponibilidade=totalProgramados?dispCount/totalProgramados*100:0;
   const doneMap={'Realizado':0,'Parcial':0,'Pendente':0,'Não Realizado':0};
   records.forEach(r=>{const k=progKey(r.realizado);if(k==='REALIZADO')doneMap['Realizado']++;else if(k==='PARCIAL')doneMap['Parcial']++;else if(k==='PENDENTE')doneMap['Pendente']++;else if(k.includes('NAOREALIZADO'))doneMap['Não Realizado']++;});
-  const pontosExec=(doneMap['Realizado']*1)+(doneMap['Parcial']*0.5);
-  const taxaAderencia=totalProgramados?pontosExec/totalProgramados*100:0;
+  const taxaAderencia=totalCargas?Math.max(0,Math.min(100,(totalCargas-cargasNaoEntregues)/totalCargas*100)):0;
   const summaryOrder=[['Programações',String(totalProgramados)],['Disponíveis',String(dispCount)],['Em Manutenção',String(manutCount)],['Sem Previsão',String(semPrevCount)]];
   function set(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
   set('progK0',baseSheet.week);set('progK0s','programação semanal');set('progK1',records.length);set('progK2',taxaAderencia.toFixed(1).replace('.',',')+'%');set('progK3',totalCargas);set('progK3s',cargasPendentes+' pendentes');set('progK4',cargasEntregues);set('progK4s',taxaEntrega.toFixed(1).replace('.',',')+'% da carga');set('progK5',ocorrOpen);set('progK5s','registros abertos');set('progK6',extras.length);set('progK6s',extrasRate.toFixed(1).replace('.',',')+'% do programado');set('progResumoWeek',baseSheet.week);set('progExtraWeek',baseSheet.week);set('progCnt',records.length+' registros');set('progCargaCnt',loads.length+' registros');set('progOccCnt',occs.length+' registros');set('progExtraCnt',extras.length+' registros');
   const bars=document.getElementById('progResumoBars');
   if(bars){const max=Math.max(...summaryOrder.map(x=>progNum(x[1])),1);bars.innerHTML=summaryOrder.map(([label,val])=>{const num=progNum(val);const color=label.includes('Manutenção')?'var(--red)':label.includes('Dispon')?'var(--green)':'var(--makro-blue)';return`<div class="bar-row"><div class="bar-lbl">${progEsc(label)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,Math.round(num/max*100))}%;background:${color}"></div></div><div class="bar-num" style="width:54px">${progEsc(val)}</div></div>`;}).join('');}
   const insights=document.getElementById('progInsights');
-  if(insights){const rows=[['Taxa Disponib.',taxaDisponibilidade.toFixed(1).replace('.',',')+'%','var(--teal)'],['Aderência',taxaAderencia.toFixed(1).replace('.',',')+'%','var(--green)'],['Extras / Programado',extrasRate.toFixed(1).replace('.',',')+'%','var(--amber)'],['Entrega de Cargas',taxaEntrega.toFixed(1).replace('.',',')+'%','var(--makro-blue)'],['Ocorrências em Aberto',String(ocorrOpen),'var(--red)']];const max=Math.max(...rows.map(r=>progPct(r[1])||progNum(r[1])),1);insights.innerHTML=rows.map(([label,val,color])=>{const num=progPct(val)??progNum(val);return`<div class="bar-row"><div class="bar-lbl">${progEsc(label)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,Math.round(num/max*100))}%;background:${color}"></div></div><div class="bar-num" style="width:54px">${progEsc(val)}</div></div>`;}).join('');}
+  if(insights){const rows=[['Taxa Disponib.',taxaDisponibilidade.toFixed(1).replace('.',',')+'%','var(--teal)'],['Aderência',taxaAderencia.toFixed(1).replace('.',',')+'%','var(--green)'],['Não Entregues',String(cargasNaoEntregues),'var(--red)'],['Extras / Programado',extrasRate.toFixed(1).replace('.',',')+'%','var(--amber)'],['Ocorrências em Aberto',String(ocorrOpen),'var(--red)']];const max=Math.max(...rows.map(r=>progPct(r[1])||progNum(r[1])),1);insights.innerHTML=rows.map(([label,val,color])=>{const num=progPct(val)??progNum(val);return`<div class="bar-row"><div class="bar-lbl">${progEsc(label)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,Math.round(num/max*100))}%;background:${color}"></div></div><div class="bar-num" style="width:54px">${progEsc(val)}</div></div>`;}).join('');}
   const extraBars=document.getElementById('progExtraBars');
   if(extraBars){
     const extraStatusMap={};
@@ -2270,6 +2280,71 @@ function renderPROG(){
     }).join('');
   }
   const ct=chartTheme();
+  const trendHasRecordFilters=!!q||!isAllSelection(cliente)||!isAllSelection(un)||!isAllSelection(status)||!isAllSelection(realizado);
+  const trendRows=progSheetsData.map(sheet=>{
+    const weekRecords=(sheet.records||[]).filter(r=>{
+      if(!matchesValue(r.cliente,cliente))return false;
+      if(!matchesContains(r.frotaAtendida,frota))return false;
+      if(!matchesValue(r.un,un))return false;
+      if(!matchesValue(r.statusAtual,status))return false;
+      if(!matchesValue(r.realizado,realizado))return false;
+      if(q){const hay=[r.week,r.conjunto,r.tipo,r.un,r.cliente,r.localizacao,r.frotaAtendida,r.statusAtual,r.realizado,r.aderencia,r.obs].join(' ').toLowerCase();if(!hay.includes(q))return false;}
+      return true;
+    });
+    const weekFrotas=new Set(weekRecords.flatMap(r=>progSplitFrotas(r.frotaAtendida)).map(progKey));
+    const weekLoads=(sheet.loads||[]).filter(r=>{
+      if(!matchesValue(r.frota,frota))return false;
+      const directSearch=!!q&&[r.frota,r.tipoOp,r.cargas,r.entregues,r.emTransito,r.pendente].join(' ').toLowerCase().includes(q);
+      if(trendHasRecordFilters){
+        if(!weekFrotas.size&&!directSearch)return false;
+        if(weekFrotas.size&&!weekFrotas.has(progKey(r.frota))&&!directSearch)return false;
+      }
+      return true;
+    });
+    const weekLoadTotal=weekLoads.reduce((sum,r)=>sum+r.cargas,0);
+    const weekNotDelivered=weekLoads.reduce((sum,r)=>sum+(r.naoEntregues||0),0);
+    return{
+      week:sheet.week,
+      adherence:weekLoadTotal?Math.max(0,Math.min(100,(weekLoadTotal-weekNotDelivered)/weekLoadTotal*100)):0,
+      loads:weekLoadTotal,
+      delivered:weekLoads.reduce((sum,r)=>sum+r.entregues,0)
+    };
+  });
+  const trendRange=document.getElementById('progTrendRange');
+  if(trendRange){trendRange.textContent=trendRows.length?`${trendRows[0].week} a ${trendRows[trendRows.length-1].week}`:'—';}
+  const trendCanvas=document.getElementById('progTrendChart');
+  if(progTrendChart){progTrendChart.destroy();progTrendChart=null;}
+  if(trendCanvas&&trendRows.length){
+    const activeWeekSet=new Set(selectedWeeks);
+    progTrendChart=new Chart(trendCanvas,{
+      type:'bar',
+      plugins:[progBarValueLabelsPlugin],
+      data:{
+        labels:trendRows.map(r=>r.week),
+        datasets:[
+          {type:'bar',label:'Cargas Totais',data:trendRows.map(r=>r.loads),yAxisID:'yLoads',backgroundColor:trendRows.map(r=>activeWeekSet.has(r.week)?'rgba(27,63,122,0.88)':'rgba(27,63,122,0.48)'),borderColor:'rgba(27,63,122,1)',borderWidth:1,borderRadius:4,maxBarThickness:52,order:1},
+          {type:'bar',label:'Cargas Entregues',data:trendRows.map(r=>r.delivered),yAxisID:'yLoads',backgroundColor:trendRows.map(r=>activeWeekSet.has(r.week)?'rgba(45,184,122,0.88)':'rgba(45,184,122,0.48)'),borderColor:'rgba(45,184,122,1)',borderWidth:1,borderRadius:4,maxBarThickness:52,order:1},
+          {type:'line',label:'Aderência',data:trendRows.map(r=>Number(r.adherence.toFixed(1))),yAxisID:'yAdherence',borderColor:ct.text,backgroundColor:ct.text,pointBackgroundColor:trendRows.map(r=>activeWeekSet.has(r.week)?ct.text:(dark?'rgba(22,23,25,1)':'rgba(255,255,255,1)')),pointBorderColor:ct.text,pointBorderWidth:2,pointRadius:trendRows.map(r=>activeWeekSet.has(r.week)?5:4),pointHoverRadius:6,borderWidth:2.5,tension:.25,fill:false,order:0}
+        ]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        interaction:{mode:'index',intersect:false},
+        layout:{padding:{top:20}},
+        plugins:{
+          progBarValueLabels:{color:ct.text2,fontSize:10,mode:'top',includeLines:true,formatter:(value,dataset)=>dataset.type==='line'?value.toFixed(1).replace('.',',')+'%':Math.round(value).toLocaleString('pt-BR')},
+          legend:{position:'bottom',labels:{color:ct.text3,boxWidth:11,usePointStyle:true,font:{family:'DM Mono',size:10}}},
+          tooltip:{callbacks:{label:ctx=>ctx.dataset.type==='line'?` Aderência: ${Number(ctx.raw).toFixed(1).replace('.',',')}%`:` ${ctx.dataset.label}: ${Number(ctx.raw).toLocaleString('pt-BR')}`}}
+        },
+        scales:{
+          x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:10}}},
+          yLoads:{type:'linear',position:'left',beginAtZero:true,grid:{color:ct.grid},ticks:{color:ct.text3,precision:0,font:{family:'DM Mono',size:10}},title:{display:true,text:'CARGAS',color:ct.text3,font:{family:'DM Mono',size:9}}},
+          yAdherence:{type:'linear',position:'right',beginAtZero:true,min:0,max:100,grid:{drawOnChartArea:false},ticks:{color:ct.text3,stepSize:20,callback:value=>value+'%',font:{family:'DM Mono',size:10}},title:{display:true,text:'ADERÊNCIA',color:ct.text3,font:{family:'DM Mono',size:9}}}
+        }
+      }
+    });
+  }
   const statLabels=Object.keys(doneMap).filter(k=>doneMap[k]>0);
   const statVals=statLabels.map(k=>doneMap[k]);
   const statColors=['rgba(45,184,122,0.88)','rgba(232,148,58,0.88)','rgba(27,63,122,0.88)','rgba(200,20,40,0.88)'];
@@ -2316,7 +2391,7 @@ function renderPROG(){
   const tbl=document.getElementById('progTbl');
   if(tbl){tbl.innerHTML=records.length?records.map(r=>`<tr><td style="font-family:'DM Mono',monospace;white-space:nowrap">${progEsc(r.week)}</td><td style="font-family:'DM Mono',monospace;font-weight:600">${progEsc(r.conjunto)}</td><td>${progEsc(r.tipo||'—')}</td><td>${progEsc(r.un||'—')}</td><td>${progEsc(r.cliente||'—')}</td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataCliente||'—')}</td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataSaida||'—')}</td><td>${progEsc(r.localizacao||'—')}</td><td>${progEsc(r.frotaAtendida||'—')}</td><td><span class="tag ${progTagStatus(r.statusAtual)}">${progEsc(r.statusAtual||'—')}</span></td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataLiberacao||'—')}</td><td><span class="tag ${progTagDone(r.realizado)}">${progEsc(r.realizado||'—')}</span></td><td class="obs-cell">${progObsCell(r.conjunto,r.aderencia)}</td><td class="obs-cell">${progObsCell(r.conjunto,r.obs)}</td></tr>`).join(''):'<tr><td colspan="14" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro</td></tr>';}
   const cargaTbl=document.getElementById('progCargaTbl');
-  if(cargaTbl){cargaTbl.innerHTML=loads.length?loads.map(r=>{const rate=r.cargas?Math.round(r.entregues/r.cargas*100):0;return`<tr><td style="font-family:'DM Mono',monospace">${progEsc(r.week)}</td><td style="font-family:'DM Mono',monospace;font-weight:600">${progEsc(r.frota)}</td><td>${progEsc(r.tipoOp||'—')}</td><td style="font-family:'DM Mono',monospace">${r.cargas}</td><td style="font-family:'DM Mono',monospace;color:var(--green)">${r.entregues}</td><td style="font-family:'DM Mono',monospace;color:var(--makro-blue)">${r.emTransito}</td><td style="font-family:'DM Mono',monospace;color:var(--amber)">${r.pendente}</td><td style="font-family:'DM Mono',monospace">${r.conjuntos}</td><td style="font-family:'DM Mono',monospace">${rate}%</td></tr>`;}).join(''):'<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro de cargas</td></tr>';}
+  if(cargaTbl){cargaTbl.innerHTML=loads.length?loads.map(r=>{const rate=r.cargas?Math.max(0,Math.min(100,Math.round((r.cargas-(r.naoEntregues||0))/r.cargas*100))):0;return`<tr><td style="font-family:'DM Mono',monospace">${progEsc(r.week)}</td><td style="font-family:'DM Mono',monospace;font-weight:600">${progEsc(r.frota)}</td><td>${progEsc(r.tipoOp||'—')}</td><td style="font-family:'DM Mono',monospace">${r.cargas}</td><td style="font-family:'DM Mono',monospace;color:var(--green)">${r.entregues}</td><td style="font-family:'DM Mono',monospace;color:var(--makro-blue)">${r.emTransito}</td><td style="font-family:'DM Mono',monospace;color:var(--amber)">${r.pendente}</td><td style="font-family:'DM Mono',monospace;color:${r.naoEntregues?'var(--red)':'var(--green)'}">${r.naoEntregues||0}</td><td style="font-family:'DM Mono',monospace">${r.conjuntos}</td><td style="font-family:'DM Mono',monospace">${rate}%</td></tr>`;}).join(''):'<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro de cargas</td></tr>';}
   const occTbl=document.getElementById('progOccTbl');
   if(occTbl){occTbl.innerHTML=occs.length?occs.map(r=>`<tr><td style="font-family:'DM Mono',monospace">${progEsc(r.conjunto||'—')}</td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataHora||'—')}</td><td>${progEsc(r.tipo||'—')}</td><td>${progEsc(r.descricao||'—')}</td><td>${progEsc(r.responsavel||'—')}</td><td>${progEsc(r.impacto||'—')}</td><td><span class="tag ${progIsOpenStatus(r.status)?'tag-red':'tag-green'}">${progEsc(r.status||'—')}</span></td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataResolucao||'—')}</td></tr>`).join(''):'<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">Nenhuma ocorrência registrada</td></tr>';}
   const extraTbl=document.getElementById('progExtraTbl');
@@ -2409,10 +2484,10 @@ function renderEXEC(){
   const progMaint=progRecords.filter(r=>progKey(r.statusAtual).includes('MANUTEN')).length;
   const progPendExec=progRecords.filter(r=>progKey(r.realizado)==='PENDENTE').length;
   const progRiskPct=progTotal?progMaint/progTotal*100:0;
-  const progEntregues=progLoads.reduce((s,r)=>s+(r.entregues||0),0);
   const progPendCarga=progLoads.reduce((s,r)=>s+(r.pendente||0),0);
+  const progNaoEntregues=progLoads.reduce((s,r)=>s+(r.naoEntregues||0),0);
   const progTotalCargas=progLoads.reduce((s,r)=>s+(r.cargas||0),0);
-  const progTaxaEntrega=progTotalCargas?progEntregues/progTotalCargas*100:0;
+  const progAderenciaCargas=progTotalCargas?Math.max(0,Math.min(100,(progTotalCargas-progNaoEntregues)/progTotalCargas*100)):0;
   const progImpactOccs=progOccs.filter(r=>{
     const impact=execStatusKey(r.impacto);
     return impact&&impact!=='-'&&impact!=='NA'&&impact!=='N/A'&&impact!=='NAO'&&!impact.includes('SEM IMPACTO');
@@ -2421,6 +2496,7 @@ function renderEXEC(){
     ['Conjuntos em manutenção',progMaint,'var(--red)'],
     ['Execução pendente',progPendExec,'var(--amber)'],
     ['Cargas pendentes',progPendCarga,'var(--amber)'],
+    ['Cargas não entregues',progNaoEntregues,'var(--red)'],
     ['Ocorrências com impacto',progImpactOccs.length,'var(--red)']
   ];
   const progBarMax=Math.max(...progBarsData.map(x=>x[1]),1);
@@ -2485,7 +2561,7 @@ function renderEXEC(){
   const programExposureLevel=progRiskPct>=60?'critico':progRiskPct>=35?'atencao':'positivo';
   const programLevel=programExposureLevel==='critico'||progImpactOccs.length
     ?'critico'
-    :programExposureLevel==='atencao'||progPendCarga||progOccs.length?'atencao':'positivo';
+    :programExposureLevel==='atencao'||progPendCarga||progNaoEntregues||progOccs.length?'atencao':'positivo';
   const patioLevel=patAlta?'critico':'positivo';
   const yardMaterialsLevel=patioLevel==='critico'?'critico':matDef?'atencao':'positivo';
   const logisticsLevel=[programLevel,yardMaterialsLevel].includes('critico')
@@ -2510,6 +2586,7 @@ function renderEXEC(){
     progMaint?`${execPct(progRiskPct)} da programação exposta por manutenção`:'',
     progImpactOccs.length?`${progImpactOccs.length} ocorrências abertas com impacto informado`:'',
     progPendCarga?`${progPendCarga} cargas pendentes na semana`:'',
+    progNaoEntregues?`${progNaoEntregues} cargas não entregues na semana`:'',
     patAlta?`${patAlta} tarefas críticas de pátio pendentes`:'',
     matDef?`${matDef} frotas com déficit de amarração e/ou segurança`:''
   ].filter(Boolean);
@@ -2600,11 +2677,11 @@ function renderEXEC(){
     <div class="kv-item"><div class="kv-k">Semana</div><div class="kv-v">${execEsc(activeProg.week||'—')}</div></div>
     <div class="kv-item"><div class="kv-k">Programados</div><div class="kv-v">${progTotal}</div></div>
     <div class="kv-item"><div class="kv-k">Exposição</div><div class="kv-v">${execPct(progRiskPct)}</div></div>
-    <div class="kv-item"><div class="kv-k">Entrega de cargas</div><div class="kv-v">${execPct(progTaxaEntrega)}</div></div>
+    <div class="kv-item"><div class="kv-k">Aderência das cargas</div><div class="kv-v">${execPct(progAderenciaCargas)}</div></div>
     <div class="kv-item"><div class="kv-k">Ocorrências com impacto</div><div class="kv-v">${progImpactOccs.length}</div></div>
   `);
   html('execProgText',progTotal
-?`Na <strong>${execEsc(activeProg.week)}</strong>, <strong>${progMaint} de ${progTotal}</strong> conjuntos estão em manutenção. A semana possui <strong>${progPendCarga}</strong> cargas pendentes e <strong>${progImpactOccs.length}</strong> ocorrências abertas com impacto informado; esses são os pontos que podem comprometer o atendimento.`
+?`Na <strong>${execEsc(activeProg.week)}</strong>, <strong>${progMaint} de ${progTotal}</strong> conjuntos estão em manutenção. A aderência das cargas está em <strong>${execPct(progAderenciaCargas)}</strong>, com <strong>${progNaoEntregues}</strong> não entregues, <strong>${progPendCarga}</strong> pendentes e <strong>${progImpactOccs.length}</strong> ocorrências abertas com impacto informado.`
 :'Sem programação consolidada disponível para leitura.');
 
   set('execInefTag',yesterday.toLocaleDateString('pt-BR'));
@@ -2656,7 +2733,7 @@ function renderEXEC(){
     {
       level:programLevel,
       title:'Programação semanal',
-      body:progTotal?`Validar o atendimento da ${activeProg.week}: ${progMaint} conjuntos em manutenção, ${progPendCarga} cargas pendentes e ${progImpactOccs.length} ocorrências abertas com impacto informado.`:'Conectar ou atualizar a programação semanal para permitir a leitura de risco.'
+      body:progTotal?`Validar o atendimento da ${activeProg.week}: aderência de ${execPct(progAderenciaCargas)}, ${progNaoEntregues} cargas não entregues, ${progMaint} conjuntos em manutenção e ${progImpactOccs.length} ocorrências abertas com impacto informado.`:'Conectar ou atualizar a programação semanal para permitir a leitura de risco.'
     },
     {
       level:mobilizationLevel,
@@ -2859,7 +2936,7 @@ function fillSelectOptions(ids,vals,allLabel='Todos',labelFn){
   ids.forEach(id=>{
     const el=document.getElementById(id);
     if(!el)return;
-    const current=getSelectValuesFromEl(el);
+    const current=getSelectedValuesFromEl(el);
     el.innerHTML='<option value="TODOS">'+allLabel+'</option>'+values.map(v=>'<option value="'+String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'">'+String(labelFn?labelFn(v):v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</option>').join('');
     if(el.dataset&&el.dataset.msActive==='1'&&_ms[id]){
       msRebuild(id,values.map(v=>({value:String(v),label:String(labelFn?labelFn(v):v)})));
