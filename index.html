@@ -221,6 +221,13 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 .legend{display:flex;flex-wrap:wrap;gap:8px}.legend.vert{flex-direction:column;gap:6px}
 .leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)}
 .leg-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+.prog-chart-scroll{width:100%;overflow-x:auto;overflow-y:hidden;padding-bottom:4px;overscroll-behavior-inline:contain;scrollbar-color:var(--border2) transparent}
+.prog-chart-stage{position:relative;height:220px;min-width:100%}
+.prog-chart-tools{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.prog-chart-nav{display:flex;align-items:center;gap:4px}
+.prog-chart-nav-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);width:26px;height:26px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;padding:0;transition:opacity .2s,border-color .2s,color .2s}
+.prog-chart-nav-btn:hover:not(:disabled){border-color:var(--border2);color:var(--text)}
+.prog-chart-nav-btn:disabled{opacity:.3;cursor:default}
 .bars{display:flex;flex-direction:column;gap:12px}
 .bar-row{display:flex;align-items:center;gap:10px}
 .bar-lbl{width:140px;font-size:11px;color:var(--text2);flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1527,7 +1534,7 @@ tbody tr:hover td{background:var(--surface2)}
         </div>
 
         <div class="kpi-row" style="grid-template-columns:repeat(7,minmax(0,1fr))">
-          <div class="kpi c-blue"><div class="kpi-stripe"></div><div class="kpi-label">Semana Ativa</div><div class="kpi-value" id="progK0">—</div><div class="kpi-sub" id="progK0s">programação semanal</div></div>
+          <div class="kpi c-blue"><div class="kpi-stripe"></div><div class="kpi-label" id="progK0Label">Semana Ativa</div><div class="kpi-value" id="progK0">—</div><div class="kpi-sub" id="progK0s">programação semanal</div></div>
           <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Programados</div><div class="kpi-value" id="progK1">—</div><div class="kpi-sub">conjuntos na semana</div></div>
           <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Taxa de Aderência</div><div class="kpi-value" id="progK2">—</div><div class="kpi-sub">cargas aderentes na semana</div></div>
           <div class="kpi c-amber"><div class="kpi-stripe"></div><div class="kpi-label">Cargas Planejadas</div><div class="kpi-value" id="progK3">—</div><div class="kpi-sub" id="progK3s">total da semana</div></div>
@@ -1537,8 +1544,8 @@ tbody tr:hover td{background:var(--surface2)}
         </div>
 
         <div class="card" style="margin-bottom:20px">
-          <div class="card-head"><span class="card-title">Comparativo Semanal de Aderência e Cargas</span><span class="count-tag" id="progTrendRange">—</span></div>
-          <div style="position:relative;height:290px"><canvas id="progTrendChart"></canvas></div>
+          <div class="card-head"><span class="card-title">Comparativo Semanal de Aderência e Cargas</span><div class="prog-chart-tools"><span class="count-tag" id="progTrendRange">—</span><div class="prog-chart-nav"><button class="prog-chart-nav-btn" id="progTrendChartScrollPrev" onclick="scrollPROGChart('progTrendChartScroll',-1)" title="Semanas anteriores" aria-label="Semanas anteriores">‹</button><button class="prog-chart-nav-btn" id="progTrendChartScrollNext" onclick="scrollPROGChart('progTrendChartScroll',1)" title="Próximas semanas" aria-label="Próximas semanas">›</button></div></div></div>
+          <div class="prog-chart-scroll" id="progTrendChartScroll" onscroll="updatePROGChartNav('progTrendChartScroll')"><div class="prog-chart-stage" id="progTrendChartStage" style="height:290px"><canvas id="progTrendChart"></canvas></div></div>
         </div>
 
         <div class="grid-2">
@@ -1549,16 +1556,18 @@ tbody tr:hover td{background:var(--surface2)}
               <div style="width:1px;background:var(--border);margin:0 16px;flex-shrink:0"></div>
               <div class="legend" id="progStatusLegend" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px"></div>
             </div>
-            <div style="padding-top:8px;border-top:1px solid var(--border)">
-              <div class="card-head" style="margin-bottom:10px"><span class="card-title">Cargas por Frota</span></div>
-              <div style="position:relative;height:220px"><canvas id="progLoadChart"></canvas></div>
+              <div style="padding-top:8px;border-top:1px solid var(--border)">
+              <div class="card-head" style="margin-bottom:10px"><span class="card-title">Cargas por Frota</span><div class="prog-chart-tools"><span class="count-tag" id="progLoadChartCount">0 frotas</span><div class="prog-chart-nav"><button class="prog-chart-nav-btn" id="progLoadChartScrollPrev" onclick="scrollPROGChart('progLoadChartScroll',-1)" title="Frotas anteriores" aria-label="Frotas anteriores">‹</button><button class="prog-chart-nav-btn" id="progLoadChartScrollNext" onclick="scrollPROGChart('progLoadChartScroll',1)" title="Próximas frotas" aria-label="Próximas frotas">›</button></div></div></div>
+              <div class="prog-chart-scroll" id="progLoadChartScroll" onscroll="updatePROGChartNav('progLoadChartScroll')"><div class="prog-chart-stage" id="progLoadChartStage"><canvas id="progLoadChart"></canvas></div></div>
             </div>
           </div>
           <div class="card" style="display:flex;flex-direction:column">
-            <div class="card-head"><span class="card-title">Distribuição de Conjuntos por Cliente</span></div>
-            <div style="position:relative;flex:1;min-height:220px;display:flex;align-items:center;justify-content:center">
-              <div style="position:relative;width:100%;height:220px">
+            <div class="card-head"><span class="card-title">Distribuição de Conjuntos por Cliente</span><div class="prog-chart-tools"><span class="count-tag" id="progClientChartCount">0 clientes</span><div class="prog-chart-nav"><button class="prog-chart-nav-btn" id="progClientChartScrollPrev" onclick="scrollPROGChart('progClientChartScroll',-1)" title="Clientes anteriores" aria-label="Clientes anteriores">‹</button><button class="prog-chart-nav-btn" id="progClientChartScrollNext" onclick="scrollPROGChart('progClientChartScroll',1)" title="Próximos clientes" aria-label="Próximos clientes">›</button></div></div></div>
+            <div style="position:relative;flex:1;min-height:220px;display:flex;align-items:center;justify-content:center;min-width:0">
+              <div class="prog-chart-scroll" id="progClientChartScroll" onscroll="updatePROGChartNav('progClientChartScroll')">
+                <div class="prog-chart-stage" id="progClientChartStage">
                 <canvas id="progClientChart"></canvas>
+                </div>
               </div>
             </div>
           </div>
@@ -1570,7 +1579,7 @@ tbody tr:hover td{background:var(--surface2)}
             <div id="progResumoBars" class="bars"></div>
           </div>
           <div class="card">
-            <div class="card-head"><span class="card-title">Leitura da Semana</span></div>
+            <div class="card-head"><span class="card-title" id="progInsightsTitle">Leitura da Semana</span></div>
             <div id="progInsights" class="bars"></div>
           </div>
         </div>
@@ -1788,7 +1797,7 @@ const panelPremises={
   prog:[
     ['Objetivo','Acompanhar se a programação semanal está executável e se as cargas estão avançando conforme o planejado.'],
     ['Origem dos dados','As semanas vêm da planilha Programação Logística Semanal - MKT & LOG.'],
-    ['Aderência','Compara as cargas previstas com as não entregues. O cálculo é: cargas totais menos cargas não entregues, dividido pelas cargas totais. Quando a coluna Não Entregues estiver vazia ou inválida, o painel usa cargas totais menos cargas entregues.'],
+    ['Aderência','Compara as cargas previstas com as cargas que atravessaram a virada da semana sem entrega. O cálculo é: cargas totais menos cargas não entregues, dividido pelas cargas totais. Se a coluna Não Entregues estiver vazia ou inválida, a aderência fica como não disponível até o fechamento da base.'],
     ['Disponibilidade','Indica se os conjuntos programados estão disponíveis, em manutenção ou sem previsão para atendimento.'],
     ['Extras e ocorrências','Extras são demandas incluídas depois da programação. Ocorrências são eventos fora do plano e devem ser lidas separadamente.'],
     ['Ponto de atenção','Muita manutenção sobre o total programado ou muitas cargas pendentes elevam o risco de atendimento da semana.']
@@ -1952,6 +1961,8 @@ const progBarValueLabelsPlugin={
     ctx.textAlign='center';
     chart.data.datasets.forEach((dataset,datasetIndex)=>{
       if(dataset.showDataLabels===false||(dataset.type==='line'&&!(pluginOptions&&pluginOptions.includeLines)))return;
+      const datasetMode=dataset.dataLabelMode||mode;
+      const datasetColor=dataset.dataLabelColor||color;
       const meta=chart.getDatasetMeta(datasetIndex);
       if(meta.hidden)return;
       meta.data.forEach((bar,index)=>{
@@ -1962,8 +1973,8 @@ const progBarValueLabelsPlugin={
         const props=bar.getProps(['x','y','base'],true);
         const label=formatter?formatter(value,dataset,index):String(value).replace('.',',');
         if(!label)return;
-        ctx.fillStyle=color;
-        if(mode==='stacked-inside'){
+        ctx.fillStyle=datasetColor;
+        if(datasetMode==='stacked-inside'){
           const segTop=Math.min(props.y,props.base);
           const segBottom=Math.max(props.y,props.base);
           const segHeight=segBottom-segTop;
@@ -2127,7 +2138,7 @@ function parsePROGSheet(rows,meta){
       const cargas=progNum(loadCells[L.cargas]);
       const entregues=progNum(loadCells[L.entregues]);
       const naoEntreguesInformado=progNullableNum(loadCells[L.naoEntregues]);
-      loads.push({week:week,frota:loadFrota,tipoOp:progTxt(loadCells[L.tipoOp]),cargas:cargas,entregues:entregues,emTransito:progNum(loadCells[L.emTransito]),pendente:progNum(loadCells[L.pendente]),naoEntregues:naoEntreguesInformado==null?Math.max(cargas-entregues,0):Math.max(naoEntreguesInformado,0),naoEntreguesOrigem:naoEntreguesInformado==null?'calculado':'planilha',conjuntos:progNum(loadCells[L.conjuntos])});
+      loads.push({week:week,frota:loadFrota,tipoOp:progTxt(loadCells[L.tipoOp]),cargas:cargas,entregues:entregues,emTransito:progNum(loadCells[L.emTransito]),pendente:progNum(loadCells[L.pendente]),naoEntregues:naoEntreguesInformado==null?null:Math.max(naoEntreguesInformado,0),naoEntreguesOrigem:naoEntreguesInformado==null?'nao informado':'planilha',conjuntos:progNum(loadCells[L.conjuntos])});
     }
     const occConj=progTxt(occCells[O.conjunto]),occDesc=progTxt(occCells[O.descricao]);
     if(occConj||occDesc){
@@ -2205,12 +2216,38 @@ function progObsCell(ref,text){
 function progSplitFrotas(v){
   return progTxt(v).split(/\s*,\s*|\s+e\s+/i).map(s=>progTxt(s)).filter(Boolean);
 }
+function updatePROGChartNav(scrollId){
+  const el=document.getElementById(scrollId);
+  const prev=document.getElementById(scrollId+'Prev');
+  const next=document.getElementById(scrollId+'Next');
+  if(!el)return;
+  const max=Math.max(0,el.scrollWidth-el.clientWidth);
+  if(prev)prev.disabled=max<2||el.scrollLeft<=2;
+  if(next)next.disabled=max<2||el.scrollLeft>=max-2;
+}
+function updateAllPROGChartNav(){
+  ['progTrendChartScroll','progLoadChartScroll','progClientChartScroll'].forEach(updatePROGChartNav);
+}
+function scrollPROGChart(scrollId,dir){
+  const el=document.getElementById(scrollId);
+  if(!el)return;
+  const step=Math.max(240,Math.round(el.clientWidth*.8));
+  el.scrollBy({left:dir*step,behavior:'smooth'});
+}
 function renderPROG(){
   if(!progSheetsData.length)return;
   const selectedWeeks=getPROGSelectedWeeks();
   const selectedSheets=progSheetsData.filter(s=>selectedWeeks.includes(s.week));
   const baseSheets=selectedSheets.length?selectedSheets:[progSheetsData[progSheetsData.length-1]];
   const baseSheet=baseSheets[baseSheets.length-1];
+  const periodWeeks=baseSheets.map(s=>s.week);
+  const isMultiWeek=periodWeeks.length>1;
+  const isContinuousPeriod=periodWeeks.every((week,index)=>index===0||progWeekNum(week)===progWeekNum(periodWeeks[index-1])+1);
+  const periodContext=!isMultiWeek
+    ?baseSheet.week
+    :isContinuousPeriod
+      ?periodWeeks[0]+' a '+periodWeeks[periodWeeks.length-1]
+      :periodWeeks.length<=4?periodWeeks.join(' + '):periodWeeks.length+' semanas';
   const q=((document.getElementById('progSearch')||{}).value||'').toLowerCase().trim();
   const cliente=getSelectValues('progCliente');
   const frota=getSelectValues('progFrota');
@@ -2247,18 +2284,25 @@ function renderPROG(){
   const cargasEmTransito=loads.reduce((s,r)=>s+r.emTransito,0);
   const cargasPendentes=loads.reduce((s,r)=>s+r.pendente,0);
   const cargasNaoEntregues=loads.reduce((s,r)=>s+(r.naoEntregues||0),0);
+  const aderenciaCompleta=loads.length>0&&loads.every(r=>r.naoEntregues!=null);
   const taxaEntrega=totalCargas?cargasEntregues/totalCargas*100:0;
   const taxaDisponibilidade=totalProgramados?dispCount/totalProgramados*100:0;
   const doneMap={'Realizado':0,'Parcial':0,'Pendente':0,'Não Realizado':0};
   records.forEach(r=>{const k=progKey(r.realizado);if(k==='REALIZADO')doneMap['Realizado']++;else if(k==='PARCIAL')doneMap['Parcial']++;else if(k==='PENDENTE')doneMap['Pendente']++;else if(k.includes('NAOREALIZADO'))doneMap['Não Realizado']++;});
-  const taxaAderencia=totalCargas?Math.max(0,Math.min(100,(totalCargas-cargasNaoEntregues)/totalCargas*100)):0;
+  const taxaAderencia=aderenciaCompleta&&totalCargas?Math.max(0,Math.min(100,(totalCargas-cargasNaoEntregues)/totalCargas*100)):null;
+  const taxaAderenciaTxt=taxaAderencia==null?'N/D':taxaAderencia.toFixed(1).replace('.',',')+'%';
+  const cargasNaoEntreguesTxt=aderenciaCompleta?String(cargasNaoEntregues):'N/D';
   const summaryOrder=[['Programações',String(totalProgramados)],['Disponíveis',String(dispCount)],['Em Manutenção',String(manutCount)],['Sem Previsão',String(semPrevCount)]];
   function set(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
-  set('progK0',baseSheet.week);set('progK0s','programação semanal');set('progK1',records.length);set('progK2',taxaAderencia.toFixed(1).replace('.',',')+'%');set('progK3',totalCargas);set('progK3s',cargasPendentes+' pendentes');set('progK4',cargasEntregues);set('progK4s',taxaEntrega.toFixed(1).replace('.',',')+'% da carga');set('progK5',ocorrOpen);set('progK5s','registros abertos');set('progK6',extras.length);set('progK6s',extrasRate.toFixed(1).replace('.',',')+'% do programado');set('progResumoWeek',baseSheet.week);set('progExtraWeek',baseSheet.week);set('progCnt',records.length+' registros');set('progCargaCnt',loads.length+' registros');set('progOccCnt',occs.length+' registros');set('progExtraCnt',extras.length+' registros');
+  set('progK0Label',isMultiWeek?'Semanas Selecionadas':'Semana Ativa');
+  set('progK0',isMultiWeek?periodWeeks.length+' sem.':baseSheet.week);
+  set('progK0s',isMultiWeek?periodContext:'programação semanal');
+  set('progK1',records.length);set('progK2',taxaAderenciaTxt);set('progK3',totalCargas);set('progK3s',cargasPendentes+' pendentes');set('progK4',cargasEntregues);set('progK4s',taxaEntrega.toFixed(1).replace('.',',')+'% da carga');set('progK5',ocorrOpen);set('progK5s','registros abertos');set('progK6',extras.length);set('progK6s',extrasRate.toFixed(1).replace('.',',')+'% do programado');
+  set('progResumoWeek',periodContext);set('progInsightsTitle',isMultiWeek?'Leitura do Período':'Leitura da Semana');set('progExtraWeek',periodContext);set('progCnt',records.length+' registros');set('progCargaCnt',loads.length+' registros');set('progOccCnt',occs.length+' registros');set('progExtraCnt',extras.length+' registros');
   const bars=document.getElementById('progResumoBars');
   if(bars){const max=Math.max(...summaryOrder.map(x=>progNum(x[1])),1);bars.innerHTML=summaryOrder.map(([label,val])=>{const num=progNum(val);const color=label.includes('Manutenção')?'var(--red)':label.includes('Dispon')?'var(--green)':'var(--makro-blue)';return`<div class="bar-row"><div class="bar-lbl">${progEsc(label)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,Math.round(num/max*100))}%;background:${color}"></div></div><div class="bar-num" style="width:54px">${progEsc(val)}</div></div>`;}).join('');}
   const insights=document.getElementById('progInsights');
-  if(insights){const rows=[['Taxa Disponib.',taxaDisponibilidade.toFixed(1).replace('.',',')+'%','var(--teal)'],['Aderência',taxaAderencia.toFixed(1).replace('.',',')+'%','var(--green)'],['Não Entregues',String(cargasNaoEntregues),'var(--red)'],['Extras / Programado',extrasRate.toFixed(1).replace('.',',')+'%','var(--amber)'],['Ocorrências em Aberto',String(ocorrOpen),'var(--red)']];const max=Math.max(...rows.map(r=>progPct(r[1])||progNum(r[1])),1);insights.innerHTML=rows.map(([label,val,color])=>{const num=progPct(val)??progNum(val);return`<div class="bar-row"><div class="bar-lbl">${progEsc(label)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,Math.round(num/max*100))}%;background:${color}"></div></div><div class="bar-num" style="width:54px">${progEsc(val)}</div></div>`;}).join('');}
+  if(insights){const rows=[['Taxa Disponib.',taxaDisponibilidade.toFixed(1).replace('.',',')+'%','var(--teal)'],['Aderência',taxaAderenciaTxt,taxaAderencia==null?'var(--text3)':'var(--green)'],['Não Entregues',cargasNaoEntreguesTxt,aderenciaCompleta?'var(--red)':'var(--text3)'],['Extras / Programado',extrasRate.toFixed(1).replace('.',',')+'%','var(--amber)'],['Ocorrências em Aberto',String(ocorrOpen),'var(--red)']];const max=Math.max(...rows.map(r=>progPct(r[1])||progNum(r[1])),1);insights.innerHTML=rows.map(([label,val,color])=>{const num=progPct(val)??progNum(val);return`<div class="bar-row"><div class="bar-lbl">${progEsc(label)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.max(8,Math.round(num/max*100))}%;background:${color}"></div></div><div class="bar-num" style="width:54px">${progEsc(val)}</div></div>`;}).join('');}
   const extraBars=document.getElementById('progExtraBars');
   if(extraBars){
     const extraStatusMap={};
@@ -2267,7 +2311,7 @@ function renderPROG(){
     extras.forEach(r=>{const key=r.cliente||'N/I';extraClientMap[key]=(extraClientMap[key]||0)+1;});
     const topClient=Object.entries(extraClientMap).sort((a,b)=>b[1]-a[1])[0];
     const rows=[
-      ['Extras na Semana',extras.length,'var(--amber)'],
+      [isMultiWeek?'Extras no Período':'Extras na Semana',extras.length,'var(--amber)'],
       ['Taxa vs Programado',extrasRate.toFixed(1).replace('.',',')+'%','var(--makro-blue)'],
       ['Pendentes',Object.entries(extraStatusMap).filter(([k])=>progKey(k).includes('PEND')).reduce((s,[,v])=>s+v,0),'var(--red)'],
       ['Principal Cliente',topClient?topClient[1]:0,'var(--teal)']
@@ -2303,15 +2347,19 @@ function renderPROG(){
     });
     const weekLoadTotal=weekLoads.reduce((sum,r)=>sum+r.cargas,0);
     const weekNotDelivered=weekLoads.reduce((sum,r)=>sum+(r.naoEntregues||0),0);
+    const weekAdherenceComplete=weekLoads.length>0&&weekLoads.every(r=>r.naoEntregues!=null);
     return{
       week:sheet.week,
-      adherence:weekLoadTotal?Math.max(0,Math.min(100,(weekLoadTotal-weekNotDelivered)/weekLoadTotal*100)):0,
+      adherence:weekAdherenceComplete&&weekLoadTotal?Math.max(0,Math.min(100,(weekLoadTotal-weekNotDelivered)/weekLoadTotal*100)):null,
       loads:weekLoadTotal,
-      delivered:weekLoads.reduce((sum,r)=>sum+r.entregues,0)
+      delivered:weekLoads.reduce((sum,r)=>sum+r.entregues,0),
+      notDelivered:weekAdherenceComplete?weekNotDelivered:null
     };
   });
   const trendRange=document.getElementById('progTrendRange');
   if(trendRange){trendRange.textContent=trendRows.length?`${trendRows[0].week} a ${trendRows[trendRows.length-1].week}`:'—';}
+  const trendStage=document.getElementById('progTrendChartStage');
+  if(trendStage)trendStage.style.width=Math.max(760,trendRows.length*128)+'px';
   const trendCanvas=document.getElementById('progTrendChart');
   if(progTrendChart){progTrendChart.destroy();progTrendChart=null;}
   if(trendCanvas&&trendRows.length){
@@ -2324,7 +2372,8 @@ function renderPROG(){
         datasets:[
           {type:'bar',label:'Cargas Totais',data:trendRows.map(r=>r.loads),yAxisID:'yLoads',backgroundColor:trendRows.map(r=>activeWeekSet.has(r.week)?'rgba(27,63,122,0.88)':'rgba(27,63,122,0.48)'),borderColor:'rgba(27,63,122,1)',borderWidth:1,borderRadius:4,maxBarThickness:52,order:1},
           {type:'bar',label:'Cargas Entregues',data:trendRows.map(r=>r.delivered),yAxisID:'yLoads',backgroundColor:trendRows.map(r=>activeWeekSet.has(r.week)?'rgba(45,184,122,0.88)':'rgba(45,184,122,0.48)'),borderColor:'rgba(45,184,122,1)',borderWidth:1,borderRadius:4,maxBarThickness:52,order:1},
-          {type:'line',label:'Aderência',data:trendRows.map(r=>Number(r.adherence.toFixed(1))),yAxisID:'yAdherence',borderColor:ct.text,backgroundColor:ct.text,pointBackgroundColor:trendRows.map(r=>activeWeekSet.has(r.week)?ct.text:(dark?'rgba(22,23,25,1)':'rgba(255,255,255,1)')),pointBorderColor:ct.text,pointBorderWidth:2,pointRadius:trendRows.map(r=>activeWeekSet.has(r.week)?5:4),pointHoverRadius:6,borderWidth:2.5,tension:.25,fill:false,order:0}
+          {type:'bar',label:'Não Entregues',data:trendRows.map(r=>r.notDelivered),yAxisID:'yLoads',backgroundColor:trendRows.map(r=>activeWeekSet.has(r.week)?'rgba(200,20,40,0.86)':'rgba(200,20,40,0.46)'),borderColor:'rgba(200,20,40,1)',borderWidth:1,borderRadius:4,maxBarThickness:52,order:1},
+          {type:'line',label:'Aderência',data:trendRows.map(r=>r.adherence==null?null:Number(r.adherence.toFixed(1))),yAxisID:'yAdherence',borderColor:ct.text,backgroundColor:ct.text,pointBackgroundColor:trendRows.map(r=>activeWeekSet.has(r.week)?ct.text:(dark?'rgba(22,23,25,1)':'rgba(255,255,255,1)')),pointBorderColor:ct.text,pointBorderWidth:2,pointRadius:trendRows.map(r=>activeWeekSet.has(r.week)?5:4),pointHoverRadius:6,borderWidth:2.5,tension:.25,fill:false,spanGaps:false,order:0}
         ]
       },
       options:{
@@ -2354,11 +2403,30 @@ function renderPROG(){
   if(progStatusChart){progStatusChart.destroy();progStatusChart=null;}
   if(statusCanvas&&statLabels.length){progStatusChart=new Chart(statusCanvas,{type:'doughnut',data:{labels:statLabels,datasets:[{data:statVals,backgroundColor:statColors.slice(0,statLabels.length),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.label+': '+ctx.raw}}},cutout:'72%'}});}
   const clientMap={};records.forEach(r=>{const key=r.cliente||'N/I';clientMap[key]=(clientMap[key]||0)+1;});
-  const clientEntries=Object.entries(clientMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const clientEntries=Object.entries(clientMap).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'pt-BR'));
+  const clientCount=document.getElementById('progClientChartCount');
+  if(clientCount)clientCount.textContent=clientEntries.length+' cliente'+(clientEntries.length===1?'':'s');
+  const clientStage=document.getElementById('progClientChartStage');
+  if(clientStage)clientStage.style.width=Math.max(620,clientEntries.length*88)+'px';
   const clientCanvas=document.getElementById('progClientChart');
   if(progClientChart){progClientChart.destroy();progClientChart=null;}
   if(clientCanvas&&clientEntries.length){progClientChart=new Chart(clientCanvas,{type:'bar',plugins:[progBarValueLabelsPlugin],data:{labels:clientEntries.map(x=>x[0]),datasets:[{data:clientEntries.map(x=>x[1]),backgroundColor:'rgba(27,63,122,0.82)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:18}},plugins:{progBarValueLabels:{color:ct.text2,fontSize:10,mode:'top'},legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.raw+' conjunto(s)'}}},scales:{x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:10}}},y:{grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'DM Mono',size:10},stepSize:1}}}}});}
-  const loadEntries=loads.slice().sort((a,b)=>(b.entregues+b.emTransito+b.pendente+b.cargas)-(a.entregues+a.emTransito+a.pendente+a.cargas)).slice(0,8);
+  const loadMap={};
+  loads.forEach(r=>{
+    const key=progKey(r.frota)||'NI';
+    if(!loadMap[key])loadMap[key]={frota:r.frota||'N/I',cargas:0,entregues:0,emTransito:0,pendente:0,naoEntregues:0,naoEntreguesCompletos:true};
+    loadMap[key].cargas+=r.cargas||0;
+    loadMap[key].entregues+=r.entregues||0;
+    loadMap[key].emTransito+=r.emTransito||0;
+    loadMap[key].pendente+=r.pendente||0;
+    loadMap[key].naoEntregues+=r.naoEntregues||0;
+    if(r.naoEntregues==null)loadMap[key].naoEntreguesCompletos=false;
+  });
+  const loadEntries=Object.values(loadMap).sort((a,b)=>b.cargas-a.cargas||String(a.frota).localeCompare(String(b.frota),'pt-BR',{numeric:true}));
+  const loadCount=document.getElementById('progLoadChartCount');
+  if(loadCount)loadCount.textContent=loadEntries.length+' frota'+(loadEntries.length===1?'':'s');
+  const loadStage=document.getElementById('progLoadChartStage');
+  if(loadStage)loadStage.style.width=Math.max(620,loadEntries.length*84)+'px';
   const loadCanvas=document.getElementById('progLoadChart');
   if(progLoadChart){progLoadChart.destroy();progLoadChart=null;}
   if(loadCanvas&&loadEntries.length){
@@ -2368,14 +2436,16 @@ function renderPROG(){
       data:{
         labels:loadEntries.map(x=>x.frota),
         datasets:[
-          {label:'Entregues',data:loadEntries.map(x=>x.entregues),backgroundColor:'rgba(45,184,122,0.86)',borderRadius:4},
-          {label:'Em Trânsito',data:loadEntries.map(x=>x.emTransito),backgroundColor:'rgba(27,63,122,0.86)',borderRadius:4},
-          {label:'Pendentes',data:loadEntries.map(x=>x.pendente),backgroundColor:'rgba(232,148,58,0.86)',borderRadius:4}
+          {label:'Entregues',data:loadEntries.map(x=>x.entregues),backgroundColor:'rgba(45,184,122,0.86)',borderRadius:4,stack:'fluxo'},
+          {label:'Em Trânsito',data:loadEntries.map(x=>x.emTransito),backgroundColor:'rgba(27,63,122,0.86)',borderRadius:4,stack:'fluxo'},
+          {label:'Pendentes',data:loadEntries.map(x=>x.pendente),backgroundColor:'rgba(232,148,58,0.86)',borderRadius:4,stack:'fluxo'},
+          {label:'Não Entregues',data:loadEntries.map(x=>x.naoEntreguesCompletos?x.naoEntregues:null),backgroundColor:'rgba(200,20,40,0.86)',borderColor:'rgba(200,20,40,1)',borderWidth:1,borderRadius:4,stack:'resultado',dataLabelMode:'top',dataLabelColor:ct.text2}
         ]
       },
       options:{
         responsive:true,
         maintainAspectRatio:false,
+        layout:{padding:{top:18}},
         plugins:{
           progBarValueLabels:{color:ct.text,fontSize:10,mode:'stacked-inside'},
           legend:{position:'bottom',labels:{color:ct.text3,boxWidth:10,font:{family:'DM Mono',size:10}}},
@@ -2388,10 +2458,11 @@ function renderPROG(){
       }
     });
   }
+  requestAnimationFrame(updateAllPROGChartNav);
   const tbl=document.getElementById('progTbl');
   if(tbl){tbl.innerHTML=records.length?records.map(r=>`<tr><td style="font-family:'DM Mono',monospace;white-space:nowrap">${progEsc(r.week)}</td><td style="font-family:'DM Mono',monospace;font-weight:600">${progEsc(r.conjunto)}</td><td>${progEsc(r.tipo||'—')}</td><td>${progEsc(r.un||'—')}</td><td>${progEsc(r.cliente||'—')}</td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataCliente||'—')}</td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataSaida||'—')}</td><td>${progEsc(r.localizacao||'—')}</td><td>${progEsc(r.frotaAtendida||'—')}</td><td><span class="tag ${progTagStatus(r.statusAtual)}">${progEsc(r.statusAtual||'—')}</span></td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataLiberacao||'—')}</td><td><span class="tag ${progTagDone(r.realizado)}">${progEsc(r.realizado||'—')}</span></td><td class="obs-cell">${progObsCell(r.conjunto,r.aderencia)}</td><td class="obs-cell">${progObsCell(r.conjunto,r.obs)}</td></tr>`).join(''):'<tr><td colspan="14" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro</td></tr>';}
   const cargaTbl=document.getElementById('progCargaTbl');
-  if(cargaTbl){cargaTbl.innerHTML=loads.length?loads.map(r=>{const rate=r.cargas?Math.max(0,Math.min(100,Math.round((r.cargas-(r.naoEntregues||0))/r.cargas*100))):0;return`<tr><td style="font-family:'DM Mono',monospace">${progEsc(r.week)}</td><td style="font-family:'DM Mono',monospace;font-weight:600">${progEsc(r.frota)}</td><td>${progEsc(r.tipoOp||'—')}</td><td style="font-family:'DM Mono',monospace">${r.cargas}</td><td style="font-family:'DM Mono',monospace;color:var(--green)">${r.entregues}</td><td style="font-family:'DM Mono',monospace;color:var(--makro-blue)">${r.emTransito}</td><td style="font-family:'DM Mono',monospace;color:var(--amber)">${r.pendente}</td><td style="font-family:'DM Mono',monospace;color:${r.naoEntregues?'var(--red)':'var(--green)'}">${r.naoEntregues||0}</td><td style="font-family:'DM Mono',monospace">${r.conjuntos}</td><td style="font-family:'DM Mono',monospace">${rate}%</td></tr>`;}).join(''):'<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro de cargas</td></tr>';}
+  if(cargaTbl){cargaTbl.innerHTML=loads.length?loads.map(r=>{const rate=r.cargas&&r.naoEntregues!=null?Math.max(0,Math.min(100,Math.round((r.cargas-r.naoEntregues)/r.cargas*100))):null;const naoEntreguesTxt=r.naoEntregues==null?'—':r.naoEntregues;const rateTxt=rate==null?'N/D':rate+'%';const naoEntreguesColor=r.naoEntregues==null?'var(--text3)':r.naoEntregues>0?'var(--red)':'var(--green)';return`<tr><td style="font-family:'DM Mono',monospace">${progEsc(r.week)}</td><td style="font-family:'DM Mono',monospace;font-weight:600">${progEsc(r.frota)}</td><td>${progEsc(r.tipoOp||'—')}</td><td style="font-family:'DM Mono',monospace">${r.cargas}</td><td style="font-family:'DM Mono',monospace;color:var(--green)">${r.entregues}</td><td style="font-family:'DM Mono',monospace;color:var(--makro-blue)">${r.emTransito}</td><td style="font-family:'DM Mono',monospace;color:var(--amber)">${r.pendente}</td><td style="font-family:'DM Mono',monospace;color:${naoEntreguesColor}">${naoEntreguesTxt}</td><td style="font-family:'DM Mono',monospace">${r.conjuntos}</td><td style="font-family:'DM Mono',monospace;color:${rate==null?'var(--text3)':'inherit'}">${rateTxt}</td></tr>`;}).join(''):'<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:24px">Nenhum registro de cargas</td></tr>';}
   const occTbl=document.getElementById('progOccTbl');
   if(occTbl){occTbl.innerHTML=occs.length?occs.map(r=>`<tr><td style="font-family:'DM Mono',monospace">${progEsc(r.conjunto||'—')}</td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataHora||'—')}</td><td>${progEsc(r.tipo||'—')}</td><td>${progEsc(r.descricao||'—')}</td><td>${progEsc(r.responsavel||'—')}</td><td>${progEsc(r.impacto||'—')}</td><td><span class="tag ${progIsOpenStatus(r.status)?'tag-red':'tag-green'}">${progEsc(r.status||'—')}</span></td><td style="font-family:'DM Mono',monospace">${progEsc(r.dataResolucao||'—')}</td></tr>`).join(''):'<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">Nenhuma ocorrência registrada</td></tr>';}
   const extraTbl=document.getElementById('progExtraTbl');
@@ -2486,8 +2557,11 @@ function renderEXEC(){
   const progRiskPct=progTotal?progMaint/progTotal*100:0;
   const progPendCarga=progLoads.reduce((s,r)=>s+(r.pendente||0),0);
   const progNaoEntregues=progLoads.reduce((s,r)=>s+(r.naoEntregues||0),0);
+  const progNaoEntreguesPendentes=progLoads.filter(r=>r.naoEntregues==null).length;
+  const progNaoEntreguesCompleto=progLoads.length>0&&progNaoEntreguesPendentes===0;
   const progTotalCargas=progLoads.reduce((s,r)=>s+(r.cargas||0),0);
-  const progAderenciaCargas=progTotalCargas?Math.max(0,Math.min(100,(progTotalCargas-progNaoEntregues)/progTotalCargas*100)):0;
+  const progAderenciaCargas=progNaoEntreguesCompleto&&progTotalCargas?Math.max(0,Math.min(100,(progTotalCargas-progNaoEntregues)/progTotalCargas*100)):null;
+  const progAderenciaLabel=progAderenciaCargas==null?'N/D':execPct(progAderenciaCargas);
   const progImpactOccs=progOccs.filter(r=>{
     const impact=execStatusKey(r.impacto);
     return impact&&impact!=='-'&&impact!=='NA'&&impact!=='N/A'&&impact!=='NAO'&&!impact.includes('SEM IMPACTO');
@@ -2496,7 +2570,7 @@ function renderEXEC(){
     ['Conjuntos em manutenção',progMaint,'var(--red)'],
     ['Execução pendente',progPendExec,'var(--amber)'],
     ['Cargas pendentes',progPendCarga,'var(--amber)'],
-    ['Cargas não entregues',progNaoEntregues,'var(--red)'],
+    progNaoEntreguesCompleto?['Cargas não entregues',progNaoEntregues,'var(--red)']:['Fechamentos pendentes',progNaoEntreguesPendentes,'var(--amber)'],
     ['Ocorrências com impacto',progImpactOccs.length,'var(--red)']
   ];
   const progBarMax=Math.max(...progBarsData.map(x=>x[1]),1);
@@ -2561,7 +2635,7 @@ function renderEXEC(){
   const programExposureLevel=progRiskPct>=60?'critico':progRiskPct>=35?'atencao':'positivo';
   const programLevel=programExposureLevel==='critico'||progImpactOccs.length
     ?'critico'
-    :programExposureLevel==='atencao'||progPendCarga||progNaoEntregues||progOccs.length?'atencao':'positivo';
+    :programExposureLevel==='atencao'||progPendCarga||progNaoEntregues||progNaoEntreguesPendentes||progOccs.length?'atencao':'positivo';
   const patioLevel=patAlta?'critico':'positivo';
   const yardMaterialsLevel=patioLevel==='critico'?'critico':matDef?'atencao':'positivo';
   const logisticsLevel=[programLevel,yardMaterialsLevel].includes('critico')
@@ -2587,6 +2661,7 @@ function renderEXEC(){
     progImpactOccs.length?`${progImpactOccs.length} ocorrências abertas com impacto informado`:'',
     progPendCarga?`${progPendCarga} cargas pendentes na semana`:'',
     progNaoEntregues?`${progNaoEntregues} cargas não entregues na semana`:'',
+    progNaoEntreguesPendentes?`${progNaoEntreguesPendentes} registros sem fechamento de não entregues`:'',
     patAlta?`${patAlta} tarefas críticas de pátio pendentes`:'',
     matDef?`${matDef} frotas com déficit de amarração e/ou segurança`:''
   ].filter(Boolean);
@@ -2677,11 +2752,13 @@ function renderEXEC(){
     <div class="kv-item"><div class="kv-k">Semana</div><div class="kv-v">${execEsc(activeProg.week||'—')}</div></div>
     <div class="kv-item"><div class="kv-k">Programados</div><div class="kv-v">${progTotal}</div></div>
     <div class="kv-item"><div class="kv-k">Exposição</div><div class="kv-v">${execPct(progRiskPct)}</div></div>
-    <div class="kv-item"><div class="kv-k">Aderência das cargas</div><div class="kv-v">${execPct(progAderenciaCargas)}</div></div>
+    <div class="kv-item"><div class="kv-k">Aderência das cargas</div><div class="kv-v">${progAderenciaLabel}</div></div>
     <div class="kv-item"><div class="kv-k">Ocorrências com impacto</div><div class="kv-v">${progImpactOccs.length}</div></div>
   `);
   html('execProgText',progTotal
-?`Na <strong>${execEsc(activeProg.week)}</strong>, <strong>${progMaint} de ${progTotal}</strong> conjuntos estão em manutenção. A aderência das cargas está em <strong>${execPct(progAderenciaCargas)}</strong>, com <strong>${progNaoEntregues}</strong> não entregues, <strong>${progPendCarga}</strong> pendentes e <strong>${progImpactOccs.length}</strong> ocorrências abertas com impacto informado.`
+?(progNaoEntreguesCompleto
+  ?`Na <strong>${execEsc(activeProg.week)}</strong>, <strong>${progMaint} de ${progTotal}</strong> conjuntos estão em manutenção. A aderência das cargas está em <strong>${progAderenciaLabel}</strong>, com <strong>${progNaoEntregues}</strong> não entregues, <strong>${progPendCarga}</strong> pendentes e <strong>${progImpactOccs.length}</strong> ocorrências abertas com impacto informado.`
+  :`Na <strong>${execEsc(activeProg.week)}</strong>, <strong>${progMaint} de ${progTotal}</strong> conjuntos estão em manutenção. A aderência permanece <strong>N/D</strong> porque ${progNaoEntreguesPendentes} registro(s) ainda não têm o fechamento de cargas não entregues. Há <strong>${progPendCarga}</strong> cargas pendentes e <strong>${progImpactOccs.length}</strong> ocorrências abertas com impacto informado.`)
 :'Sem programação consolidada disponível para leitura.');
 
   set('execInefTag',yesterday.toLocaleDateString('pt-BR'));
@@ -2733,7 +2810,7 @@ function renderEXEC(){
     {
       level:programLevel,
       title:'Programação semanal',
-      body:progTotal?`Validar o atendimento da ${activeProg.week}: aderência de ${execPct(progAderenciaCargas)}, ${progNaoEntregues} cargas não entregues, ${progMaint} conjuntos em manutenção e ${progImpactOccs.length} ocorrências abertas com impacto informado.`:'Conectar ou atualizar a programação semanal para permitir a leitura de risco.'
+      body:progTotal?(progNaoEntreguesCompleto?`Validar o atendimento da ${activeProg.week}: aderência de ${progAderenciaLabel}, ${progNaoEntregues} cargas não entregues, ${progMaint} conjuntos em manutenção e ${progImpactOccs.length} ocorrências abertas com impacto informado.`:`Concluir ${progNaoEntreguesPendentes} registro(s) de não entregues na ${activeProg.week} antes de validar a aderência; ${progMaint} conjuntos estão em manutenção e há ${progImpactOccs.length} ocorrências abertas com impacto informado.`):'Conectar ou atualizar a programação semanal para permitir a leitura de risco.'
     },
     {
       level:mobilizationLevel,
