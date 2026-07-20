@@ -228,6 +228,12 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito Sans',system-ui,
 .prog-chart-nav-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);width:26px;height:26px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;padding:0;transition:opacity .2s,border-color .2s,color .2s}
 .prog-chart-nav-btn:hover:not(:disabled){border-color:var(--border2);color:var(--text)}
 .prog-chart-nav-btn:disabled{opacity:.3;cursor:default}
+.prog-trend-adherence{display:grid;gap:10px;margin:0 42px 8px 58px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.prog-trend-adh-item{display:flex;align-items:baseline;justify-content:center;gap:7px;min-width:0;font-family:'DM Mono',monospace}
+.prog-trend-adh-week{font-size:10px;color:var(--text3);white-space:nowrap}
+.prog-trend-adh-value{font-size:13px;font-weight:600;color:var(--green);white-space:nowrap}
+.prog-trend-adh-value.is-missing{color:var(--text3);font-weight:500}
+.prog-trend-canvas{position:relative;height:238px}
 .bars{display:flex;flex-direction:column;gap:12px}
 .bar-row{display:flex;align-items:center;gap:10px}
 .bar-lbl{width:140px;font-size:11px;color:var(--text2);flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1545,7 +1551,7 @@ tbody tr:hover td{background:var(--surface2)}
 
         <div class="card" style="margin-bottom:20px">
           <div class="card-head"><span class="card-title">Comparativo Semanal de Aderência e Cargas</span><div class="prog-chart-tools"><span class="count-tag" id="progTrendRange">—</span><div class="prog-chart-nav"><button class="prog-chart-nav-btn" id="progTrendChartScrollPrev" onclick="scrollPROGChart('progTrendChartScroll',-1)" title="Semanas anteriores" aria-label="Semanas anteriores">‹</button><button class="prog-chart-nav-btn" id="progTrendChartScrollNext" onclick="scrollPROGChart('progTrendChartScroll',1)" title="Próximas semanas" aria-label="Próximas semanas">›</button></div></div></div>
-          <div class="prog-chart-scroll" id="progTrendChartScroll" onscroll="updatePROGChartNav('progTrendChartScroll')"><div class="prog-chart-stage" id="progTrendChartStage" style="height:290px"><canvas id="progTrendChart"></canvas></div></div>
+          <div class="prog-chart-scroll" id="progTrendChartScroll" onscroll="updatePROGChartNav('progTrendChartScroll')"><div class="prog-chart-stage" id="progTrendChartStage" style="height:290px"><div class="prog-trend-adherence" id="progTrendAdherence"></div><div class="prog-trend-canvas"><canvas id="progTrendChart"></canvas></div></div></div>
         </div>
 
         <div class="grid-2">
@@ -2162,7 +2168,7 @@ function processPROG(sheets){
 }
 function getPROGSelectedWeeks(){
   const sel=getSelectValues('progWeek');
-  if(isAllSelection(sel))return progSheetsData.length?[progSheetsData[progSheetsData.length-1].week]:[];
+  if(isAllSelection(sel))return progSheetsData.map(s=>s.week);
   return sel;
 }
 function populatePROGFilters(){
@@ -2170,7 +2176,7 @@ function populatePROGFilters(){
   const current=weekSel?getSelectedValuesFromEl(weekSel):['TODOS'];
   const weeks=progSheetsData.map(s=>s.week);
   const weekBotSel=document.getElementById('progWeekBot');
-  const weekHtml='<option value="TODOS">Semana mais recente</option>'+weeks.map(w=>`<option value="${w}">${w}</option>`).join('');
+  const weekHtml='<option value="TODOS">Todas as semanas</option>'+weeks.map(w=>`<option value="${w}">${w}</option>`).join('');
   if(weekSel){weekSel.innerHTML=weekHtml;setSelectValues('progWeek',current.filter(v=>weeks.includes(v)));}
   if(weekBotSel){weekBotSel.innerHTML=weekHtml;setSelectValues('progWeekBot',current.filter(v=>weeks.includes(v)));}
   const allRecords=progSheetsData.flatMap(s=>s.records);
@@ -2360,6 +2366,14 @@ function renderPROG(){
   if(trendRange){trendRange.textContent=trendRows.length?`${trendRows[0].week} a ${trendRows[trendRows.length-1].week}`:'—';}
   const trendStage=document.getElementById('progTrendChartStage');
   if(trendStage)trendStage.style.width=Math.max(760,trendRows.length*128)+'px';
+  const trendAdherence=document.getElementById('progTrendAdherence');
+  if(trendAdherence){
+    trendAdherence.style.gridTemplateColumns=`repeat(${Math.max(trendRows.length,1)},minmax(110px,1fr))`;
+    trendAdherence.innerHTML=trendRows.map(r=>{
+      const value=r.adherence==null?'N/D':r.adherence.toFixed(1).replace('.',',')+'%';
+      return`<div class="prog-trend-adh-item"><span class="prog-trend-adh-week">${progEsc(r.week)} · ADERÊNCIA</span><span class="prog-trend-adh-value${r.adherence==null?' is-missing':''}">${value}</span></div>`;
+    }).join('');
+  }
   const trendCanvas=document.getElementById('progTrendChart');
   if(progTrendChart){progTrendChart.destroy();progTrendChart=null;}
   if(trendCanvas&&trendRows.length){
@@ -2372,8 +2386,7 @@ function renderPROG(){
         datasets:[
           {type:'bar',label:'Cargas Totais',data:trendRows.map(r=>r.loads),yAxisID:'yLoads',backgroundColor:trendRows.map(r=>activeWeekSet.has(r.week)?'rgba(27,63,122,0.88)':'rgba(27,63,122,0.48)'),borderColor:'rgba(27,63,122,1)',borderWidth:1,borderRadius:4,maxBarThickness:52,order:1},
           {type:'bar',label:'Cargas Entregues',data:trendRows.map(r=>r.delivered),yAxisID:'yLoads',backgroundColor:trendRows.map(r=>activeWeekSet.has(r.week)?'rgba(45,184,122,0.88)':'rgba(45,184,122,0.48)'),borderColor:'rgba(45,184,122,1)',borderWidth:1,borderRadius:4,maxBarThickness:52,order:1},
-          {type:'bar',label:'Não Entregues',data:trendRows.map(r=>r.notDelivered),yAxisID:'yLoads',backgroundColor:trendRows.map(r=>activeWeekSet.has(r.week)?'rgba(200,20,40,0.86)':'rgba(200,20,40,0.46)'),borderColor:'rgba(200,20,40,1)',borderWidth:1,borderRadius:4,maxBarThickness:52,order:1},
-          {type:'line',label:'Aderência',data:trendRows.map(r=>r.adherence==null?null:Number(r.adherence.toFixed(1))),yAxisID:'yAdherence',borderColor:ct.text,backgroundColor:ct.text,pointBackgroundColor:trendRows.map(r=>activeWeekSet.has(r.week)?ct.text:(dark?'rgba(22,23,25,1)':'rgba(255,255,255,1)')),pointBorderColor:ct.text,pointBorderWidth:2,pointRadius:trendRows.map(r=>activeWeekSet.has(r.week)?5:4),pointHoverRadius:6,borderWidth:2.5,tension:.25,fill:false,spanGaps:false,order:0}
+          {type:'bar',label:'Não Entregues',data:trendRows.map(r=>r.notDelivered),yAxisID:'yLoads',backgroundColor:trendRows.map(r=>activeWeekSet.has(r.week)?'rgba(200,20,40,0.86)':'rgba(200,20,40,0.46)'),borderColor:'rgba(200,20,40,1)',borderWidth:1,borderRadius:4,maxBarThickness:52,order:1}
         ]
       },
       options:{
@@ -2382,14 +2395,13 @@ function renderPROG(){
         interaction:{mode:'index',intersect:false},
         layout:{padding:{top:20}},
         plugins:{
-          progBarValueLabels:{color:ct.text2,fontSize:10,mode:'top',includeLines:true,formatter:(value,dataset)=>dataset.type==='line'?value.toFixed(1).replace('.',',')+'%':Math.round(value).toLocaleString('pt-BR')},
+          progBarValueLabels:{color:ct.text2,fontSize:10,mode:'top',formatter:value=>Math.round(value).toLocaleString('pt-BR')},
           legend:{position:'bottom',labels:{color:ct.text3,boxWidth:11,usePointStyle:true,font:{family:'DM Mono',size:10}}},
-          tooltip:{callbacks:{label:ctx=>ctx.dataset.type==='line'?` Aderência: ${Number(ctx.raw).toFixed(1).replace('.',',')}%`:` ${ctx.dataset.label}: ${Number(ctx.raw).toLocaleString('pt-BR')}`}}
+          tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${Number(ctx.raw).toLocaleString('pt-BR')}`}}
         },
         scales:{
           x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'DM Mono',size:10}}},
-          yLoads:{type:'linear',position:'left',beginAtZero:true,grid:{color:ct.grid},ticks:{color:ct.text3,precision:0,font:{family:'DM Mono',size:10}},title:{display:true,text:'CARGAS',color:ct.text3,font:{family:'DM Mono',size:9}}},
-          yAdherence:{type:'linear',position:'right',beginAtZero:true,min:0,max:100,grid:{drawOnChartArea:false},ticks:{color:ct.text3,stepSize:20,callback:value=>value+'%',font:{family:'DM Mono',size:10}},title:{display:true,text:'ADERÊNCIA',color:ct.text3,font:{family:'DM Mono',size:9}}}
+          yLoads:{type:'linear',position:'left',beginAtZero:true,grid:{color:ct.grid},ticks:{color:ct.text3,precision:0,font:{family:'DM Mono',size:10}},title:{display:true,text:'CARGAS',color:ct.text3,font:{family:'DM Mono',size:9}}}
         }
       }
     });
