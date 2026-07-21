@@ -358,6 +358,25 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-ui);min-heigh
 .ms-badge{display:inline-flex;align-items:center;justify-content:center;background:var(--accent);color:#fff;font-size:9px;font-weight:700;border-radius:8px;padding:1px 5px;margin-left:4px;font-family:var(--font-ui)}
 .filter-bar-row{display:flex;align-items:flex-end;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 .filter-bar-row .search-wrap{flex:1;min-width:200px;margin-bottom:0}
+.tbl-card>.filter-bar-row{background:var(--sidebar-bg);border:1px solid var(--sidebar-border);border-radius:var(--radius);padding:14px 16px;box-shadow:0 4px 12px rgba(8,31,57,.08)}
+.tbl-card>.filter-bar-row::before{content:'Filtros';font-size:10px;font-weight:600;color:var(--sidebar-text);text-transform:uppercase;font-family:var(--font-ui);white-space:nowrap;align-self:center;padding-right:14px;border-right:1px solid var(--sidebar-border)}
+.tbl-card>.filter-bar-row .select-label{color:var(--sidebar-muted);letter-spacing:0}
+.tbl-card>.filter-bar-row .f-select,.tbl-card>.filter-bar-row .ms-btn,.tbl-card>.filter-bar-row .search-input{background-color:rgba(255,255,255,.07);border-color:var(--sidebar-border);color:var(--sidebar-text)}
+.tbl-card>.filter-bar-row .f-select,.tbl-card>.filter-bar-row .ms-btn{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23b8c9db' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+.tbl-card>.filter-bar-row .f-select:hover,.tbl-card>.filter-bar-row .f-select:focus,.tbl-card>.filter-bar-row .ms-btn:hover,.tbl-card>.filter-bar-row .ms-btn.open,.tbl-card>.filter-bar-row .search-input:focus{border-color:rgba(255,255,255,.42)}
+.tbl-card>.filter-bar-row .search-input::placeholder{color:var(--sidebar-muted)}
+.tbl-card>.filter-bar-row .search-ico,.tbl-card>.filter-bar-row .search-clear{stroke:var(--sidebar-muted);color:var(--sidebar-muted)}
+.tbl-card>.filter-bar-row .clear-filters-btn{border-color:var(--sidebar-border);color:var(--sidebar-muted);background:rgba(255,255,255,.03)}
+.tbl-card>.filter-bar-row .clear-filters-btn:hover{border-color:rgba(255,255,255,.35);color:#fff;background:rgba(255,255,255,.08)}
+.tbl-card>.filter-bar-row input[type=date]{color-scheme:dark}
+.tbl-card>.filter-bar-row .f-select option{background:var(--sidebar-bg);color:var(--sidebar-text)}
+.tbl-card>.filter-bar-row .ms-dropdown{background:var(--sidebar-bg);border-color:rgba(255,255,255,.24)}
+.tbl-card>.filter-bar-row .ms-item{color:var(--sidebar-text)}
+.tbl-card>.filter-bar-row .ms-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.tbl-card>.filter-bar-row .ms-item.checked{color:#fff}
+.tbl-card>.filter-bar-row .ms-sep{background:var(--sidebar-border)}
+.tbl-card>.filter-bar-row .ms-all{border-color:var(--sidebar-border)}
+.tbl-card>.filter-bar-row .ms-count,.tbl-card>.filter-bar-row .ms-badge{background:#ef4056;color:#fff}
 .select-group{display:flex;flex-direction:column;gap:4px;min-width:130px}
 .select-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;font-family:var(--font-ui)}
 .f-select{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 28px 7px 10px;font-size:12px;color:var(--text);font-family:var(--font-ui);outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:border .15s;width:100%}
@@ -751,12 +770,12 @@ tbody tr:hover td{background:var(--surface2)}
               <label class="select-label">Mês</label>
               <select class="f-select" id="aetMes" onchange="syncAETSelect(this,'aetMes')">
                 <option value="TODOS">Todos</option>
-                <option value="1">Jan</option><option value="2">Fev</option>
-                <option value="3">Mar</option><option value="4">Abr</option>
-                <option value="5">Mai</option><option value="6">Jun</option>
-                <option value="7">Jul</option><option value="8">Ago</option>
-                <option value="9">Set</option><option value="10">Out</option>
-                <option value="11">Nov</option><option value="12">Dez</option>
+                <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+                <option value="3">Março</option><option value="4">Abril</option>
+                <option value="5">Maio</option><option value="6">Junho</option>
+                <option value="7">Julho</option><option value="8">Agosto</option>
+                <option value="9">Setembro</option><option value="10">Outubro</option>
+                <option value="11">Novembro</option><option value="12">Dezembro</option>
               </select>
             </div>
             <div class="select-group"><label class="select-label">Data De</label><input class="f-select" type="date" id="aetDataDe" onchange="syncAETDate(this,'aetDataDeTop')"></div>
@@ -805,6 +824,10 @@ tbody tr:hover td{background:var(--surface2)}
             <label class="select-label">Status</label>
             <select class="f-select" id="mobStatusTop" onchange="syncMOBSelect(this,'mobStatus')">
               <option value="TODOS">Todos</option>
+              <option value="A iniciar">A iniciar</option>
+              <option value="Em andamento">Em andamento</option>
+              <option value="Finalizado">Finalizado</option>
+              <option value="Cancelado">Cancelado</option>
             </select>
           </div>
           <div class="select-group">
@@ -949,12 +972,12 @@ tbody tr:hover td{background:var(--surface2)}
               <label class="select-label">Mês</label>
               <select class="f-select" id="mobMes" onchange="syncMOBSelect(this,'mobMes')">
                 <option value="TODOS">Todos</option>
-                <option value="1">Jan</option><option value="2">Fev</option>
-                <option value="3">Mar</option><option value="4">Abr</option>
-                <option value="5">Mai</option><option value="6">Jun</option>
-                <option value="7">Jul</option><option value="8">Ago</option>
-                <option value="9">Set</option><option value="10">Out</option>
-                <option value="11">Nov</option><option value="12">Dez</option>
+                <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+                <option value="3">Março</option><option value="4">Abril</option>
+                <option value="5">Maio</option><option value="6">Junho</option>
+                <option value="7">Julho</option><option value="8">Agosto</option>
+                <option value="9">Setembro</option><option value="10">Outubro</option>
+                <option value="11">Novembro</option><option value="12">Dezembro</option>
               </select>
             </div>
             <button class="clear-filters-btn" onclick="clearMOBFilters()">
@@ -1032,9 +1055,9 @@ tbody tr:hover td{background:var(--surface2)}
               <label class="select-label">Status</label>
               <select class="f-select" id="matStatusBot" onchange="document.getElementById('matStatus').value=this.value;renderMATtbl()">
                 <option value="TODOS">Todos</option>
-                <option value="DEFICIT">Com Déficit</option>
+                <option value="DEFICIT">Déficit</option>
                 <option value="REGULAR">Regular</option>
-                <option value="EXCESSO">Com Excesso</option>
+                <option value="EXCESSO">Excesso</option>
               </select>
             </div>
             <button class="clear-filters-btn" onclick="clearMATFilters()">
@@ -1067,7 +1090,7 @@ tbody tr:hover td{background:var(--surface2)}
           <div class="filter-divider"></div>
           <div class="search-wrap" style="flex:1;min-width:160px;margin-bottom:0">
             <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" class="search-input" id="patSearch" placeholder="Buscar atividade ou frota..." oninput="renderPATtbl()">
+            <input type="text" class="search-input" id="patSearch" placeholder="Buscar atividade ou frota..." oninput="document.getElementById('patSearchBot').value=this.value;renderPATtbl()">
           </div>
           <div class="select-group"><label class="select-label">Status</label><select class="f-select" id="patStatus" onchange="renderPATtbl()"><option value="TODOS">Todos</option><option value="CONCLUÍDO">Concluído</option><option value="PENDENTE">Pendente</option><option value="EM ANDAMENTO">Em Andamento</option><option value="CANCELADO">Cancelado</option></select></div>
           <div class="select-group"><label class="select-label">Criticidade</label><select class="f-select" id="patCrit" onchange="renderPATtbl()"><option value="TODOS">Todos</option><option value="ALTA">Alta</option><option value="MÉDIA">Média</option><option value="BAIXA">Baixa</option></select></div>
@@ -1163,12 +1186,12 @@ tbody tr:hover td{background:var(--surface2)}
                 <label class="select-label">Mês</label>
                 <select class="f-select" id="patMesBot" onchange="document.getElementById('patMes').value=this.value;renderPATtbl()">
                   <option value="TODOS">Todos</option>
-                  <option value="1">Jan</option><option value="2">Fev</option>
-                  <option value="3">Mar</option><option value="4">Abr</option>
-                  <option value="5">Mai</option><option value="6">Jun</option>
-                  <option value="7">Jul</option><option value="8">Ago</option>
-                  <option value="9">Set</option><option value="10">Out</option>
-                  <option value="11">Nov</option><option value="12">Dez</option>
+                  <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+                  <option value="3">Março</option><option value="4">Abril</option>
+                  <option value="5">Maio</option><option value="6">Junho</option>
+                  <option value="7">Julho</option><option value="8">Agosto</option>
+                  <option value="9">Setembro</option><option value="10">Outubro</option>
+                  <option value="11">Novembro</option><option value="12">Dezembro</option>
                 </select>
               </div>
               <div class="select-group"><label class="select-label">Data De</label><input class="f-select" type="date" id="patDataDeBot" onchange="syncPATDate(this,'patDataDe')"></div>
@@ -2066,22 +2089,33 @@ const progBarValueLabelsPlugin={
         const value=Number(raw||0);
         if(!isFinite(value)||value<=0)return;
         const pos=bar.tooltipPosition();
-        const props=bar.getProps(['x','y','base'],true);
+        const props=bar.getProps(['x','y','base','width'],true);
         const label=formatter?formatter(value,dataset,index):String(value).replace('.',',');
         if(!label)return;
-        ctx.fillStyle=datasetColor;
+        const labelWidth=ctx.measureText(label).width;
         if(datasetMode==='stacked-inside'){
           const segTop=Math.min(props.y,props.base);
           const segBottom=Math.max(props.y,props.base);
           const segHeight=segBottom-segTop;
-          if(segHeight<minSegmentHeight)return;
+          if(segHeight<minSegmentHeight||(props.width&&labelWidth>props.width-4))return;
           ctx.textBaseline='middle';
+          ctx.lineJoin='round';
+          ctx.lineWidth=3;
+          ctx.strokeStyle='rgba(8,18,28,.72)';
+          ctx.strokeText(label,props.x,segTop+(segHeight/2));
+          ctx.fillStyle='#fff';
           ctx.fillText(label,props.x,segTop+(segHeight/2));
           return;
         }
         ctx.textBaseline='bottom';
         const y=Math.max(chartArea.top+fontSize+2,pos.y-6);
-        ctx.fillText(label,pos.x,y);
+        const x=Math.max(chartArea.left+(labelWidth/2)+2,Math.min(chartArea.right-(labelWidth/2)-2,pos.x));
+        ctx.lineJoin='round';
+        ctx.lineWidth=3;
+        ctx.strokeStyle=dark?'rgba(13,18,24,.9)':'rgba(255,255,255,.95)';
+        ctx.strokeText(label,x,y);
+        ctx.fillStyle=datasetColor;
+        ctx.fillText(label,x,y);
       });
     });
     ctx.restore();
@@ -2212,7 +2246,7 @@ const executiveDataLabelsPlugin={
           const x=props.x+Math.cos(angle)*radius;
           const y=props.y+Math.sin(angle)*radius;
           const shortLabel=Math.round(pct)+'%';
-          const fullLabel=value.toLocaleString('pt-BR')+' · '+shortLabel;
+          const fullLabel=value.toLocaleString('pt-BR')+' / '+shortLabel;
           ctx.font=`600 ${fontSize}px 'IBM Plex Mono', monospace`;
           const available=Math.max(0,(props.endAngle-props.startAngle)*radius-8);
           const label=ctx.measureText(fullLabel).width<=available?fullLabel:shortLabel;
@@ -3472,20 +3506,23 @@ function applyMultiSelectFilters(){
     }
   });
   const bind=(id,fn)=>{const el=document.getElementById(id);if(el)el.onchange=fn;};
-  bind('matTipo',function(){syncSelectValues(this,'matTipoBot');renderMATtbl();});
-  bind('matTipoBot',function(){syncSelectValues(this,'matTipo');renderMATtbl();});
-  bind('matStatus',function(){syncSelectValues(this,'matStatusBot');renderMATtbl();});
-  bind('matStatusBot',function(){syncSelectValues(this,'matStatus');renderMATtbl();});
-  bind('patStatus',function(){syncSelectValues(this,'patStatusBot');renderPATtbl();});
-  bind('patStatusBot',function(){syncSelectValues(this,'patStatus');renderPATtbl();});
-  bind('patCrit',function(){syncSelectValues(this,'patCritBot');renderPATtbl();});
-  bind('patCritBot',function(){syncSelectValues(this,'patCrit');renderPATtbl();});
-  bind('patSetor',function(){syncSelectValues(this,'patSetorBot');renderPATtbl();});
-  bind('patSetorBot',function(){syncSelectValues(this,'patSetor');renderPATtbl();});
-  bind('patAno',function(){syncSelectValues(this,'patAnoBot');renderPATtbl();});
-  bind('patAnoBot',function(){syncSelectValues(this,'patAno');renderPATtbl();});
-  bind('patMes',function(){syncSelectValues(this,'patMesBot');renderPATtbl();});
-  bind('patMesBot',function(){syncSelectValues(this,'patMes');renderPATtbl();});
+  const afterAET=()=>{updateAETFilterCount();renderAETAll();};
+  const afterMOB=()=>{updateMOBFilterCount();renderMOBtbl();if(mobData.length)renderMOBcharts();};
+  const afterEFL=()=>{eflChartPage=0;eflFrotaMesPage=0;renderEFL();};
+  const bindPair=(firstId,secondId,afterChange)=>{
+    bind(firstId,function(){syncSelectValues(this,secondId);afterChange();});
+    bind(secondId,function(){syncSelectValues(this,firstId);afterChange();});
+  };
+  [
+    ['aetSem','aetSemBot',afterAET],['aetTipo','aetTipoBot',afterAET],['aetRen','aetRenBot',afterAET],['aetAno','aetAnoTop',afterAET],['aetMes','aetMesTop',afterAET],
+    ['mobCrit','mobCritTop',afterMOB],['mobTipo','mobTipoTop',afterMOB],['mobStatus','mobStatusTop',afterMOB],['mobSla','mobSlaTop',afterMOB],['mobUnd','mobUndTop',afterMOB],['mobAno','mobAnoTop',afterMOB],['mobMes','mobMesTop',afterMOB],
+    ['matTipo','matTipoBot',renderMATtbl],['matStatus','matStatusBot',renderMATtbl],
+    ['patStatus','patStatusBot',renderPATtbl],['patCrit','patCritBot',renderPATtbl],['patSetor','patSetorBot',renderPATtbl],['patAno','patAnoBot',renderPATtbl],['patMes','patMesBot',renderPATtbl],
+    ['inefMes','inefMesBot',renderINEFtbl],['inefStatus','inefStatusBot',renderINEFtbl],['inefCob','inefCobBot',renderINEFtbl],['inefCliente','inefClienteBot',renderINEFtbl],['inefMotivo','inefMotivoBot',renderINEFtbl],['inefTransp','inefTranspBot',renderINEFtbl],
+    ['eflFrota','eflFrotaTop',afterEFL],['eflMes','eflMesTop',afterEFL],
+    ['rpdTipo','rpdTipoTop',renderRPD],['rpdStatus','rpdStatusTop',renderRPD],['rpdImpacto','rpdImpactoTop',renderRPD],['rpdAno','rpdAnoTop',renderRPD],['rpdMes','rpdMesTop',renderRPD],
+    ['progWeek','progWeekBot',renderPROG],['progCliente','progClienteBot',renderPROG],['progFrota','progFrotaBot',renderPROG],['progUn','progUnBot',renderPROG],['progStatus','progStatusBot',renderPROG],['progRealizado','progRealizadoBot',renderPROG]
+  ].forEach(([firstId,secondId,afterChange])=>bindPair(firstId,secondId,afterChange));
 }
 
 function renderAETtbl(){
