@@ -6,7 +6,22 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#123f76" id="themeColorMeta">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gestão Integrada">
 <title>Gestão Integrada - Makro Transportes</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/icons/app-icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+<script>
+try{
+  const savedTheme=localStorage.getItem('makro-theme');
+  const prefersDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.setAttribute('data-theme',savedTheme||(prefersDark?'dark':'light'));
+}catch(e){}
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -65,9 +80,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-ui);min-heigh
 .theme-toggle-left{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--sidebar-text);font-family:var(--font-ui)}
 .theme-toggle-icon{font-size:14px}
 .theme-switch{width:32px;height:18px;background:rgba(255,255,255,.16);border-radius:9px;position:relative;border:1px solid rgba(255,255,255,.24);transition:background .2s}
-[data-theme="light"] .theme-switch{background:#ef4056}
+[data-theme="dark"] .theme-switch{background:#ef4056}
 .theme-switch::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
-[data-theme="light"] .theme-switch::after{transform:translateX(14px)}
+[data-theme="dark"] .theme-switch::after{transform:translateX(14px)}
+.install-app-btn{width:100%;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.07);border:1px solid var(--sidebar-border);border-radius:var(--radius-sm);padding:8px 12px;color:var(--sidebar-text);font:500 12px var(--font-ui);cursor:pointer;transition:all .15s;text-align:left}
+.install-app-btn:hover{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.24);color:#fff}
+.install-app-btn svg,.install-icon-only svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.install-icon-only{display:none;align-items:center;justify-content:center;width:32px;height:32px;border-radius:var(--radius-sm);background:rgba(255,255,255,.07);border:1px solid var(--sidebar-border);color:var(--sidebar-text);cursor:pointer;transition:all .15s}
+.install-icon-only:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.24);color:#fff}
+.install-app-btn[hidden],.install-icon-only[hidden]{display:none!important}
+.install-guide-list{margin:10px 0 0 20px;color:var(--text);font-size:13px;line-height:1.6}
+.install-guide-note{margin-top:12px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);font-size:12px;line-height:1.5;color:var(--text2)}
 .sb-meta{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3)}
 .status-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 3s infinite;flex-shrink:0}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
@@ -454,6 +477,8 @@ tbody tr:hover td{background:var(--surface2)}
 .sidebar.col .sb-section{opacity:0;height:0;padding:0;overflow:hidden;margin:0}
 .sidebar.col .theme-toggle{display:none}
 .sidebar.col .theme-icon-only{display:flex}
+.sidebar.col .install-app-btn{display:none}
+.sidebar.col .install-icon-only{display:flex}
 .sidebar.col .upd-txt,.sidebar.col .sb-meta>span{display:none}
 .sidebar.col .sb-meta{justify-content:center}
 .nav-lbl{overflow:hidden;white-space:normal;word-break:break-word;min-width:0;flex:1;line-height:1.3}
@@ -469,6 +494,10 @@ tbody tr:hover td{background:var(--surface2)}
 
 @media(max-width:768px){
   .sidebar{width:56px}
+  .sb-brand-wrap{min-height:64px;padding:10px}
+  .sb-logo-exp{display:none}
+  .sb-logo-col{display:flex}
+  .sb-tog{display:none}
   .sb-name,.sb-section,.nav-badge,.upd-txt,.theme-toggle-left,.sb-icon+*{display:none}
   .nav-item{justify-content:center;margin:1px 6px;padding:10px}
   .nav-item.active::before{display:none}
@@ -482,6 +511,31 @@ tbody tr:hover td{background:var(--surface2)}
   .exec-frota-main{flex-direction:column}
   .exec-frota-progress{width:100%}
   .main{padding:16px}
+  .panel,.panel.active{padding:10px 6px 28px}
+  .topbar{height:58px;padding:0 10px}
+  .topbar-info{padding-left:4px;min-width:0}
+  .topbar-info .title{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}
+  .topbar-info .sub,.topbar-right .status-dot,.topbar-right #updTxt{display:none}
+  .topbar .refresh-btn{padding:7px 9px;font-size:0}
+  .topbar .refresh-btn svg{width:15px;height:15px}
+  .top-filter-bar{padding:12px;gap:8px;align-items:flex-end}
+  .top-filter-bar-title{width:100%;margin:0 0 2px}
+  .top-filter-bar .search-wrap{flex:1 1 100%;min-width:100%}
+  .top-filter-bar .select-group{flex:1 1 calc(50% - 4px);min-width:120px}
+  .top-filter-bar .clear-filters-btn{flex:1 1 100%;justify-content:center}
+  .card,.tbl-card{padding:14px 12px}
+  .card-title{font-size:11px}
+  .kpi{padding:14px 12px}
+  .kpi-value{font-size:24px}
+  .sb-footer{padding:12px;align-items:center}
+  .sidebar .theme-toggle,.sidebar .install-app-btn{display:none}
+  .sidebar .theme-icon-only,.sidebar .install-icon-only{display:flex}
+}
+@media(max-width:430px){
+  .kpi-row{grid-template-columns:1fr}
+  .exec-frota-metrics{grid-template-columns:1fr}
+  .main{padding:10px}
+  .top-filter-bar .select-group{flex-basis:100%}
 }
 @media(prefers-reduced-motion:reduce){.ambient-bg-layer{transition:none}}
 
@@ -657,14 +711,21 @@ tbody tr:hover td{background:var(--surface2)}
 
   </div>
   <div class="sb-footer">
-    <div class="theme-toggle" onclick="toggleTheme()">
+    <button type="button" class="install-app-btn" id="installAppBtn" onclick="requestAppInstall()">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 20h14"/></svg>
+      <span>Instalar aplicativo</span>
+    </button>
+    <button type="button" class="install-icon-only" id="installIconOnly" onclick="requestAppInstall()" title="Instalar aplicativo" aria-label="Instalar aplicativo">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 20h14"/></svg>
+    </button>
+    <div class="theme-toggle" id="themeToggle" role="switch" aria-checked="false" tabindex="0" onclick="toggleTheme()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTheme()}">
       <div class="theme-toggle-left">
         <span class="theme-toggle-icon" id="themeIco">🌙</span>
         <span id="themeLbl">Modo escuro</span>
       </div>
       <div class="theme-switch"></div>
     </div>
-    <div class="theme-icon-only" onclick="toggleTheme()" id="themeIconOnly" title="Modo escuro">🌙</div>
+    <button type="button" class="theme-icon-only" onclick="toggleTheme()" id="themeIconOnly" title="Ativar modo escuro" aria-label="Ativar modo escuro">🌙</button>
 
   </div>
 </aside>
@@ -1868,7 +1929,7 @@ tbody tr:hover td{background:var(--surface2)}
 
 <!-- v1778869583 -->
 <script>
-let aetData=[],mobData=[],matData=[],matSafetyData=[],patData=[],patInventoryData=[],patInventoryUpdated='',inefData=[],eflData=[],eflDetailData=[],rpdData=[],progSheetsData=[],aC=null,mC=null,mAC=null,pC=null,pCompareLineC=null,pCompareStatusC=null,pInventoryChart=null,iC=null,iC2=null,progStatusChart=null,progClientChart=null,progLoadChart=null,progTrendChart=null,dark=false;
+let aetData=[],mobData=[],matData=[],matSafetyData=[],patData=[],patInventoryData=[],patInventoryUpdated='',inefData=[],eflData=[],eflDetailData=[],rpdData=[],progSheetsData=[],aC=null,mC=null,mAC=null,pC=null,pCompareLineC=null,pCompareStatusC=null,pInventoryChart=null,iC=null,iC2=null,progStatusChart=null,progClientChart=null,progLoadChart=null,progTrendChart=null,dark=document.documentElement.getAttribute('data-theme')==='dark';
 window._aet=()=>aetData;
 window._mob=()=>mobData;
 
@@ -2028,13 +2089,9 @@ function goTo(id){
 
 function toggleTheme(){
   dark=!dark;
-  const ico=dark?'☀️':'🌙';
-  const lbl=dark?'Modo claro':'Modo escuro';
   document.documentElement.setAttribute('data-theme',dark?'dark':'light');
-  document.getElementById('themeIco').textContent=ico;
-  document.getElementById('themeLbl').textContent=lbl;
-  document.getElementById('themeIconOnly').textContent=ico;
-  document.getElementById('themeIconOnly').title=lbl;
+  try{localStorage.setItem('makro-theme',dark?'dark':'light');}catch(e){}
+  syncThemeControls();
   const activePanel=document.querySelector('.panel.active');
   const activeId=activePanel?activePanel.id.replace('panel-',''):'';
   if(aC){aC.destroy();aC=null;}if(mC){mC.destroy();mC=null;}
@@ -2063,6 +2120,20 @@ function toggleTheme(){
   if(activeId==='rpd'&&rpdData.length)renderRPD();
   if(activeId==='prog'&&progSheetsData.length)renderPROG();
   if(activeId==='exec')renderEXEC();
+}
+
+function syncThemeControls(){
+  const toggle=document.getElementById('themeToggle');
+  const icon=document.getElementById('themeIco');
+  const label=document.getElementById('themeLbl');
+  const compact=document.getElementById('themeIconOnly');
+  const action=dark?'Desativar modo escuro':'Ativar modo escuro';
+  if(toggle){toggle.setAttribute('aria-checked',String(dark));toggle.title=action;}
+  if(icon)icon.textContent='🌙';
+  if(label)label.textContent='Modo escuro';
+  if(compact){compact.textContent='🌙';compact.title=action;compact.setAttribute('aria-label',action);}
+  const themeMeta=document.getElementById('themeColorMeta');
+  if(themeMeta)themeMeta.setAttribute('content',dark?'#081f39':'#123f76');
 }
 
 function cssVar(name){
@@ -5696,6 +5767,60 @@ const impTag=r=>r.impacto==='SIM'?`<span class="tag tag-red">SIM</span><div styl
   });
 })();
 
+let deferredInstallPrompt=null;
+function isAppStandalone(){
+  return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+}
+function setInstallActionVisible(visible){
+  const full=document.getElementById('installAppBtn');
+  const compact=document.getElementById('installIconOnly');
+  if(full)full.hidden=!visible;
+  if(compact)compact.hidden=!visible;
+}
+function showInstallGuide(mode){
+  const overlay=document.getElementById('installOverlay');
+  const body=document.getElementById('installGuideBody');
+  if(!overlay||!body)return;
+  if(mode==='ios'){
+    body.innerHTML='<ol class="install-guide-list"><li>Abra este painel no Safari.</li><li>Toque no botão Compartilhar.</li><li>Selecione “Adicionar à Tela de Início”.</li><li>Confirme em “Adicionar”.</li></ol><div class="install-guide-note">O atalho abrirá o painel em uma janela própria, como um aplicativo.</div>';
+  }else if(location.protocol==='file:'){
+    body.innerHTML='<div class="install-guide-note">A instalação ficará disponível depois que o painel for publicado em um endereço HTTPS, como o GitHub Pages. Arquivos abertos diretamente pelo computador não podem instalar uma PWA.</div>';
+  }else{
+    body.innerHTML='<ol class="install-guide-list"><li>Abra o menu do navegador.</li><li>Procure por “Instalar aplicativo” ou “Adicionar à tela inicial”.</li><li>Confirme a instalação.</li></ol><div class="install-guide-note">No computador e no Android, recomendamos Google Chrome ou Microsoft Edge.</div>';
+  }
+  overlay.classList.add('open');
+}
+function closeInstallGuide(){
+  const overlay=document.getElementById('installOverlay');
+  if(overlay)overlay.classList.remove('open');
+}
+async function requestAppInstall(){
+  if(isAppStandalone()){setInstallActionVisible(false);return;}
+  if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt=null;
+    return;
+  }
+  const isiOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  showInstallGuide(isiOS?'ios':'manual');
+}
+function initPWA(){
+  setInstallActionVisible(!isAppStandalone());
+  window.addEventListener('beforeinstallprompt',event=>{
+    event.preventDefault();
+    deferredInstallPrompt=event;
+    setInstallActionVisible(true);
+  });
+  window.addEventListener('appinstalled',()=>{
+    deferredInstallPrompt=null;
+    setInstallActionVisible(false);
+  });
+  if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
+    navigator.serviceWorker.register('./sw.js').catch(error=>console.warn('Service worker não registrado:',error));
+  }
+}
+
 const AMBIENT_BG_IMAGES=Object.freeze([
   'assets/backgrounds/makro-operacao-01.jpg',
   'assets/backgrounds/makro-operacao-02.jpg',
@@ -5724,6 +5849,8 @@ function initAmbientBackground(){
   },60000);
 }
 
+syncThemeControls();
+initPWA();
 initAmbientBackground();
 applyMultiSelectFilters();
 loadAll();
@@ -5732,6 +5859,13 @@ setInterval(loadAll,5*60*1000);
 updatePremiseButton(currentPanelId);
 </script>
 
+<div class="obs-modal-overlay" id="installOverlay" onclick="if(event.target===this)closeInstallGuide()">
+  <div class="obs-modal" style="max-width:480px">
+    <button class="obs-modal-close" onclick="closeInstallGuide()" aria-label="Fechar">✕</button>
+    <div class="obs-modal-title">Instalar Gestão Integrada</div>
+    <div class="obs-modal-body" id="installGuideBody"></div>
+  </div>
+</div>
 <div class="obs-modal-overlay" id="obsOverlay" onclick="if(event.target===this)closeObs()">
   <div class="obs-modal">
     <button class="obs-modal-close" onclick="closeObs()">✕</button>
