@@ -1059,9 +1059,10 @@ tbody tr:hover td{background:var(--surface2)}
         <div class="filter-bar-row" style="margin-bottom:16px;margin-top:4px">
           <button class="ftag on" id="patViewCurrent" onclick="setPATView('current')">Cenário Atual</button>
           <button class="ftag" id="patViewCompare" onclick="setPATView('compare')">Comparativo de Períodos</button>
+          <button class="ftag" id="patViewInventory" onclick="setPATView('inventory')">Inventário de Frotas</button>
         </div>
 
-        <div class="top-filter-bar">
+        <div class="top-filter-bar" id="patActivityFilters">
           <span class="top-filter-bar-title">Filtros</span>
           <div class="filter-divider"></div>
           <div class="search-wrap" style="flex:1;min-width:160px;margin-bottom:0">
@@ -1245,6 +1246,56 @@ tbody tr:hover td{background:var(--surface2)}
             <div class="card">
               <div class="card-head"><span class="card-title">Leitura Gerencial</span></div>
               <div class="pat-compare-note" id="patCompareNarrative">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="patInventoryView" style="display:none">
+          <div class="top-filter-bar">
+            <span class="top-filter-bar-title">Filtros</span>
+            <div class="filter-divider"></div>
+            <div class="search-wrap" style="flex:1;min-width:190px;margin-bottom:0">
+              <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="search-input" id="patInvSearch" placeholder="Buscar frota, tipo, status ou local..." oninput="renderPATInventory()">
+            </div>
+            <div class="select-group"><label class="select-label">Tipo</label><select class="f-select" id="patInvType" onchange="renderPATInventory()"><option value="TODOS">Todos</option></select></div>
+            <div class="select-group"><label class="select-label">Status</label><select class="f-select" id="patInvStatus" onchange="renderPATInventory()"><option value="TODOS">Todos</option></select></div>
+            <div class="select-group"><label class="select-label">Local</label><select class="f-select" id="patInvLocal" onchange="renderPATInventory()"><option value="TODOS">Todos</option></select></div>
+            <button class="clear-filters-btn" onclick="clearPATInventoryFilters()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Limpar
+            </button>
+          </div>
+
+          <div class="kpi-row" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+            <div class="kpi c-mkblue"><div class="kpi-stripe"></div><div class="kpi-label">Frotas no Inventário</div><div class="kpi-value" id="patInvTotal">—</div><div class="kpi-sub">itens identificados</div></div>
+            <div class="kpi c-green"><div class="kpi-stripe"></div><div class="kpi-label">Operacionais</div><div class="kpi-value" id="patInvOperational">—</div><div class="kpi-sub" id="patInvOperationalSub">—</div></div>
+            <div class="kpi c-red"><div class="kpi-stripe"></div><div class="kpi-label">Não Operacionais</div><div class="kpi-value" id="patInvUnavailable">—</div><div class="kpi-sub" id="patInvUnavailableSub">—</div></div>
+            <div class="kpi c-teal"><div class="kpi-stripe"></div><div class="kpi-label">Última Atualização</div><div class="kpi-value" id="patInvUpdated" style="font-size:22px">—</div><div class="kpi-sub">fotografia semanal informada</div></div>
+          </div>
+
+          <div class="grid-2" style="margin-bottom:20px">
+            <div class="card">
+              <div class="card-head"><span class="card-title">Distribuição por Status</span></div>
+              <div style="display:flex;gap:0;align-items:stretch;min-height:210px">
+                <div style="flex:1;display:flex;align-items:center;justify-content:center"><div style="position:relative;width:180px;height:180px"><canvas id="patInvStatusChart"></canvas></div></div>
+                <div style="width:1px;background:var(--border);margin:0 16px;flex-shrink:0"></div>
+                <div class="legend" id="patInvStatusLegend" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><span class="card-title">Frotas por Tipo</span></div>
+              <div class="bars" id="patInvTypeBars"></div>
+            </div>
+          </div>
+
+          <div class="tbl-card">
+            <div class="tbl-head"><span class="tbl-title">Detalhamento do Inventário de Frotas na Matriz</span><div style="display:flex;align-items:center;gap:8px"><span class="count-tag" id="patInvSnapshot">Atualização: —</span><span class="count-tag" id="patInvCount">0 registros</span></div></div>
+            <div class="tbl-wrap">
+              <table style="table-layout:auto">
+                <thead><tr><th>Frota</th><th>Tipo</th><th>Status Atual</th><th>Local</th><th>Observação</th></tr></thead>
+                <tbody id="patInvTable"></tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -1783,7 +1834,7 @@ tbody tr:hover td{background:var(--surface2)}
 
 <!-- v1778869583 -->
 <script>
-let aetData=[],mobData=[],matData=[],matSafetyData=[],patData=[],inefData=[],eflData=[],eflDetailData=[],rpdData=[],progSheetsData=[],aC=null,mC=null,mAC=null,pC=null,pCompareLineC=null,pCompareStatusC=null,iC=null,iC2=null,progStatusChart=null,progClientChart=null,progLoadChart=null,progTrendChart=null,dark=false;
+let aetData=[],mobData=[],matData=[],matSafetyData=[],patData=[],patInventoryData=[],patInventoryUpdated='',inefData=[],eflData=[],eflDetailData=[],rpdData=[],progSheetsData=[],aC=null,mC=null,mAC=null,pC=null,pCompareLineC=null,pCompareStatusC=null,pInventoryChart=null,iC=null,iC2=null,progStatusChart=null,progClientChart=null,progLoadChart=null,progTrendChart=null,dark=false;
 window._aet=()=>aetData;
 window._mob=()=>mobData;
 
@@ -1825,7 +1876,9 @@ const panelPremises={
   ],
   pat:[
     ['Objetivo','Acompanhar o volume de atividades de pátio, pendências e concentração de criticidade.'],
-    ['Origem dos dados','As atividades vêm da base de Gestão de Pátio publicada no Google Sheets.'],
+    ['Origem dos dados','As atividades e o inventário manual de frotas na matriz vêm de bases publicadas no Google Sheets.'],
+    ['Inventário semanal','A aba Inventário de Frotas representa uma fotografia manual do pátio. Apenas linhas com frota identificada entram nos indicadores e no detalhamento.'],
+    ['Última atualização','A data exibida é lida diretamente do campo Data da Última Atualização da planilha e informa a referência da fotografia semanal.'],
     ['Média diária','Mostra a intensidade operacional do período: quantidade de atividades dividida pelos dias analisados.'],
     ['Comparativos','O painel compara o período atual com um período anterior de mesma duração e com o mesmo período do ano anterior.'],
     ['Ponto de atenção','Alta criticidade e aumento relevante de pendências indicam necessidade de reforço operacional ou revisão de prioridade.']
@@ -1929,7 +1982,7 @@ function goTo(id){
   setTimeout(function(){
     if(id==='aet'&&aetData.length>0){if(aC){aC.destroy();aC=null;}renderAETcharts();}
     if(id==='mob'&&mobData.length>0){if(mC){mC.destroy();mC=null;}renderMOBcharts();}
-    if(id==='pat'&&patData.length>0){if(pC){pC.destroy();pC=null;}if(pCompareLineC){pCompareLineC.destroy();pCompareLineC=null;}if(pCompareStatusC){pCompareStatusC.destroy();pCompareStatusC=null;}renderPAT();}
+    if(id==='pat'&&(patData.length>0||patInventoryData.length>0)){if(pC){pC.destroy();pC=null;}if(pCompareLineC){pCompareLineC.destroy();pCompareLineC=null;}if(pCompareStatusC){pCompareStatusC.destroy();pCompareStatusC=null;}if(pInventoryChart){pInventoryChart.destroy();pInventoryChart=null;}renderPAT();}
     if(id==='inef'&&inefData.length>0){if(iC){iC.destroy();iC=null;}if(iC2){iC2.destroy();iC2=null;}renderINEF();}
     if(id==='efl'){if(eflChart){eflChart.destroy();eflChart=null;}if(eflFrotaMesChart){eflFrotaMesChart.destroy();eflFrotaMesChart=null;}if(eflMesChart){eflMesChart.destroy();eflMesChart=null;}if(eflDiaChart){eflDiaChart.destroy();eflDiaChart=null;}if(eflData.length>0)renderEFL();}
     if(id==='rpd'&&rpdData.length>0){if(rpdChart){rpdChart.destroy();rpdChart=null;}renderRPD();}
@@ -1951,7 +2004,7 @@ function toggleTheme(){
   const activePanel=document.querySelector('.panel.active');
   const activeId=activePanel?activePanel.id.replace('panel-',''):'';
   if(aC){aC.destroy();aC=null;}if(mC){mC.destroy();mC=null;}
-  if(mAC){mAC.destroy();mAC=null;}if(pC){pC.destroy();pC=null;}if(pCompareLineC){pCompareLineC.destroy();pCompareLineC=null;}if(pCompareStatusC){pCompareStatusC.destroy();pCompareStatusC=null;}
+  if(mAC){mAC.destroy();mAC=null;}if(pC){pC.destroy();pC=null;}if(pCompareLineC){pCompareLineC.destroy();pCompareLineC=null;}if(pCompareStatusC){pCompareStatusC.destroy();pCompareStatusC=null;}if(pInventoryChart){pInventoryChart.destroy();pInventoryChart=null;}
   if(iC){iC.destroy();iC=null;}if(iC2){iC2.destroy();iC2=null;}
   if(typeof eflChart!=='undefined'&&eflChart){eflChart.destroy();eflChart=null;}
   if(typeof eflFrotaMesChart!=='undefined'&&eflFrotaMesChart){eflFrotaMesChart.destroy();eflFrotaMesChart=null;}
@@ -1970,7 +2023,7 @@ function toggleTheme(){
   if(activeId==='aet'&&aetData.length)renderAET();
   if(activeId==='mob'&&mobData.length)renderMOB();
   if(activeId==='mat'&&(matData.length||matSafetyData.length))renderMAT();
-  if(activeId==='pat'&&patData.length)renderPAT();
+  if(activeId==='pat'&&(patData.length||patInventoryData.length))renderPAT();
   if(activeId==='inef'&&inefData.length)renderINEF();
   if(activeId==='efl'&&eflData.length)renderEFL();
   if(activeId==='rpd'&&rpdData.length)renderRPD();
@@ -2035,6 +2088,144 @@ const progBarValueLabelsPlugin={
   }
 };
 
+function executiveCompactLabel(value,dataset){
+  const n=Number(value);
+  if(!isFinite(n))return'';
+  const abs=Math.abs(n);
+  let compact;
+  if(abs>=1000000)compact=(n/1000000).toFixed(abs>=10000000?0:1).replace('.',',')+'M';
+  else if(abs>=1000)compact=(n/1000).toFixed(abs>=10000?0:1).replace('.',',')+'k';
+  else compact=Number.isInteger(n)?n.toLocaleString('pt-BR'):n.toLocaleString('pt-BR',{maximumFractionDigits:1});
+  const label=normText(dataset&&dataset.label);
+  if(label.includes('R$')||label.includes('VALOR TOTAL'))return'R$ '+compact;
+  if(label.includes('KM ')||label.startsWith('KM'))return compact;
+  return compact;
+}
+const executiveDataLabelsPlugin={
+  id:'executiveDataLabels',
+  afterDatasetsDraw(chart,args,pluginOptions){
+    const options=pluginOptions||{};
+    if(options.display===false||!chart.chartArea)return;
+    const {ctx,chartArea}=chart;
+    const ct=chartTheme();
+    const customBarLabels=(chart.config.plugins||[]).some(plugin=>plugin&&plugin.id==='progBarValueLabels');
+    const fontSize=Number(options.fontSize)||(chartArea.width<420?8:9);
+    const outerColor=options.color||ct.text2;
+    const outline=dark?'rgba(13,18,24,.9)':'rgba(255,255,255,.95)';
+    const darkOutline='rgba(8,18,28,.72)';
+    const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+    const draw=(text,x,y,color,stroke,baseline='middle')=>{
+      if(!text)return;
+      ctx.font=`600 ${fontSize}px 'IBM Plex Mono', monospace`;
+      const width=ctx.measureText(text).width;
+      const px=clamp(x,chartArea.left+width/2+2,chartArea.right-width/2-2);
+      const py=clamp(y,chartArea.top+fontSize/2+2,chartArea.bottom-fontSize/2-2);
+      ctx.textAlign='center';
+      ctx.textBaseline=baseline;
+      ctx.lineJoin='round';
+      ctx.lineWidth=3;
+      ctx.strokeStyle=stroke;
+      ctx.strokeText(text,px,py);
+      ctx.fillStyle=color;
+      ctx.fillText(text,px,py);
+    };
+    ctx.save();
+    ctx.font=`600 ${fontSize}px 'IBM Plex Mono', monospace`;
+    chart.data.datasets.forEach((dataset,datasetIndex)=>{
+      if(dataset.showDataLabels===false)return;
+      const meta=chart.getDatasetMeta(datasetIndex);
+      if(!meta||meta.hidden)return;
+      const type=meta.type||dataset.type||chart.config.type;
+      if(type==='bar'){
+        if(customBarLabels)return;
+        const vertical=chart.options.indexAxis!=='y';
+        const scaleId=meta.vScale&&meta.vScale.id;
+        const stacked=dataset.stack!=null||!!(scaleId&&chart.options.scales&&chart.options.scales[scaleId]&&chart.options.scales[scaleId].stacked);
+        meta.data.forEach((element,index)=>{
+          const raw=dataset.data[index];
+          const value=Number(raw&&typeof raw==='object'?(raw.y??raw.x):raw);
+          if(!isFinite(value)||value===0)return;
+          const props=element.getProps(['x','y','base','width','height'],true);
+          const label=dataset.dataLabelFormatter?dataset.dataLabelFormatter(value,dataset,index):executiveCompactLabel(value,dataset);
+          if(!label)return;
+          if(stacked){
+            const segmentSize=vertical?Math.abs(props.base-props.y):Math.abs(props.x-props.base);
+            ctx.font=`600 ${fontSize}px 'IBM Plex Mono', monospace`;
+            const labelWidth=ctx.measureText(label).width;
+            const crossSize=vertical?(Number(props.width)||0):(Number(props.height)||0);
+            if(vertical){if(segmentSize<fontSize+8||(crossSize&&labelWidth>crossSize-3))return;}
+            else if(crossSize<fontSize+6||labelWidth>segmentSize-4)return;
+            const x=vertical?props.x:(props.x+props.base)/2;
+            const y=vertical?(props.y+props.base)/2:props.y;
+            draw(label,x,y,'#fff',darkOutline);
+            return;
+          }
+          if(vertical){
+            const barWidth=Number(props.width)||20;
+            const densityStep=barWidth<16?Math.ceil(16/Math.max(barWidth,1)):1;
+            if(index%densityStep!==0&&index!==meta.data.length-1)return;
+            const top=Math.min(props.y,props.base);
+            if(top-chartArea.top>=fontSize+7)draw(label,props.x,top-6,outerColor,outline,'bottom');
+            else draw(label,props.x,top+fontSize/2+4,'#fff',darkOutline);
+          }else{
+            const right=Math.max(props.x,props.base);
+            const labelWidth=ctx.measureText(label).width;
+            if(chartArea.right-right>=labelWidth+7)draw(label,right+labelWidth/2+6,props.y,outerColor,outline);
+            else draw(label,right-labelWidth/2-5,props.y,'#fff',darkOutline);
+          }
+        });
+        return;
+      }
+      if(type==='line'||type==='scatter'){
+        const values=(dataset.data||[]).map(raw=>Number(raw&&typeof raw==='object'?(raw.y??raw.x):raw));
+        const valid=values.map((value,index)=>({value,index})).filter(item=>isFinite(item.value));
+        if(!valid.length)return;
+        const maxLabels=chartArea.width<500?5:8;
+        const step=valid.length<=10?1:Math.ceil(valid.length/maxLabels);
+        const maxIndex=valid.reduce((best,item)=>item.value>best.value?item:best,valid[0]).index;
+        const minIndex=valid.reduce((best,item)=>item.value<best.value?item:best,valid[0]).index;
+        const required=new Set([valid[0].index,valid[valid.length-1].index,maxIndex,minIndex]);
+        meta.data.forEach((point,index)=>{
+          const value=values[index];
+          if(!isFinite(value)||(!required.has(index)&&index%step!==0))return;
+          const pos=point.tooltipPosition();
+          const label=dataset.dataLabelFormatter?dataset.dataLabelFormatter(value,dataset,index):executiveCompactLabel(value,dataset);
+          const normalOffset=datasetIndex%2===0?-9:11;
+          const y=pos.y+((pos.y-chartArea.top<fontSize+10)?11:normalOffset);
+          const color=dataset.dataLabelColor||dataset.borderColor||outerColor;
+          draw(label,pos.x,y,color,outline);
+        });
+        return;
+      }
+      if(type==='doughnut'||type==='pie'||type==='polarArea'){
+        const values=(dataset.data||[]).map(value=>Number(value)||0);
+        const total=values.reduce((sum,value)=>sum+Math.max(value,0),0);
+        if(!total)return;
+        meta.data.forEach((arc,index)=>{
+          const value=values[index];
+          if(value<=0)return;
+          const pct=value/total*100;
+          if(pct<(options.arcMinPercent||6))return;
+          const props=arc.getProps(['x','y','startAngle','endAngle','innerRadius','outerRadius'],true);
+          const angle=(props.startAngle+props.endAngle)/2;
+          const radius=(props.innerRadius+props.outerRadius)/2;
+          const x=props.x+Math.cos(angle)*radius;
+          const y=props.y+Math.sin(angle)*radius;
+          const shortLabel=Math.round(pct)+'%';
+          const fullLabel=value.toLocaleString('pt-BR')+' · '+shortLabel;
+          ctx.font=`600 ${fontSize}px 'IBM Plex Mono', monospace`;
+          const available=Math.max(0,(props.endAngle-props.startAngle)*radius-8);
+          const label=ctx.measureText(fullLabel).width<=available?fullLabel:shortLabel;
+          if(ctx.measureText(label).width>available&&pct<12)return;
+          draw(label,x,y,'#fff',darkOutline);
+        });
+      }
+    });
+    ctx.restore();
+  }
+};
+Chart.register(executiveDataLabelsPlugin);
+
 function compactKmLabel(value){
   const n=Number(value||0);
   if(!isFinite(n)||n<=0)return '';
@@ -2067,6 +2258,7 @@ const EFL_SHEETS=[
 ];
 const CSV_INEF = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQa_KB7NVqy6w4B2QRGFcNnvQEv3G_F2YjEprDxd9hZE2TDplS5RR_ZKmmoSypw5lwj2PKaAtOM4URz/pub?output=csv";
 const CSV_PATIO = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRuyDBTaz3bDMc7uelyXQ8t5GkpUjdr0pfK2xm9TZHHJL6uEVEo0GxrTImAyKs-PbjHhhmNIziyBXMO/pub?output=csv";
+const CSV_PATIO_INVENTORY = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSomS3X_Fcay2QsVwB-ebdBwkuUpOFE6zPv599IoFEGwdQVOW_aloK2r4Rf1bcpa0j1ab6XIRbQ3HJM/pub?output=csv";
 const CSV_MAT = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1E33A1HGe5Qs178YvjZnrV_eA-RDIjVkxczBTHBwhk2w0_9LzGuhxLxzrIWu9jHEhKr6oZ66hoJYr/pub?gid=1385059435&single=true&output=csv";
 const CSV_MAT_SAFETY = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1E33A1HGe5Qs178YvjZnrV_eA-RDIjVkxczBTHBwhk2w0_9LzGuhxLxzrIWu9jHEhKr6oZ66hoJYr/pub?gid=1640125903&single=true&output=csv";
 const CSV_RPD="https://docs.google.com/spreadsheets/d/e/2PACX-1vS_rfQGQXLNr0XsYzPab32cj30MbIJ2VLisoCZqio-qc_XP1p2J532LuNOEFNhu9fg52UW_zRTfQyN3/pub?gid=1614487064&single=true&output=csv";
@@ -2108,15 +2300,16 @@ function parseCSV(text){
 async function loadAll(){
   document.getElementById('updTxt').textContent='atualizando...';
   const safeFetch=async(url)=>{try{const r=await fetch(url+'&t='+Date.now());return await r.text();}catch(e){console.warn('fetch failed:',url,e.message);return '';}};
-  const [txtAet,txtMob,txtMat,txtMatSafety,txtPat,txtInef,txtEfls,txtRpd,progTexts]=await Promise.all([
+  const [txtAet,txtMob,txtMat,txtMatSafety,txtPat,txtPatInventory,txtInef,txtEfls,txtRpd,progTexts]=await Promise.all([
     safeFetch(CSV_AET),safeFetch(CSV_MOB),safeFetch(CSV_MAT),safeFetch(CSV_MAT_SAFETY),
-    safeFetch(CSV_PATIO),safeFetch(CSV_INEF),Promise.all(EFL_SHEETS.map(s=>safeFetch(s.url))),safeFetch(CSV_RPD),
+    safeFetch(CSV_PATIO),safeFetch(CSV_PATIO_INVENTORY),safeFetch(CSV_INEF),Promise.all(EFL_SHEETS.map(s=>safeFetch(s.url))),safeFetch(CSV_RPD),
     Promise.all(PROG_SHEETS.map(s=>safeFetch(s.url)))
   ]);
   try{processAET(parseCSV(txtAet));}catch(e){console.error('processAET error:',e.message);}
   try{processMOB(parseCSV(txtMob));}catch(e){console.error('processMOB error:',e.message);}
   try{processMAT(parseCSV(txtMat),'tie',true);processMAT(parseCSV(txtMatSafety),'safety',true);refreshMATFilters();renderMAT();}catch(e){console.error('processMAT error:',e.message);}
   try{processPAT(parseCSV(txtPat));}catch(e){console.error('processPAT error:',e.message);}
+  try{processPATInventory(parseCSV(txtPatInventory));}catch(e){console.error('processPATInventory error:',e.message);}
   try{processINEF(parseCSV(txtInef));}catch(e){console.error('processINEF error:',e.message);}
   try{processEFL(txtEfls.map((txt,i)=>({meta:EFL_SHEETS[i],rows:parseCSV(txt)})));}catch(e){console.error('processEFL error:',e.message);}
   try{processRPD(parseCSV(txtRpd));}catch(e){console.error('processRPD error:',e.message);}
@@ -3249,7 +3442,7 @@ function applyMultiSelectFilters(){
     'aetSem','aetSemBot','aetTipo','aetTipoBot','aetRen','aetRenBot','aetAno','aetAnoTop','aetMes','aetMesTop',
     'mobCrit','mobCritTop','mobTipo','mobTipoTop','mobStatus','mobStatusTop','mobSla','mobSlaTop','mobUnd','mobUndTop','mobAno','mobAnoTop','mobMes','mobMesTop',
     'matTipo','matTipoBot','matStatus','matStatusBot',
-    'patStatus','patStatusBot','patCrit','patCritBot','patSetor','patSetorBot','patAno','patAnoBot','patMes','patMesBot',
+    'patStatus','patStatusBot','patCrit','patCritBot','patSetor','patSetorBot','patAno','patAnoBot','patMes','patMesBot','patInvType','patInvStatus','patInvLocal',
     'inefMes','inefMesBot','inefStatus','inefStatusBot','inefCob','inefCobBot','inefCliente','inefClienteBot','inefMotivo','inefMotivoBot','inefTransp','inefTranspBot',
     'eflFrota','eflFrotaTop','eflMes','eflMesTop',
     'rpdTipo','rpdTipoTop','rpdStatus','rpdStatusTop','rpdImpacto','rpdImpactoTop','rpdAno','rpdAnoTop','rpdMes','rpdMesTop',
@@ -3530,16 +3723,22 @@ function syncPATDate(src,targetId){
 }
 let patViewMode='current',patCompareMode='prev';
 function setPATView(mode){
-  patViewMode=mode==='compare'?'compare':'current';
+  patViewMode=mode==='compare'?'compare':mode==='inventory'?'inventory':'current';
   const cur=document.getElementById('patViewCurrent');
   const cmp=document.getElementById('patViewCompare');
+  const inv=document.getElementById('patViewInventory');
   const curView=document.getElementById('patCurrentView');
   const cmpView=document.getElementById('patCompareView');
+  const invView=document.getElementById('patInventoryView');
+  const activityFilters=document.getElementById('patActivityFilters');
   if(cur)cur.classList.toggle('on',patViewMode==='current');
   if(cmp)cmp.classList.toggle('on',patViewMode==='compare');
+  if(inv)inv.classList.toggle('on',patViewMode==='inventory');
   if(curView)curView.style.display=patViewMode==='current'?'block':'none';
   if(cmpView)cmpView.style.display=patViewMode==='compare'?'block':'none';
-  renderPATtbl();
+  if(invView)invView.style.display=patViewMode==='inventory'?'block':'none';
+  if(activityFilters)activityFilters.style.display=patViewMode==='inventory'?'none':'flex';
+  if(patViewMode==='inventory')renderPATInventory();else renderPATtbl();
 }
 function setPATCompareMode(mode){
   patCompareMode=mode==='yoy'?'yoy':'prev';
@@ -4019,6 +4218,122 @@ function clearMATFilters(){
   renderMATtbl();
 }
 
+function patInventoryStatusKind(status){
+  const key=progKey(status);
+  if(!key)return'other';
+  if(key.includes('NAOOPERACIONAL')||key.includes('INDISPON')||key.includes('INATIV')||key.includes('MANUTEN')||key.includes('BLOQUE'))return'nonop';
+  if(key==='OP'||key.includes('OPERACIONAL')||key.includes('DISPONIVEL'))return'operational';
+  return'other';
+}
+function patInventoryStatusColor(status){
+  const kind=patInventoryStatusKind(status);
+  return kind==='operational'?'#2db87a':kind==='nonop'?'#c81428':'#e8943a';
+}
+function processPATInventory(rows){
+  patInventoryData=[];
+  patInventoryUpdated='';
+  for(let r=0;r<rows.length;r++){
+    for(let c=0;c<(rows[r]||[]).length;c++){
+      const key=progKey(rows[r][c]);
+      if(!key.includes('ULTIMAATUALIZACAO'))continue;
+      for(let next=r+1;next<Math.min(rows.length,r+4);next++){
+        const candidate=progTxt((rows[next]||[])[c]);
+        if(candidate){patInventoryUpdated=candidate;break;}
+      }
+      if(patInventoryUpdated)break;
+    }
+    if(patInventoryUpdated)break;
+  }
+  let headerIndex=-1;
+  for(let i=0;i<rows.length;i++){
+    const keys=(rows[i]||[]).map(progKey);
+    if(keys.includes('FROTA')&&keys.some(k=>k==='STATUSATUAL'||k==='STATUS')){headerIndex=i;break;}
+  }
+  if(headerIndex>=0){
+    const headers=(rows[headerIndex]||[]).map(progKey);
+    const ixFrota=progFindHeader(headers,['FROTA']);
+    const ixTipo=progFindHeader(headers,['TIPO']);
+    const ixStatus=progFindHeader(headers,['STATUS ATUAL','STATUS']);
+    const ixLocal=progFindHeader(headers,['LOCAL','LOCALIZAÇÃO']);
+    const ixObs=progFindHeader(headers,['OBSERVAÇÃO','OBS.','OBS']);
+    for(let i=headerIndex+1;i<rows.length;i++){
+      const row=rows[i]||[];
+      const frota=progTxt(row[ixFrota]);
+      if(!frota||progKey(frota)==='FROTA')continue;
+      patInventoryData.push({
+        frota,
+        tipo:ixTipo>=0?progTxt(row[ixTipo]):'',
+        status:ixStatus>=0?progTxt(row[ixStatus]).toUpperCase():'',
+        local:ixLocal>=0?progTxt(row[ixLocal]):'',
+        obs:ixObs>=0?progTxt(row[ixObs]):''
+      });
+    }
+  }
+  fillSelectOptions(['patInvType'],patInventoryData.map(r=>r.tipo).filter(Boolean).sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true})));
+  fillSelectOptions(['patInvStatus'],patInventoryData.map(r=>r.status).filter(Boolean).sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true})));
+  fillSelectOptions(['patInvLocal'],patInventoryData.map(r=>r.local).filter(Boolean).sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true})));
+  renderPAT();
+}
+function getPATInventoryFilteredData(){
+  const q=progTxt((document.getElementById('patInvSearch')||{}).value).toLowerCase();
+  const types=getSelectValues('patInvType');
+  const statuses=getSelectValues('patInvStatus');
+  const locations=getSelectValues('patInvLocal');
+  return patInventoryData.filter(r=>{
+    if(!matchesValue(r.tipo,types)||!matchesValue(r.status,statuses)||!matchesValue(r.local,locations))return false;
+    if(q&&![r.frota,r.tipo,r.status,r.local,r.obs].join(' ').toLowerCase().includes(q))return false;
+    return true;
+  });
+}
+function renderPATInventory(){
+  const data=getPATInventoryFilteredData();
+  const total=data.length;
+  const operational=data.filter(r=>patInventoryStatusKind(r.status)==='operational').length;
+  const unavailable=data.filter(r=>patInventoryStatusKind(r.status)==='nonop').length;
+  const denom=total||1;
+  const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value;};
+  set('patInvTotal',total);
+  set('patInvOperational',operational);
+  set('patInvOperationalSub',Math.round(operational/denom*100)+'% do inventário filtrado');
+  set('patInvUnavailable',unavailable);
+  set('patInvUnavailableSub',Math.round(unavailable/denom*100)+'% do inventário filtrado');
+  set('patInvUpdated',patInventoryUpdated||'N/D');
+  set('patInvSnapshot','Atualização: '+(patInventoryUpdated||'N/D'));
+  set('patInvCount',total+' registro'+(total===1?'':'s'));
+
+  const statusMap={};
+  data.forEach(r=>{const key=r.status||'SEM STATUS';statusMap[key]=(statusMap[key]||0)+1;});
+  const statusEntries=Object.entries(statusMap).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'pt-BR'));
+  const legend=document.getElementById('patInvStatusLegend');
+  if(legend)legend.innerHTML=statusEntries.length?statusEntries.map(([status,value])=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${patInventoryStatusColor(status)}"></span><span style="font-size:11px">${progEsc(status)}</span></span><span style="font-family:var(--font-data);font-weight:600;font-size:11px;color:var(--text2)">(${value})</span></span>`).join(''):'<span class="leg">Sem dados para o filtro</span>';
+  const chartEl=document.getElementById('patInvStatusChart');
+  if(pInventoryChart){pInventoryChart.destroy();pInventoryChart=null;}
+  if(chartEl&&statusEntries.length){
+    pInventoryChart=new Chart(chartEl,{type:'doughnut',data:{labels:statusEntries.map(x=>x[0]),datasets:[{data:statusEntries.map(x=>x[1]),backgroundColor:statusEntries.map(x=>patInventoryStatusColor(x[0])),borderWidth:0,hoverOffset:2,radius:'90%'}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:8},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.label+': '+ctx.raw}}},cutout:'72%'}});
+  }
+
+  const typeMap={};
+  data.forEach(r=>{const key=r.tipo||'NÃO INFORMADO';typeMap[key]=(typeMap[key]||0)+1;});
+  const typeEntries=Object.entries(typeMap).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'pt-BR')).slice(0,8);
+  const maxType=typeEntries[0]?typeEntries[0][1]:1;
+  const bars=document.getElementById('patInvTypeBars');
+  if(bars)bars.innerHTML=typeEntries.length?typeEntries.map(([type,value])=>`<div class="bar-row"><span class="bar-lbl" title="${progEsc(type)}">${progEsc(type)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(value/maxType*100)}%;background:var(--makro-blue)"></div></div><span class="bar-num">${value}</span></div>`).join(''):'<div style="color:var(--text3);font-size:12px;padding:18px 0">Sem dados para o filtro</div>';
+
+  const table=document.getElementById('patInvTable');
+  if(table){
+    const statusTag=status=>{const kind=patInventoryStatusKind(status);const css=kind==='operational'?'tag-green':kind==='nonop'?'tag-red':'tag-amber';return`<span class="tag ${css}">${progEsc(status||'SEM STATUS')}</span>`;};
+    const sorted=[...data].sort((a,b)=>String(a.frota).localeCompare(String(b.frota),'pt-BR',{numeric:true}));
+    table.innerHTML=sorted.length?sorted.map(r=>`<tr><td style="font-family:var(--font-data);font-weight:600">${progEsc(r.frota)}</td><td>${progEsc(r.tipo||'—')}</td><td>${statusTag(r.status)}</td><td>${progEsc(r.local||'—')}</td><td class="obs-cell">${obsCellHtml(r.frota,r.obs)}</td></tr>`).join(''):'<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px">Nenhuma frota identificada para o filtro selecionado</td></tr>';
+  }
+  requestAnimationFrame(refreshTableScrollbars);
+}
+function clearPATInventoryFilters(){
+  ['patInvType','patInvStatus','patInvLocal'].forEach(resetSelectValue);
+  const search=document.getElementById('patInvSearch');
+  if(search)search.value='';
+  renderPATInventory();
+}
+
 
 function processPAT(rows){
   let hi=-1;
@@ -4063,13 +4378,19 @@ function renderPAT(){
   if(pl)pl.style.display='none';
   const cur=document.getElementById('patViewCurrent');
   const cmp=document.getElementById('patViewCompare');
+  const inv=document.getElementById('patViewInventory');
   const curView=document.getElementById('patCurrentView');
   const cmpView=document.getElementById('patCompareView');
+  const invView=document.getElementById('patInventoryView');
+  const activityFilters=document.getElementById('patActivityFilters');
   if(cur)cur.classList.toggle('on',patViewMode==='current');
   if(cmp)cmp.classList.toggle('on',patViewMode==='compare');
+  if(inv)inv.classList.toggle('on',patViewMode==='inventory');
   if(curView)curView.style.display=patViewMode==='current'?'block':'none';
   if(cmpView)cmpView.style.display=patViewMode==='compare'?'block':'none';
-  renderPATtbl();
+  if(invView)invView.style.display=patViewMode==='inventory'?'block':'none';
+  if(activityFilters)activityFilters.style.display=patViewMode==='inventory'?'none':'flex';
+  if(patViewMode==='inventory')renderPATInventory();else renderPATtbl();
 }
 function renderPATtbl(){
   try{
@@ -4965,7 +5286,7 @@ function renderEFLMonthChart(detail){
   eflMesChart=new Chart(ctx,{type:'bar',plugins:[progBarValueLabelsPlugin],data:{labels:rows.map(r=>r.month),datasets:[
     {label:'KM Carregado',data:rows.map(r=>r.kmCarreg),backgroundColor:'rgba(45,184,122,0.85)',borderRadius:4},
     {label:'KM Vazio',data:rows.map(r=>r.kmVazio),backgroundColor:'rgba(232,148,58,0.75)',borderRadius:4},
-    {label:'Frotas',data:rows.map(r=>r.qtdFrotas),type:'line',yAxisID:'y1',borderColor:'rgba(27,63,122,0.9)',backgroundColor:'rgba(27,63,122,0.2)',tension:.25,pointRadius:3,showDataLabels:false}
+    {label:'Frotas',data:rows.map(r=>r.qtdFrotas),type:'line',yAxisID:'y1',borderColor:'rgba(27,63,122,0.9)',backgroundColor:'rgba(27,63,122,0.2)',tension:.25,pointRadius:3}
   ]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:8}},plugins:{progBarValueLabels:{color:ct.text,fontSize:9,mode:'stacked-inside',formatter:compactKmLabel,minSegmentHeight:18},legend:{position:'bottom',labels:{font:{family:'Inter',size:10},color:ct.text3,boxWidth:10}},tooltip:{callbacks:{label:ctx2=>ctx2.dataset.yAxisID==='y1'?` Frotas: ${ctx2.raw}`:` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},scales:{x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'IBM Plex Mono',size:11}}},y:{stacked:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'IBM Plex Mono',size:10},callback:v=>v.toLocaleString('pt-BR')+'km'}},y1:{position:'right',grid:{display:false},ticks:{color:ct.text3,font:{family:'IBM Plex Mono',size:10},stepSize:1}}}}});
 }
 function renderEFLDayChart(rows){
