@@ -2153,6 +2153,9 @@ function executiveCompactLabel(value,dataset){
 }
 const executiveDataLabelsPlugin={
   id:'executiveDataLabels',
+  beforeInit(chart){
+    if(chart.config.type==='doughnut'&&chart.options.cutout==='72%')chart.options.cutout='64%';
+  },
   afterDatasetsDraw(chart,args,pluginOptions){
     const options=pluginOptions||{};
     if(options.display===false||!chart.chartArea)return;
@@ -2165,9 +2168,10 @@ const executiveDataLabelsPlugin={
     const draw=(text,x,y,color,baseline='middle',labelFontSize=fontSize,pill=false)=>{
       if(!text)return;
       ctx.font=`700 ${labelFontSize}px 'Inter', sans-serif`;
-      const width=ctx.measureText(text).width;
+      const width=ctx.measureText(text).width+(pill?10:0);
+      const height=labelFontSize+(pill?7:0);
       const px=clamp(x,chartArea.left+width/2+2,chartArea.right-width/2-2);
-      const py=clamp(y,chartArea.top+labelFontSize/2+2,chartArea.bottom-labelFontSize/2-2);
+      const py=clamp(y,chartArea.top+height/2+2,chartArea.bottom-height/2-2);
       ctx.textAlign='center';
       ctx.textBaseline=baseline;
       ctx.globalAlpha=1;
@@ -2256,15 +2260,17 @@ const executiveDataLabelsPlugin={
           if(pct<(options.arcMinPercent||6))return;
           const props=arc.getProps(['x','y','startAngle','endAngle','innerRadius','outerRadius'],true);
           const angle=(props.startAngle+props.endAngle)/2;
+          const isRing=type==='doughnut';
           const radius=(props.innerRadius+props.outerRadius)/2;
           const x=props.x+Math.cos(angle)*radius;
           const y=props.y+Math.sin(angle)*radius;
           const shortLabel=Math.round(pct)+'%';
           const fullLabel=value.toLocaleString('pt-BR')+' / '+shortLabel;
-          const arcFontSize=Number(options.arcFontSize)||Math.max(10,fontSize);
+          const arcFontSize=Number(options.arcFontSize)||(isRing?10:Math.max(10,fontSize));
           ctx.font=`700 ${arcFontSize}px 'Inter', sans-serif`;
           const available=Math.max(0,(props.endAngle-props.startAngle)*radius-10);
-          const label=ctx.measureText(fullLabel).width+10<=available?fullLabel:shortLabel;
+          const label=isRing?shortLabel:(ctx.measureText(fullLabel).width+10<=available?fullLabel:shortLabel);
+          if(isRing&&props.outerRadius-props.innerRadius<arcFontSize+7)return;
           if(ctx.measureText(label).width+10>available&&pct<12)return;
           draw(label,x,y,'#fff','middle',arcFontSize,true);
         });
