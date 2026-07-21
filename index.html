@@ -105,6 +105,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-ui);min-heigh
 .ambient-bg-layer.active{opacity:.085}
 [data-theme="dark"] .ambient-bg-layer.active{opacity:.10}
 .topbar{overflow:hidden;background:var(--sidebar-bg);border-bottom:1px solid var(--sidebar-border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:50;transition:background .25s}
+.mobile-menu-btn{display:none;align-items:center;justify-content:center;width:36px;height:36px;flex:0 0 36px;border:1px solid var(--sidebar-border);border-radius:var(--radius-sm);background:rgba(255,255,255,.05);color:var(--sidebar-text);cursor:pointer}
+.mobile-menu-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.mobile-nav-backdrop{display:none;position:fixed;inset:0;background:rgba(5,14,25,.58);z-index:90;backdrop-filter:blur(2px)}
 .topbar-info .title{font-size:16px;font-weight:700;color:var(--sidebar-text);letter-spacing:0;line-height:1.25;font-family:var(--font-ui)}
 .topbar-info{padding-left:16px}
 .topbar-info .sub{font-size:11px;font-weight:400;color:var(--sidebar-muted);margin-top:2px;letter-spacing:0;font-family:var(--font-ui)}
@@ -493,49 +496,85 @@ tbody tr:hover td{background:var(--surface2)}
 .theme-icon-only[title]:hover::after{content:attr(title);position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-size:11px;padding:4px 10px;border-radius:4px;white-space:nowrap;font-family:var(--font-ui);pointer-events:none}
 
 @media(max-width:768px){
-  .sidebar{width:56px}
+  .sidebar{width:56px;overflow:hidden;padding-bottom:env(safe-area-inset-bottom,0)}
   .sb-brand-wrap{min-height:64px;padding:10px}
   .sb-logo-exp{display:none}
   .sb-logo-col{display:flex}
   .sb-tog{display:none}
-  .sb-name,.sb-section,.nav-badge,.upd-txt,.theme-toggle-left,.sb-icon+*{display:none}
-  .nav-item{justify-content:center;margin:1px 6px;padding:10px}
+  .sb-name,.sb-section,.nav-badge,.upd-txt,.theme-toggle-left,.sb-icon+*,.nav-lbl{display:none!important}
+  .sb-nav-top{width:100%;overflow-x:hidden}
+  .nav-item{justify-content:center;margin:1px 6px;padding:10px;width:auto;min-width:0;gap:0}
+  .nav-item .nav-icon{margin:0;flex:0 0 16px}
   .nav-item.active::before{display:none}
   .main-wrap{margin-left:56px}
   .ambient-bg,.main-wrap.col .ambient-bg{left:56px}
-  .kpi-row{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .grid-2{grid-template-columns:1fr}
-  .kv{grid-template-columns:1fr}
+  .kpi-row,.exec-kpis.exec-five{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px}
+  .grid-2,.pat-compare-grid,.exec-overview-grid,.exec-heat-grid,.exec-inef-grid{grid-template-columns:1fr!important}
+  .kv{grid-template-columns:1fr!important}
   #panel-exec .bar-lbl{width:116px}
-  .exec-frota-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .exec-frota-metrics,.exec-inef-values{grid-template-columns:repeat(2,minmax(0,1fr))!important}
   .exec-frota-main{flex-direction:column}
   .exec-frota-progress{width:100%}
   .main{padding:16px}
   .panel,.panel.active{padding:10px 6px 28px}
-  .topbar{height:58px;padding:0 10px}
+  .topbar{height:58px;padding:0 10px;justify-content:flex-start;gap:8px}
+  .mobile-menu-btn{display:flex}
   .topbar-info{padding-left:4px;min-width:0}
-  .topbar-info .title{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}
+  .topbar-info .title{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:38vw}
   .topbar-info .sub,.topbar-right .status-dot,.topbar-right #updTxt{display:none}
+  .topbar-right{margin-left:auto;gap:6px}
   .topbar .refresh-btn{padding:7px 9px;font-size:0}
   .topbar .refresh-btn svg{width:15px;height:15px}
+  .topbar .info-btn{font-size:12px;color:#fff!important}
   .top-filter-bar{padding:12px;gap:8px;align-items:flex-end}
   .top-filter-bar-title{width:100%;margin:0 0 2px}
   .top-filter-bar .search-wrap{flex:1 1 100%;min-width:100%}
-  .top-filter-bar .select-group{flex:1 1 calc(50% - 4px);min-width:120px}
+  .top-filter-bar .select-group{flex:1 1 calc(50% - 4px);min-width:0}
   .top-filter-bar .clear-filters-btn{flex:1 1 100%;justify-content:center}
-  .card,.tbl-card{padding:14px 12px}
+  .tbl-card>.filter-bar-row{padding:10px;gap:8px}
+  .tbl-card>.filter-bar-row::before{width:100%;padding:0 0 4px;border-right:0;align-self:auto}
+  .tbl-card>.filter-bar-row .search-wrap{flex:1 1 100%;min-width:100%}
+  .tbl-card>.filter-bar-row .select-group{flex:1 1 calc(50% - 4px);min-width:0}
+  .tbl-card>.filter-bar-row .clear-filters-btn{flex:1 1 100%;justify-content:center}
+  .card,.tbl-card{padding:14px 12px;min-width:0;overflow:hidden}
   .card-title{font-size:11px}
-  .kpi{padding:14px 12px}
-  .kpi-value{font-size:24px}
+  .kpi{padding:14px 12px;min-width:0}
+  .kpi-label{font-size:10px;line-height:1.35;overflow-wrap:anywhere}
+  .kpi-value{font-size:21px;line-height:1.15;overflow-wrap:anywhere;word-break:normal}
+  .kpi-value[style*="font-size:22px"]{font-size:17px!important}
+  .kpi-sub{overflow-wrap:anywhere}
+  .chart-box,.chart-area,.donut-wrap{max-width:100%;min-width:0}
+  .card>div[style*="min-height:200px"]{flex-direction:column;align-items:center!important;gap:10px!important}
+  .card>div[style*="min-height:200px"]>div[style*="width:1px"]{display:none}
+  .card>div[style*="min-height:200px"]>.legend{width:100%;flex:none!important;padding-top:8px;border-top:1px solid var(--border)}
+  canvas{max-width:100%!important}
   .sb-footer{padding:12px;align-items:center}
   .sidebar .theme-toggle,.sidebar .install-app-btn{display:none}
   .sidebar .theme-icon-only,.sidebar .install-icon-only{display:flex}
+  .sidebar.mobile-open{width:min(286px,calc(100vw - 34px));overflow:visible;box-shadow:18px 0 42px rgba(0,0,0,.32)}
+  .sidebar.mobile-open .sb-brand-wrap{padding:14px 18px;min-height:84px}
+  .sidebar.mobile-open .sb-logo-exp{display:flex}
+  .sidebar.mobile-open .sb-logo-col{display:none}
+  .sidebar.mobile-open .sb-section{display:block!important;opacity:1;height:auto;padding:16px 16px 6px;margin:0}
+  .sidebar.mobile-open .nav-lbl{display:block!important}
+  .sidebar.mobile-open .nav-badge{display:inline-flex!important}
+  .sidebar.mobile-open .nav-item{justify-content:flex-start;margin:1px 10px;padding:9px 12px;width:auto;gap:10px}
+  .sidebar.mobile-open .nav-item.active::before{display:block}
+  .sidebar.mobile-open .sb-footer{padding:12px 14px;align-items:stretch}
+  .sidebar.mobile-open .theme-toggle,.sidebar.mobile-open .install-app-btn{display:flex}
+  .sidebar.mobile-open .theme-icon-only,.sidebar.mobile-open .install-icon-only{display:none}
+  .mobile-nav-backdrop.open{display:block}
 }
 @media(max-width:430px){
-  .kpi-row{grid-template-columns:1fr}
-  .exec-frota-metrics{grid-template-columns:1fr}
   .main{padding:10px}
+  .panel,.panel.active{padding-left:4px;padding-right:4px}
+  .top-filter-bar{padding:10px}
+  .top-filter-bar .select-label{font-size:9px}
+  .f-select,.ms-btn,.search-input{font-size:11px}
+}
+@media(max-width:360px){
   .top-filter-bar .select-group{flex-basis:100%}
+  .topbar-info .title{max-width:30vw}
 }
 @media(prefers-reduced-motion:reduce){.ambient-bg-layer{transition:none}}
 
@@ -730,12 +769,17 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
 </aside>
 
+<div class="mobile-nav-backdrop" id="mobileNavBackdrop" onclick="toggleMobileNav(false)" aria-hidden="true"></div>
+
 <div class="main-wrap">
   <div class="ambient-bg" aria-hidden="true">
     <div class="ambient-bg-layer active" id="ambientBgLayerA"></div>
     <div class="ambient-bg-layer" id="ambientBgLayerB"></div>
   </div>
   <header class="topbar">
+    <button type="button" class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileNav()" aria-label="Abrir menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
     <div class="topbar-info">
       <div class="title" id="pgTitle">Gestão de Mobilizações</div>
       <div class="sub" id="pgSub">operações de mobilização e desmobilização</div>
@@ -2064,7 +2108,35 @@ function hidePremiseTooltip(){
   if(tip)tip.classList.remove('open');
 }
 
+function toggleMobileNav(force){
+  const sidebar=document.querySelector('.sidebar');
+  const backdrop=document.getElementById('mobileNavBackdrop');
+  const button=document.getElementById('mobileMenuBtn');
+  if(!sidebar)return;
+  const open=typeof force==='boolean'?force:!sidebar.classList.contains('mobile-open');
+  sidebar.classList.toggle('mobile-open',open);
+  if(backdrop){backdrop.classList.toggle('open',open);backdrop.setAttribute('aria-hidden',String(!open));}
+  if(button){button.setAttribute('aria-expanded',String(open));button.setAttribute('aria-label',open?'Fechar menu':'Abrir menu');}
+}
+
+function initMobileNavigation(){
+  document.querySelectorAll('.nav-item[data-tip]').forEach(item=>{
+    const label=item.dataset.tip||'';
+    item.setAttribute('aria-label',label);
+    if(!item.hasAttribute('title'))item.title=label;
+    if(!item.classList.contains('nav-disabled')){
+      item.setAttribute('role','button');
+      item.tabIndex=0;
+      item.addEventListener('keydown',event=>{
+        if(event.key==='Enter'||event.key===' '){event.preventDefault();item.click();}
+      });
+    }
+  });
+  window.addEventListener('resize',()=>{if(window.innerWidth>768)toggleMobileNav(false);});
+}
+
 function goTo(id){
+  toggleMobileNav(false);
   currentPanelId=id;
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item:not(.nav-disabled)').forEach(n=>n.classList.remove('active'));
@@ -5851,6 +5923,7 @@ function initAmbientBackground(){
 
 syncThemeControls();
 initPWA();
+initMobileNavigation();
 initAmbientBackground();
 applyMultiSelectFilters();
 loadAll();
