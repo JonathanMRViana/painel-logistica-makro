@@ -2076,7 +2076,7 @@ const progBarValueLabelsPlugin={
     const formatter=(pluginOptions&&pluginOptions.formatter)||null;
     const minSegmentHeight=(pluginOptions&&pluginOptions.minSegmentHeight)||16;
     ctx.save();
-    ctx.font=`600 ${fontSize}px 'IBM Plex Mono', monospace`;
+    ctx.font=`700 ${fontSize}px 'IBM Plex Mono', monospace`;
     ctx.textAlign='center';
     chart.data.datasets.forEach((dataset,datasetIndex)=>{
       if(dataset.showDataLabels===false||(dataset.type==='line'&&!(pluginOptions&&pluginOptions.includeLines)))return;
@@ -2100,8 +2100,8 @@ const progBarValueLabelsPlugin={
           if(segHeight<minSegmentHeight||(props.width&&labelWidth>props.width-4))return;
           ctx.textBaseline='middle';
           ctx.lineJoin='round';
-          ctx.lineWidth=3;
-          ctx.strokeStyle='rgba(8,18,28,.72)';
+          ctx.lineWidth=1.5;
+          ctx.strokeStyle='rgba(8,18,28,.55)';
           ctx.strokeText(label,props.x,segTop+(segHeight/2));
           ctx.fillStyle='#fff';
           ctx.fillText(label,props.x,segTop+(segHeight/2));
@@ -2111,7 +2111,7 @@ const progBarValueLabelsPlugin={
         const y=Math.max(chartArea.top+fontSize+2,pos.y-6);
         const x=Math.max(chartArea.left+(labelWidth/2)+2,Math.min(chartArea.right-(labelWidth/2)-2,pos.x));
         ctx.lineJoin='round';
-        ctx.lineWidth=3;
+        ctx.lineWidth=2;
         ctx.strokeStyle=dark?'rgba(13,18,24,.9)':'rgba(255,255,255,.95)';
         ctx.strokeText(label,x,y);
         ctx.fillStyle=datasetColor;
@@ -2143,28 +2143,41 @@ const executiveDataLabelsPlugin={
     const {ctx,chartArea}=chart;
     const ct=chartTheme();
     const customBarLabels=(chart.config.plugins||[]).some(plugin=>plugin&&plugin.id==='progBarValueLabels');
-    const fontSize=Number(options.fontSize)||(chartArea.width<420?8:9);
-    const outerColor=options.color||ct.text2;
-    const outline=dark?'rgba(13,18,24,.9)':'rgba(255,255,255,.95)';
-    const darkOutline='rgba(8,18,28,.72)';
+    const fontSize=Number(options.fontSize)||(chartArea.width<420?9:10);
+    const outerColor=options.color||ct.text;
+    const darkOutline='rgba(8,18,28,.55)';
+    const lightOutline='rgba(255,255,255,.60)';
     const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
-    const draw=(text,x,y,color,stroke,baseline='middle')=>{
+    const segmentColor=(background,index)=>Array.isArray(background)?background[index%background.length]:background;
+    const contrastColor=(background,index)=>{
+      const raw=String(segmentColor(background,index)||'').trim();
+      let r=null,g=null,b=null;
+      const hex=raw.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+      const rgb=raw.match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i);
+      if(hex){const code=hex[1].length===3?hex[1].split('').map(c=>c+c).join(''):hex[1];r=parseInt(code.slice(0,2),16);g=parseInt(code.slice(2,4),16);b=parseInt(code.slice(4,6),16);}
+      else if(rgb){r=Number(rgb[1]);g=Number(rgb[2]);b=Number(rgb[3]);}
+      if(r===null)return'#fff';
+      const channel=value=>{const c=value/255;return c<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4);};
+      const luminance=.2126*channel(r)+.7152*channel(g)+.0722*channel(b);
+      const whiteContrast=1.05/(luminance+.05);
+      const darkContrast=(luminance+.05)/.061;
+      return darkContrast>whiteContrast?'#102033':'#fff';
+    };
+    const draw=(text,x,y,color,stroke='',baseline='middle',strokeWidth=0,labelFontSize=fontSize)=>{
       if(!text)return;
-      ctx.font=`600 ${fontSize}px 'IBM Plex Mono', monospace`;
+      ctx.font=`700 ${labelFontSize}px 'IBM Plex Mono', monospace`;
       const width=ctx.measureText(text).width;
       const px=clamp(x,chartArea.left+width/2+2,chartArea.right-width/2-2);
-      const py=clamp(y,chartArea.top+fontSize/2+2,chartArea.bottom-fontSize/2-2);
+      const py=clamp(y,chartArea.top+labelFontSize/2+2,chartArea.bottom-labelFontSize/2-2);
       ctx.textAlign='center';
       ctx.textBaseline=baseline;
       ctx.lineJoin='round';
-      ctx.lineWidth=3;
-      ctx.strokeStyle=stroke;
-      ctx.strokeText(text,px,py);
+      if(stroke&&strokeWidth>0){ctx.lineWidth=strokeWidth;ctx.strokeStyle=stroke;ctx.strokeText(text,px,py);}
       ctx.fillStyle=color;
       ctx.fillText(text,px,py);
     };
     ctx.save();
-    ctx.font=`600 ${fontSize}px 'IBM Plex Mono', monospace`;
+    ctx.font=`700 ${fontSize}px 'IBM Plex Mono', monospace`;
     chart.data.datasets.forEach((dataset,datasetIndex)=>{
       if(dataset.showDataLabels===false)return;
       const meta=chart.getDatasetMeta(datasetIndex);
@@ -2184,14 +2197,15 @@ const executiveDataLabelsPlugin={
           if(!label)return;
           if(stacked){
             const segmentSize=vertical?Math.abs(props.base-props.y):Math.abs(props.x-props.base);
-            ctx.font=`600 ${fontSize}px 'IBM Plex Mono', monospace`;
+            ctx.font=`700 ${fontSize}px 'IBM Plex Mono', monospace`;
             const labelWidth=ctx.measureText(label).width;
             const crossSize=vertical?(Number(props.width)||0):(Number(props.height)||0);
             if(vertical){if(segmentSize<fontSize+8||(crossSize&&labelWidth>crossSize-3))return;}
             else if(crossSize<fontSize+6||labelWidth>segmentSize-4)return;
             const x=vertical?props.x:(props.x+props.base)/2;
             const y=vertical?(props.y+props.base)/2:props.y;
-            draw(label,x,y,'#fff',darkOutline);
+            const insideColor=contrastColor(dataset.backgroundColor,index);
+            draw(label,x,y,insideColor,insideColor==='#fff'?darkOutline:lightOutline,'middle',1.25);
             return;
           }
           if(vertical){
@@ -2199,13 +2213,13 @@ const executiveDataLabelsPlugin={
             const densityStep=barWidth<16?Math.ceil(16/Math.max(barWidth,1)):1;
             if(index%densityStep!==0&&index!==meta.data.length-1)return;
             const top=Math.min(props.y,props.base);
-            if(top-chartArea.top>=fontSize+7)draw(label,props.x,top-6,outerColor,outline,'bottom');
-            else draw(label,props.x,top+fontSize/2+4,'#fff',darkOutline);
+            if(top-chartArea.top>=fontSize+7)draw(label,props.x,top-6,outerColor,'','bottom');
+            else{const insideColor=contrastColor(dataset.backgroundColor,index);draw(label,props.x,top+fontSize/2+4,insideColor,insideColor==='#fff'?darkOutline:lightOutline,'middle',1.25);}
           }else{
             const right=Math.max(props.x,props.base);
             const labelWidth=ctx.measureText(label).width;
-            if(chartArea.right-right>=labelWidth+7)draw(label,right+labelWidth/2+6,props.y,outerColor,outline);
-            else draw(label,right-labelWidth/2-5,props.y,'#fff',darkOutline);
+            if(chartArea.right-right>=labelWidth+7)draw(label,right+labelWidth/2+6,props.y,outerColor);
+            else{const insideColor=contrastColor(dataset.backgroundColor,index);draw(label,right-labelWidth/2-5,props.y,insideColor,insideColor==='#fff'?darkOutline:lightOutline,'middle',1.25);}
           }
         });
         return;
@@ -2227,7 +2241,7 @@ const executiveDataLabelsPlugin={
           const normalOffset=datasetIndex%2===0?-9:11;
           const y=pos.y+((pos.y-chartArea.top<fontSize+10)?11:normalOffset);
           const color=dataset.dataLabelColor||dataset.borderColor||outerColor;
-          draw(label,pos.x,y,color,outline);
+          draw(label,pos.x,y,color);
         });
         return;
       }
@@ -2247,11 +2261,13 @@ const executiveDataLabelsPlugin={
           const y=props.y+Math.sin(angle)*radius;
           const shortLabel=Math.round(pct)+'%';
           const fullLabel=value.toLocaleString('pt-BR')+' / '+shortLabel;
-          ctx.font=`600 ${fontSize}px 'IBM Plex Mono', monospace`;
+          const arcFontSize=Number(options.arcFontSize)||Math.max(10,fontSize);
+          ctx.font=`700 ${arcFontSize}px 'IBM Plex Mono', monospace`;
           const available=Math.max(0,(props.endAngle-props.startAngle)*radius-8);
           const label=ctx.measureText(fullLabel).width<=available?fullLabel:shortLabel;
           if(ctx.measureText(label).width>available&&pct<12)return;
-          draw(label,x,y,'#fff',darkOutline);
+          const insideColor=contrastColor(dataset.backgroundColor,index);
+          draw(label,x,y,insideColor,insideColor==='#fff'?darkOutline:lightOutline,'middle',1.25,arcFontSize);
         });
       }
     });
