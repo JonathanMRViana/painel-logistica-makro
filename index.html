@@ -2391,15 +2391,17 @@ function renderPROG(){
   if(progTrendChart){progTrendChart.destroy();progTrendChart=null;}
   if(trendCanvas&&trendRows.length){
     const activeWeekSet=new Set(selectedWeeks);
+    const hasPartialWeekSelection=activeWeekSet.size>0&&activeWeekSet.size<trendRows.length;
+    const weekBorderWidths=trendRows.map(r=>hasPartialWeekSelection&&activeWeekSet.has(r.week)?2:1);
     progTrendChart=new Chart(trendCanvas,{
       type:'bar',
       plugins:[progBarValueLabelsPlugin],
       data:{
         labels:trendRows.map(r=>r.week),
         datasets:[
-          {type:'bar',label:'Cargas Totais',data:trendRows.map(r=>r.loads),yAxisID:'yLoads',backgroundColor:trendRows.map(r=>activeWeekSet.has(r.week)?'rgba(27,63,122,0.88)':'rgba(27,63,122,0.48)'),borderColor:'rgba(27,63,122,1)',borderWidth:1,borderRadius:4,maxBarThickness:52,order:1},
-          {type:'bar',label:'Cargas Entregues',data:trendRows.map(r=>r.delivered),yAxisID:'yLoads',backgroundColor:trendRows.map(r=>activeWeekSet.has(r.week)?'rgba(45,184,122,0.88)':'rgba(45,184,122,0.48)'),borderColor:'rgba(45,184,122,1)',borderWidth:1,borderRadius:4,maxBarThickness:52,order:1},
-          {type:'bar',label:'Não Entregues',data:trendRows.map(r=>r.notDelivered),yAxisID:'yLoads',backgroundColor:trendRows.map(r=>activeWeekSet.has(r.week)?'rgba(200,20,40,0.86)':'rgba(200,20,40,0.46)'),borderColor:'rgba(200,20,40,1)',borderWidth:1,borderRadius:4,maxBarThickness:52,order:1}
+          {type:'bar',label:'Cargas Totais',data:trendRows.map(r=>r.loads),yAxisID:'yLoads',backgroundColor:'rgba(27,63,122,0.86)',borderColor:'rgba(27,63,122,1)',borderWidth:weekBorderWidths,borderRadius:4,maxBarThickness:52,order:1},
+          {type:'bar',label:'Cargas Entregues',data:trendRows.map(r=>r.delivered),yAxisID:'yLoads',backgroundColor:'rgba(45,184,122,0.84)',borderColor:'rgba(45,184,122,1)',borderWidth:weekBorderWidths,borderRadius:4,maxBarThickness:52,order:1},
+          {type:'bar',label:'Não Entregues',data:trendRows.map(r=>r.notDelivered),yAxisID:'yLoads',backgroundColor:'rgba(200,20,40,0.82)',borderColor:'rgba(200,20,40,1)',borderWidth:weekBorderWidths,borderRadius:4,maxBarThickness:52,order:1}
         ]
       },
       options:{
@@ -4378,7 +4380,7 @@ const cobMap={'FATURADO':'#2db87a','PENDENTE':'#e8943a','NAO COBRADO':'#6b7280',
     const legEl=document.getElementById('inefLeg');
     if(legEl)legEl.innerHTML=cobKeys.map(k=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${cobMap[k]||'#6b7280'}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${k}</span></span><span style="font-family:var(--font-data);font-weight:600;font-size:11px;color:var(--text2)">(${cobSc[k]})</span></span>`).join('');
     const dEl=document.getElementById('inefDonut');
-    if(dEl){if(iC){iC.destroy();iC=null;}iC=new Chart(dEl,{type:'doughnut',data:{labels:cobKeys,datasets:[{data:cobKeys.map(k=>cobSc[k]),backgroundColor:cobKeys.map(k=>cobMap[k]||'#6b7280'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});}
+    if(dEl){if(iC){iC.destroy();iC=null;}iC=new Chart(dEl,{type:'doughnut',data:{labels:cobKeys,datasets:[{data:cobKeys.map(k=>cobSc[k]),backgroundColor:cobKeys.map(k=>cobMap[k]||'#6b7280'),borderWidth:0,hoverOffset:2,radius:'90%'}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:8},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=t>0?Math.round(ctx.raw/t*100):0;return ' '+ctx.label+': '+ctx.raw+' ('+pct+'%)';}}}},cutout:'72%'}});}
 
     // -- Line: Evolução mensal ou semanal --
     const MESES_ORDER=['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
