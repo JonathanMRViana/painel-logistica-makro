@@ -74,8 +74,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-ui);min-heigh
 .upd-txt{font-size:10px;color:var(--text3);font-family:var(--font-data)}
 
 /* -- MAIN -- */
-.main-wrap{margin-left:var(--sbw);flex:1;display:flex;flex-direction:column;min-height:100vh;overflow:hidden;transition:margin-left .3s cubic-bezier(.4,0,.2,1),background .25s}
+.main-wrap{margin-left:var(--sbw);flex:1;display:flex;flex-direction:column;min-height:100vh;overflow:hidden;transition:margin-left .3s cubic-bezier(.4,0,.2,1),background .25s;position:relative;isolation:isolate}
 .main-wrap.col{margin-left:var(--sbm)}
+.ambient-bg{position:fixed;inset:0 0 0 var(--sbw);z-index:0;pointer-events:none;overflow:hidden;transition:left .3s cubic-bezier(.4,0,.2,1)}
+.main-wrap.col .ambient-bg{left:var(--sbm)}
+.ambient-bg-layer{position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat;opacity:0;transform:scale(1.015);filter:saturate(.72) contrast(.92);transition:opacity 2.5s ease}
+.ambient-bg-layer.active{opacity:.055}
+[data-theme="dark"] .ambient-bg-layer.active{opacity:.075}
 .topbar{overflow:hidden;background:var(--sidebar-bg);border-bottom:1px solid var(--sidebar-border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:50;transition:background .25s}
 .topbar-info .title{font-size:16px;font-weight:700;color:var(--sidebar-text);letter-spacing:0;line-height:1.25;font-family:var(--font-ui)}
 .topbar-info{padding-left:16px}
@@ -101,7 +106,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-ui);min-heigh
 .premise-tooltip .premise-v{font-size:12px;line-height:1.45}
 .premise-tooltip-hint{font-size:10px;color:var(--text3);font-family:var(--font-data);margin-top:10px;border-top:1px solid var(--border);padding-top:8px}
 
-.main{padding:36px 24px 24px;flex:1;min-width:0;overflow-x:hidden}
+.main{padding:36px 24px 24px;flex:1;min-width:0;overflow-x:hidden;position:relative;z-index:1}
 .panel{display:none}.panel.active{display:block;padding:16px 32px 40px;}
 
 /* -- KPI CARDS -- */
@@ -468,6 +473,7 @@ tbody tr:hover td{background:var(--surface2)}
   .nav-item{justify-content:center;margin:1px 6px;padding:10px}
   .nav-item.active::before{display:none}
   .main-wrap{margin-left:56px}
+  .ambient-bg,.main-wrap.col .ambient-bg{left:56px}
   .kpi-row{grid-template-columns:repeat(2,minmax(0,1fr))}
   .grid-2{grid-template-columns:1fr}
   .kv{grid-template-columns:1fr}
@@ -477,6 +483,7 @@ tbody tr:hover td{background:var(--surface2)}
   .exec-frota-progress{width:100%}
   .main{padding:16px}
 }
+@media(prefers-reduced-motion:reduce){.ambient-bg-layer{transition:none}}
 
 /* -- SIDEBAR TOOLTIP (body-level, no z-index trap) -- */
 #sb-tooltip{
@@ -663,6 +670,10 @@ tbody tr:hover td{background:var(--surface2)}
 </aside>
 
 <div class="main-wrap">
+  <div class="ambient-bg" aria-hidden="true">
+    <div class="ambient-bg-layer active" id="ambientBgLayerA"></div>
+    <div class="ambient-bg-layer" id="ambientBgLayerB"></div>
+  </div>
   <header class="topbar">
     <div class="topbar-info">
       <div class="title" id="pgTitle">Gestão de Mobilizações</div>
@@ -2072,11 +2083,11 @@ const progBarValueLabelsPlugin={
     const ct=chartTheme();
     const mode=(pluginOptions&&pluginOptions.mode)||'top';
     const fontSize=((pluginOptions&&pluginOptions.fontSize)||10);
-    const color=(pluginOptions&&pluginOptions.color)||ct.text2;
+    const color=(pluginOptions&&pluginOptions.color)||ct.text;
     const formatter=(pluginOptions&&pluginOptions.formatter)||null;
     const minSegmentHeight=(pluginOptions&&pluginOptions.minSegmentHeight)||16;
     ctx.save();
-    ctx.font=`700 ${fontSize}px 'IBM Plex Mono', monospace`;
+    ctx.font=`700 ${fontSize}px 'Inter', sans-serif`;
     ctx.textAlign='center';
     chart.data.datasets.forEach((dataset,datasetIndex)=>{
       if(dataset.showDataLabels===false||(dataset.type==='line'&&!(pluginOptions&&pluginOptions.includeLines)))return;
@@ -2099,21 +2110,15 @@ const progBarValueLabelsPlugin={
           const segHeight=segBottom-segTop;
           if(segHeight<minSegmentHeight||(props.width&&labelWidth>props.width-4))return;
           ctx.textBaseline='middle';
-          ctx.lineJoin='round';
-          ctx.lineWidth=1.5;
-          ctx.strokeStyle='rgba(8,18,28,.55)';
-          ctx.strokeText(label,props.x,segTop+(segHeight/2));
-          ctx.fillStyle='#fff';
+          ctx.globalAlpha=1;
+          ctx.fillStyle=datasetColor;
           ctx.fillText(label,props.x,segTop+(segHeight/2));
           return;
         }
         ctx.textBaseline='bottom';
         const y=Math.max(chartArea.top+fontSize+2,pos.y-6);
         const x=Math.max(chartArea.left+(labelWidth/2)+2,Math.min(chartArea.right-(labelWidth/2)-2,pos.x));
-        ctx.lineJoin='round';
-        ctx.lineWidth=2;
-        ctx.strokeStyle=dark?'rgba(13,18,24,.9)':'rgba(255,255,255,.95)';
-        ctx.strokeText(label,x,y);
+        ctx.globalAlpha=1;
         ctx.fillStyle=datasetColor;
         ctx.fillText(label,x,y);
       });
@@ -2143,10 +2148,8 @@ const executiveDataLabelsPlugin={
     const {ctx,chartArea}=chart;
     const ct=chartTheme();
     const customBarLabels=(chart.config.plugins||[]).some(plugin=>plugin&&plugin.id==='progBarValueLabels');
-    const fontSize=Number(options.fontSize)||(chartArea.width<420?9:10);
+    const fontSize=Number(options.fontSize)||(chartArea.width<420?10:11);
     const outerColor=options.color||ct.text;
-    const darkOutline='rgba(8,18,28,.55)';
-    const lightOutline='rgba(255,255,255,.60)';
     const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
     const segmentColor=(background,index)=>Array.isArray(background)?background[index%background.length]:background;
     const contrastColor=(background,index)=>{
@@ -2163,21 +2166,23 @@ const executiveDataLabelsPlugin={
       const darkContrast=(luminance+.05)/.061;
       return darkContrast>whiteContrast?'#102033':'#fff';
     };
-    const draw=(text,x,y,color,stroke='',baseline='middle',strokeWidth=0,labelFontSize=fontSize)=>{
+    const draw=(text,x,y,color,baseline='middle',labelFontSize=fontSize)=>{
       if(!text)return;
-      ctx.font=`700 ${labelFontSize}px 'IBM Plex Mono', monospace`;
+      ctx.font=`700 ${labelFontSize}px 'Inter', sans-serif`;
       const width=ctx.measureText(text).width;
       const px=clamp(x,chartArea.left+width/2+2,chartArea.right-width/2-2);
       const py=clamp(y,chartArea.top+labelFontSize/2+2,chartArea.bottom-labelFontSize/2-2);
       ctx.textAlign='center';
       ctx.textBaseline=baseline;
-      ctx.lineJoin='round';
-      if(stroke&&strokeWidth>0){ctx.lineWidth=strokeWidth;ctx.strokeStyle=stroke;ctx.strokeText(text,px,py);}
+      ctx.globalAlpha=1;
+      ctx.shadowColor='transparent';
+      ctx.shadowBlur=0;
       ctx.fillStyle=color;
       ctx.fillText(text,px,py);
     };
     ctx.save();
-    ctx.font=`700 ${fontSize}px 'IBM Plex Mono', monospace`;
+    ctx.globalAlpha=1;
+    ctx.font=`700 ${fontSize}px 'Inter', sans-serif`;
     chart.data.datasets.forEach((dataset,datasetIndex)=>{
       if(dataset.showDataLabels===false)return;
       const meta=chart.getDatasetMeta(datasetIndex);
@@ -2197,7 +2202,7 @@ const executiveDataLabelsPlugin={
           if(!label)return;
           if(stacked){
             const segmentSize=vertical?Math.abs(props.base-props.y):Math.abs(props.x-props.base);
-            ctx.font=`700 ${fontSize}px 'IBM Plex Mono', monospace`;
+            ctx.font=`700 ${fontSize}px 'Inter', sans-serif`;
             const labelWidth=ctx.measureText(label).width;
             const crossSize=vertical?(Number(props.width)||0):(Number(props.height)||0);
             if(vertical){if(segmentSize<fontSize+8||(crossSize&&labelWidth>crossSize-3))return;}
@@ -2205,7 +2210,7 @@ const executiveDataLabelsPlugin={
             const x=vertical?props.x:(props.x+props.base)/2;
             const y=vertical?(props.y+props.base)/2:props.y;
             const insideColor=contrastColor(dataset.backgroundColor,index);
-            draw(label,x,y,insideColor,insideColor==='#fff'?darkOutline:lightOutline,'middle',1.25);
+            draw(label,x,y,insideColor);
             return;
           }
           if(vertical){
@@ -2213,13 +2218,13 @@ const executiveDataLabelsPlugin={
             const densityStep=barWidth<16?Math.ceil(16/Math.max(barWidth,1)):1;
             if(index%densityStep!==0&&index!==meta.data.length-1)return;
             const top=Math.min(props.y,props.base);
-            if(top-chartArea.top>=fontSize+7)draw(label,props.x,top-6,outerColor,'','bottom');
-            else{const insideColor=contrastColor(dataset.backgroundColor,index);draw(label,props.x,top+fontSize/2+4,insideColor,insideColor==='#fff'?darkOutline:lightOutline,'middle',1.25);}
+            if(top-chartArea.top>=fontSize+7)draw(label,props.x,top-6,outerColor,'bottom');
+            else{const insideColor=contrastColor(dataset.backgroundColor,index);draw(label,props.x,top+fontSize/2+4,insideColor);}
           }else{
             const right=Math.max(props.x,props.base);
             const labelWidth=ctx.measureText(label).width;
             if(chartArea.right-right>=labelWidth+7)draw(label,right+labelWidth/2+6,props.y,outerColor);
-            else{const insideColor=contrastColor(dataset.backgroundColor,index);draw(label,right-labelWidth/2-5,props.y,insideColor,insideColor==='#fff'?darkOutline:lightOutline,'middle',1.25);}
+            else{const insideColor=contrastColor(dataset.backgroundColor,index);draw(label,right-labelWidth/2-5,props.y,insideColor);}
           }
         });
         return;
@@ -2262,12 +2267,12 @@ const executiveDataLabelsPlugin={
           const shortLabel=Math.round(pct)+'%';
           const fullLabel=value.toLocaleString('pt-BR')+' / '+shortLabel;
           const arcFontSize=Number(options.arcFontSize)||Math.max(10,fontSize);
-          ctx.font=`700 ${arcFontSize}px 'IBM Plex Mono', monospace`;
+          ctx.font=`700 ${arcFontSize}px 'Inter', sans-serif`;
           const available=Math.max(0,(props.endAngle-props.startAngle)*radius-8);
           const label=ctx.measureText(fullLabel).width<=available?fullLabel:shortLabel;
           if(ctx.measureText(label).width>available&&pct<12)return;
           const insideColor=contrastColor(dataset.backgroundColor,index);
-          draw(label,x,y,insideColor,insideColor==='#fff'?darkOutline:lightOutline,'middle',1.25,arcFontSize);
+          draw(label,x,y,insideColor,'middle',arcFontSize);
         });
       }
     });
@@ -2677,7 +2682,7 @@ function renderPROG(){
         interaction:{mode:'index',intersect:false},
         layout:{padding:{top:20}},
         plugins:{
-          progBarValueLabels:{color:ct.text2,fontSize:10,mode:'top',formatter:value=>Math.round(value).toLocaleString('pt-BR')},
+          progBarValueLabels:{color:ct.text,fontSize:11,mode:'top',formatter:value=>Math.round(value).toLocaleString('pt-BR')},
           legend:{position:'bottom',labels:{color:ct.text3,boxWidth:11,usePointStyle:true,font:{family:'IBM Plex Mono',size:10}}},
           tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${Number(ctx.raw).toLocaleString('pt-BR')}`}}
         },
@@ -2704,7 +2709,7 @@ function renderPROG(){
   if(clientStage)clientStage.style.width=Math.max(620,clientEntries.length*88)+'px';
   const clientCanvas=document.getElementById('progClientChart');
   if(progClientChart){progClientChart.destroy();progClientChart=null;}
-  if(clientCanvas&&clientEntries.length){progClientChart=new Chart(clientCanvas,{type:'bar',plugins:[progBarValueLabelsPlugin],data:{labels:clientEntries.map(x=>x[0]),datasets:[{data:clientEntries.map(x=>x[1]),backgroundColor:'rgba(27,63,122,0.82)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:18}},plugins:{progBarValueLabels:{color:ct.text2,fontSize:10,mode:'top'},legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.raw+' conjunto(s)'}}},scales:{x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'IBM Plex Mono',size:10}}},y:{grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'IBM Plex Mono',size:10},stepSize:1}}}}});}
+  if(clientCanvas&&clientEntries.length){progClientChart=new Chart(clientCanvas,{type:'bar',plugins:[progBarValueLabelsPlugin],data:{labels:clientEntries.map(x=>x[0]),datasets:[{data:clientEntries.map(x=>x[1]),backgroundColor:'rgba(27,63,122,0.82)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:18}},plugins:{progBarValueLabels:{color:ct.text,fontSize:11,mode:'top'},legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.raw+' conjunto(s)'}}},scales:{x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'IBM Plex Mono',size:10}}},y:{grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'IBM Plex Mono',size:10},stepSize:1}}}}});}
   const loadMap={};
   loads.forEach(r=>{
     const key=progKey(r.frota)||'NI';
@@ -5304,7 +5309,7 @@ function renderEFLChart(f){
       ]},
     options:{responsive:true,maintainAspectRatio:false,
       layout:{padding:{top:8}},
-      plugins:{progBarValueLabels:{color:ct.text,fontSize:9,mode:'stacked-inside',formatter:compactKmLabel,minSegmentHeight:18},
+      plugins:{progBarValueLabels:{color:ct.text,fontSize:10,mode:'stacked-inside',formatter:compactKmLabel,minSegmentHeight:18},
         legend:{position:'top',labels:{font:{family:'Inter',size:11},color:ct.text3,boxWidth:12}},
         tooltip:{callbacks:{label:ctx2=>` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},
       scales:{
@@ -5340,7 +5345,7 @@ function renderEFLMonthChart(detail){
     {label:'KM Carregado',data:rows.map(r=>r.kmCarreg),backgroundColor:'rgba(45,184,122,0.85)',borderRadius:4},
     {label:'KM Vazio',data:rows.map(r=>r.kmVazio),backgroundColor:'rgba(232,148,58,0.75)',borderRadius:4},
     {label:'Frotas',data:rows.map(r=>r.qtdFrotas),type:'line',yAxisID:'y1',borderColor:'rgba(27,63,122,0.9)',backgroundColor:'rgba(27,63,122,0.2)',tension:.25,pointRadius:3}
-  ]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:8}},plugins:{progBarValueLabels:{color:ct.text,fontSize:9,mode:'stacked-inside',formatter:compactKmLabel,minSegmentHeight:18},legend:{position:'bottom',labels:{font:{family:'Inter',size:10},color:ct.text3,boxWidth:10}},tooltip:{callbacks:{label:ctx2=>ctx2.dataset.yAxisID==='y1'?` Frotas: ${ctx2.raw}`:` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},scales:{x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'IBM Plex Mono',size:11}}},y:{stacked:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'IBM Plex Mono',size:10},callback:v=>v.toLocaleString('pt-BR')+'km'}},y1:{position:'right',grid:{display:false},ticks:{color:ct.text3,font:{family:'IBM Plex Mono',size:10},stepSize:1}}}}});
+  ]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:8}},plugins:{progBarValueLabels:{color:ct.text,fontSize:10,mode:'stacked-inside',formatter:compactKmLabel,minSegmentHeight:18},legend:{position:'bottom',labels:{font:{family:'Inter',size:10},color:ct.text3,boxWidth:10}},tooltip:{callbacks:{label:ctx2=>ctx2.dataset.yAxisID==='y1'?` Frotas: ${ctx2.raw}`:` ${ctx2.dataset.label}: ${ctx2.raw.toLocaleString('pt-BR')}km`}}},scales:{x:{grid:{display:false},ticks:{color:ct.text3,font:{family:'IBM Plex Mono',size:11}}},y:{stacked:true,grid:{color:ct.grid},ticks:{color:ct.text3,font:{family:'IBM Plex Mono',size:10},callback:v=>v.toLocaleString('pt-BR')+'km'}},y1:{position:'right',grid:{display:false},ticks:{color:ct.text3,font:{family:'IBM Plex Mono',size:10},stepSize:1}}}}});
 }
 function renderEFLDayChart(rows){
   const ct=chartTheme();
@@ -5686,6 +5691,35 @@ const impTag=r=>r.impacto==='SIM'?`<span class="tag tag-red">SIM</span><div styl
   });
 })();
 
+const AMBIENT_BG_IMAGES=Object.freeze([
+  'assets/backgrounds/makro-operacao-01.jpg',
+  'assets/backgrounds/makro-operacao-02.jpg',
+  'assets/backgrounds/makro-operacao-03.jpg',
+  'assets/backgrounds/makro-operacao-04.jpg',
+  'assets/backgrounds/makro-operacao-05.jpg',
+  'assets/backgrounds/makro-operacao-06.jpg'
+]);
+let ambientBgCurrent=0,ambientBgLayerIndex=0,ambientBgTimer=null;
+function initAmbientBackground(){
+  const layers=[document.getElementById('ambientBgLayerA'),document.getElementById('ambientBgLayerB')];
+  if(layers.some(layer=>!layer)||!AMBIENT_BG_IMAGES.length)return;
+  AMBIENT_BG_IMAGES.forEach(src=>{const img=new Image();img.decoding='async';img.src=src;});
+  layers[0].style.backgroundImage=`url("${AMBIENT_BG_IMAGES[0]}")`;
+  layers[1].style.backgroundImage=`url("${AMBIENT_BG_IMAGES[1]||AMBIENT_BG_IMAGES[0]}")`;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  if(ambientBgTimer)clearInterval(ambientBgTimer);
+  ambientBgTimer=setInterval(()=>{
+    if(document.hidden)return;
+    const currentLayer=layers[ambientBgLayerIndex];
+    ambientBgCurrent=(ambientBgCurrent+1)%AMBIENT_BG_IMAGES.length;
+    ambientBgLayerIndex=ambientBgLayerIndex===0?1:0;
+    const nextLayer=layers[ambientBgLayerIndex];
+    nextLayer.style.backgroundImage=`url("${AMBIENT_BG_IMAGES[ambientBgCurrent]}")`;
+    requestAnimationFrame(()=>{nextLayer.classList.add('active');currentLayer.classList.remove('active');});
+  },60000);
+}
+
+initAmbientBackground();
 applyMultiSelectFilters();
 loadAll();
 window.addEventListener('resize',()=>requestAnimationFrame(refreshTableScrollbars));
