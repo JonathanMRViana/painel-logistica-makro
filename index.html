@@ -69,6 +69,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-ui);min-heigh
 .nav-item.active{background:var(--sidebar-active);color:#fff;font-weight:600}
 .nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:#ef4056;border-radius:0 3px 3px 0}
 .nav-icon{width:16px;height:16px;flex-shrink:0;opacity:.7}
+.nav-finance-icon{width:18px;height:18px;opacity:.86}
 .nav-item.active .nav-icon{opacity:1}
 .nav-badge{margin-left:auto;font-size:10px;font-family:var(--font-data);background:rgba(255,255,255,.07);color:var(--sidebar-muted);padding:1px 6px;border-radius:4px;border:1px solid var(--sidebar-border);font-weight:400}
 .nav-item.active .nav-badge{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.18)}
@@ -308,6 +309,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-ui);min-heigh
 .tbl-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .tbl-title{font-size:12px;font-weight:600;color:var(--text);text-transform:uppercase;letter-spacing:0;line-height:1.35;font-family:var(--font-ui)}
 .count-tag{font-size:10px;font-family:var(--font-data);background:var(--surface2);color:var(--text3);padding:2px 8px;border-radius:4px;border:1px solid var(--border)}
+.chart-nav{display:flex;align-items:center;justify-content:flex-end;gap:6px;min-width:0}
+.chart-arrow{width:32px;height:32px;min-width:32px;padding:0;border:1px solid var(--border2);border-radius:5px;background:var(--surface2);color:var(--text);font-family:Arial,sans-serif;font-size:24px;font-weight:600;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background-color .18s,border-color .18s,color .18s,transform .12s}
+.chart-arrow:hover:not(:disabled){background:var(--surface3);border-color:var(--mk-blue-light);color:var(--mk-blue-light)}
+.chart-arrow:active:not(:disabled){transform:translateY(1px)}
+.chart-arrow:focus-visible{outline:2px solid var(--mk-blue-light);outline-offset:2px}
+.chart-arrow:disabled{opacity:.35;cursor:default}
 
 
 
@@ -517,6 +524,7 @@ tbody tr:hover td{background:var(--surface2)}
   .sb-nav-top::-webkit-scrollbar{display:none}
   .nav-item{justify-content:center;margin:1px 6px;padding:10px;width:auto;min-width:0;gap:0}
   .nav-item .nav-icon{margin:0;flex:0 0 16px}
+  .nav-item .nav-finance-icon{flex-basis:18px}
   .nav-item.active::before{display:none}
   .main-wrap,.main-wrap.col{margin-left:56px;width:calc(100% - 56px);max-width:calc(100% - 56px);min-width:0;flex:0 0 calc(100% - 56px);overflow:visible}
   .ambient-bg,.main-wrap.col .ambient-bg{left:56px}
@@ -557,6 +565,8 @@ tbody tr:hover td{background:var(--surface2)}
   .card-head>*,.tbl-head>*{min-width:0}
   .card-title,.tbl-title{font-size:11px;overflow-wrap:anywhere}
   .count-tag{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+  .chart-nav{gap:8px;flex-wrap:wrap}
+  .chart-arrow{width:38px;height:38px;min-width:38px;font-size:28px}
   .kpi{padding:14px 12px;min-width:0}
   .kpi-label{font-size:10px;line-height:1.35;overflow-wrap:anywhere}
   .kpi-value{font-size:21px;line-height:1.15;overflow-wrap:anywhere;word-break:normal}
@@ -770,12 +780,12 @@ tbody tr:hover td{background:var(--surface2)}
   <div class="sb-section sb-section-billing">Faturamento</div>
 
   <div class="nav-item" id="nav-budget" data-tip="Orçamento da Unidade" data-sub="ROB orçada por mês e frota" onclick="goTo('budget')">
-    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 8.5c0-1.1-1.1-1.8-2.5-1.8S9.5 7.4 9.5 8.5 10.6 10.3 12 10.3s2.5.7 2.5 1.8-1.1 1.8-2.5 1.8-2.5-.7-2.5-1.8"/><path d="M12 5.8v12.4"/></svg>
+    <svg class="nav-icon nav-finance-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
     <span class="nav-lbl">Orçamento da Unidade</span>
   </div>
 
   <div class="nav-item nav-disabled" data-tip="Prévia de Faturamento" data-sub="Aguardando dados">
-    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 8.5c0-1.1-1.1-1.8-2.5-1.8S9.5 7.4 9.5 8.5 10.6 10.3 12 10.3s2.5.7 2.5 1.8-1.1 1.8-2.5 1.8-2.5-.7-2.5-1.8"/><path d="M12 5.8v12.4"/></svg>
+    <svg class="nav-icon nav-finance-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l2-2 2 2 2-2 2 2 2-2 2 2 2-2 2 2V2l-2 2-2-2-2 2-2-2-2 2-2-2-2 2-2-2-2 2Z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>
     <span class="nav-lbl">Prévia de Faturamento</span>
   </div>
 
@@ -2011,7 +2021,7 @@ tbody tr:hover td{background:var(--surface2)}
 
         <div class="grid-2">
           <div class="card"><div class="card-head"><span class="card-title">Evolução Mensal da ROB Orçada</span><span class="count-tag" id="budgetMonthInfo">12 meses</span></div><div style="height:300px"><canvas id="budgetMonthChart"></canvas></div></div>
-          <div class="card"><div class="card-head"><span class="card-title">Concentração por Frota</span><div class="chart-nav"><span class="count-tag" id="budgetFleetInfo">0 frotas</span><button class="chart-arrow" onclick="scrollBUDGETFleet(-1)" aria-label="Frotas anteriores">‹</button><button class="chart-arrow" onclick="scrollBUDGETFleet(1)" aria-label="Próximas frotas">›</button></div></div><div style="height:300px"><canvas id="budgetFleetChart"></canvas></div></div>
+          <div class="card"><div class="card-head"><span class="card-title">Concentração por Frota</span><div class="chart-nav"><span class="count-tag" id="budgetFleetInfo">0 frotas</span><button class="chart-arrow" onclick="scrollBUDGETFleet(-1)" title="Frotas anteriores" aria-label="Frotas anteriores">‹</button><button class="chart-arrow" onclick="scrollBUDGETFleet(1)" title="Próximas frotas" aria-label="Próximas frotas">›</button></div></div><div style="height:300px"><canvas id="budgetFleetChart"></canvas></div></div>
         </div>
 
         <div class="grid-2">
@@ -2020,7 +2030,7 @@ tbody tr:hover td{background:var(--surface2)}
         </div>
 
         <div class="tbl-card">
-          <div class="tbl-head"><span class="tbl-title">Detalhamento do Orçamento</span><div class="chart-nav"><span class="count-tag" id="budgetCount">0 registros</span><button class="chart-arrow" onclick="scrollBUDGETTable(-1)" aria-label="Página anterior do detalhamento">‹</button><button class="chart-arrow" onclick="scrollBUDGETTable(1)" aria-label="Próxima página do detalhamento">›</button></div></div>
+          <div class="tbl-head"><span class="tbl-title">Detalhamento do Orçamento</span><div class="chart-nav"><span class="count-tag" id="budgetCount">0 registros</span><button class="chart-arrow" onclick="scrollBUDGETTable(-1)" title="Página anterior" aria-label="Página anterior do detalhamento">‹</button><button class="chart-arrow" onclick="scrollBUDGETTable(1)" title="Próxima página" aria-label="Próxima página do detalhamento">›</button></div></div>
           <div class="filter-bar-row">
             <div class="search-wrap"><svg class="search-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input class="search-input" id="budgetSearchBot" placeholder="Buscar frota, conjunto, contrato ou situação..." oninput="syncBUDGETSearch(this,'budgetSearch')"></div>
             <div class="select-group"><label class="select-label">Mês</label><select class="f-select" id="budgetMesBot" onchange="syncBUDGETSelect(this,'budgetMes')"><option value="TODOS">Todos</option></select></div>
