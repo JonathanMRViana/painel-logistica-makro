@@ -2074,7 +2074,7 @@ const panelPremises={
     ['Objetivo','Monitorar frotas paradas, tempo de manutenção e impacto potencial no atendimento ao cliente.'],
     ['Origem dos dados','As informações vêm do Relatório de Frotas em Manutenção (RPD).'],
     ['Cenário atual','Considera como frota em manutenção aquilo que não está operacional no status atual da base.'],
-    ['Todos os status','Cada linha representa um registro. O status OP é contabilizado como falha operacional; os cards de cavalos e implementos mostram frotas únicas envolvidas.'],
+    ['Todos os status','Cada linha representa uma falha operacional, independentemente de estar em MC, MP, RF ou OP. O status mostra a situação do registro; cavalos e implementos são contados como frotas únicas envolvidas.'],
     ['Dias parado','Mostra há quanto tempo a frota está parada, usando as datas registradas no controle.'],
     ['Ponto de atenção','Frotas com muitos dias paradas, manutenção corretiva ou impacto no cliente devem ser acompanhadas com prioridade.']
   ],
@@ -5744,7 +5744,8 @@ function renderRPDChart(key){
   if(isQb)rpdQbPage=safePage;else rpdDiasPage=safePage;
   const slice=data.slice(safePage*pageSize,(safePage+1)*pageSize);
   const inf=document.getElementById(isQb?'rpdQbInfo':'rpdDiasInfo');
-  if(inf)inf.textContent=data.length>pageSize?`${safePage+1}/${pages} · ${data.length} frotas`:`${data.length} frotas`;
+  const fleetLabel=data.length===1?'frota':'frotas';
+  if(inf)inf.textContent=data.length>pageSize?`${safePage+1}/${pages} · ${data.length} ${fleetLabel}`:`${data.length} ${fleetLabel}`;
   const el=document.getElementById(isQb?'rpdQbBar':'rpdDiasBar');
   if(!el)return;
   if(isQb){if(rpdQbChart){rpdQbChart.destroy();rpdQbChart=null;}}
@@ -5787,11 +5788,11 @@ function renderRPD(){
   set('rp0',isDetail?totalReg:totalMaint);set('rp1',mediaDias);set('rp2',totalDias);set('rp3',comImpacto);set('rp3s',isDetail?`${Math.round(comImpacto/metricTotal*100)}% dos registros`:`${Math.round(comImpacto/(totalMaint||1)*100)}% das frotas`);
   set('rpMC',byStatusMaint.MC||0);set('rpMP',byStatusMaint.MP||0);set('rpRF',byStatusMaint.RF||0);set('rpOP',opRows.length);set('rpCav',cav);set('rpImp',imp);
   set('rp0s',isDetail?`${uniqueFrotas(f)} ${uniqueFrotas(f)===1?'frota encontrada':'frotas encontradas'}`:'status diferente de OP');
-  set('rp0Label',isDetail?'Registros no Período':'Frotas em Manutenção');
+  set('rp0Label',isDetail?'Falhas Operacionais':'Frotas em Manutenção');
   set('rp1Label',isDetail?'Média de Dias por Registro':'Média Dias Parado');
   set('rp2Label',isDetail?'Total de Dias dos Registros':'Total Dias Parado');
   set('rp3Label',isDetail?'Registros com Impacto Cliente':'Frotas com Impacto Cliente');
-  set('rpOPLabel',isDetail?'Falhas Operacionais':'OP no Período');
+  set('rpOPLabel',isDetail?'OP':'OP no Período');
   set('rpOPSub',isDetail?'registros com status OP':'não conta como manutenção');
   set('rpCavLabel',isDetail?'Cavalos Envolvidos':'Cavalos Parados');
   set('rpImpLabel',isDetail?'Implementos Envolvidos':'Implementos Parados');
@@ -5803,7 +5804,7 @@ function renderRPD(){
   const rpdDark=document.documentElement.getAttribute('data-theme')==='dark';
   const sColors={'MC':'#c81428','MP':'#e8943a','RF':rpdDark?'#94a3b8':'#4b5563','OP':rpdDark?'#cbd5e1':'#9ca3af','AGUARDANDO':'#f39c12'};
   const getC=k=>sColors[k]||(rpdDark?'#94a3b8':'#6b7280');
-  const rpdStatusGraphLabel=s=>(rpdViewMode==='detail'&&rpdIsOP(s))?'Falhas Operacionais':s;
+  const rpdStatusGraphLabel=s=>s;
   const leg=document.getElementById('rpdLeg');
   if(leg)leg.innerHTML=skeys.length?skeys.map(s=>`<span class="leg" style="width:100%;justify-content:space-between;padding:3px 0"><span style="display:flex;align-items:center;gap:6px"><span class="leg-dot" style="background:${getC(s)}"></span><span style="font-size:11px;text-transform:uppercase;letter-spacing:.03em">${rpdEsc(rpdStatusGraphLabel(s))}</span></span><span style="font-family:var(--font-data);font-weight:600;font-size:11px;color:var(--text2)">(${byStatus[s]})</span></span>`).join(''):'<span class="leg">Sem dados</span>';
   const dEl=document.getElementById('rpdDonut');
@@ -5852,7 +5853,7 @@ function renderRPD(){
   if(ip){if(rpdImpactChart){rpdImpactChart.destroy();rpdImpactChart=null;}rpdImpactChart=new Chart(ip,{type:'pie',data:{labels:clientKeys,datasets:[{data:clientKeys.map(k=>clientMap[k]),backgroundColor:clientKeys.map((_,i)=>clientColors[i%clientColors.length]),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.label+': '+ctx.raw+' cavalo(s)'}}}}});}
 
   const cnt=document.getElementById('rpdCnt'),tbl=document.getElementById('rpdTbl');
-  if(cnt)cnt.textContent=f.length+' registros';
+  if(cnt)cnt.textContent=`${f.length} ${f.length===1?'registro':'registros'}`;
   if(!tbl)return;
   const stTag=s=>{const c=s==='MC'?'tag-red':s==='MP'?'tag-amber':s==='RF'?'tag-dim-dark':s==='OP'?'tag-green':'tag-dim';return`<span class="tag ${c}">${rpdEsc(s||'N/I')}</span>`;};
 const impTag=r=>r.impacto==='SIM'?`<span class="tag tag-red">SIM</span><div style="font-size:10px;color:var(--text3);margin-top:2px">${rpdEsc(r.prog||'CLIENTE N/I')}</div>`:'<span class="tag tag-green">NÃO</span>';
