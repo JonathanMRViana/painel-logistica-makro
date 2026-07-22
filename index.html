@@ -779,14 +779,9 @@ tbody tr:hover td{background:var(--surface2)}
 
   <div class="sb-section sb-section-billing">Faturamento</div>
 
-  <div class="nav-item" id="nav-budget" data-tip="Orçamento da Unidade" data-sub="ROB orçada por mês e frota" onclick="goTo('budget')">
+  <div class="nav-item" id="nav-budget" data-tip="Resultado da Unidade" data-sub="Orçado x realizado por unidade e cavalo" onclick="goTo('budget')">
     <svg class="nav-icon nav-finance-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
-    <span class="nav-lbl">Orçamento da Unidade</span>
-  </div>
-
-  <div class="nav-item nav-disabled" data-tip="Prévia de Faturamento" data-sub="Aguardando dados">
-    <svg class="nav-icon nav-finance-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l2-2 2 2 2-2 2 2 2-2 2 2 2-2 2 2V2l-2 2-2-2-2 2-2-2-2 2-2-2-2 2-2-2-2 2Z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>
-    <span class="nav-lbl">Prévia de Faturamento</span>
+    <span class="nav-lbl">Resultado da Unidade</span>
   </div>
 
   </div>
@@ -1996,9 +1991,9 @@ tbody tr:hover td{background:var(--surface2)}
       </div>
     </div>
 
-    <!-- UNIT BUDGET PANEL -->
+    <!-- UNIT RESULT PANEL -->
     <div id="panel-budget" class="panel">
-      <div class="loading" id="budgetLoad"><div class="spinner"></div><span>Carregando orçamento...</span></div>
+      <div class="loading" id="budgetLoad"><div class="spinner"></div><span>Carregando resultado da unidade...</span></div>
       <div id="budgetBody" style="display:none">
         <div class="top-filter-bar">
           <div class="top-filter-bar-title">Filtros</div>
@@ -2045,19 +2040,6 @@ tbody tr:hover td{background:var(--surface2)}
       </div>
     </div>
 
-    <!-- BILLING PREVIEW PANEL -->
-    <div id="panel-fatprev" class="panel">
-      <div class="empty-panel-card">
-        <div class="empty-panel-inner">
-          <div class="empty-panel-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h8M8 17h5"/></svg>
-          </div>
-          <div class="empty-panel-title">Prévia de Faturamento</div>
-          <div class="empty-panel-sub">aguardando dados via Google Sheets</div>
-        </div>
-      </div>
-    </div>
-
   </div>
 </div>
 
@@ -2074,8 +2056,7 @@ const pages={aet:{t:'Gestão de AET\'s',s:'licenças especiais de trânsito'},mo
   inef:{t:'Diárias de Ineficiências Operacionais',s:'monitoramento de equipamentos parados e diárias'},
   efl:{t:'Relatório de Eficiência Logística',s:'eficiência de KM por frota · operação diária'},
   exec:{t:'Resumo Executivo',s:'visão gerencial consolidada das operações'},
-  budget:{t:'Orçamento da Unidade',s:'ROB orçada e premissas por mês e frota'},
-  fatprev:{t:'Prévia de Faturamento',s:'aguardando dados via Google Sheets'},
+  budget:{t:'Resultado da Unidade',s:'orçado x realizado por unidade e cavalo'},
   rpd:{t:'Relatório de Frotas em Manutenção (RPD)',s:'frotas em manutenção · operação diária'}};
 
 pages.prog={t:'Programação Logística Semanal',s:'planejamento operacional por semanas'};
@@ -2152,19 +2133,14 @@ const panelPremises={
     ['Faturamento','O orçamento mensal já está conectado. Faturamento realizado e atingimento somente serão exibidos após a conexão da base contábil oficial.']
   ],
   budget:[
-    ['Objetivo','Apresentar a ROB orçada da unidade por mês, frota e premissas operacionais.'],
+    ['Objetivo','Consolidar orçamento, prévia de faturamento e resultado contábil da unidade, com leitura total e por cavalo.'],
+    ['Situação atual','Nesta etapa, somente a ROB orçada está conectada. Faturamento realizado, resultado contábil e atingimento permanecem indisponíveis até a publicação das bases oficiais.'],
     ['Origem dos dados','A base vem do orçamento anual publicado no Google Sheets e é atualizada pelo botão Atualizar.'],
     ['ROB orçada','Representa receita operacional bruta planejada. Não é faturamento realizado, valor cobrado ou receita contábil reconhecida.'],
     ['Frotas com ROB','A contagem usa frotas únicas com valor orçado maior que zero, evitando multiplicar a mesma frota pelos doze meses.'],
     ['Ocupação e ineficiência','São médias simples das premissas preenchidas nas linhas filtradas. A ineficiência total soma logística, comercial, operacional e mecânica antes da média.'],
     ['RPD','Quando uma frota orçada está parada, o Resumo Executivo estima a exposição potencial pela ROB mensal dividida pelos dias do mês e multiplicada pelos dias indisponíveis.'],
     ['Ponto de atenção','A exposição da RPD é gerencial e potencial. Ela não substitui a apuração de faturamento, disponibilidade contratual ou reconhecimento contábil.']
-  ],
-  fatprev:[
-    ['Objetivo','Reservar a visão futura de faturamento antes da entrada oficial da base.'],
-    ['Situação atual','Ainda não há dados conectados; por isso o painel permanece indisponível.'],
-    ['Leitura futura','Quando a base for publicada, a prévia deve mostrar valores por período, cliente, status de cobrança e condição de faturamento.'],
-    ['Ponto de atenção','Até a conexão da base, nenhuma decisão financeira deve ser tomada a partir desta aba.']
   ]
 };
 
@@ -2676,13 +2652,16 @@ function processBUDGET(rows){
   renderBUDGET();
 }
 function budgetFilterState(){return {mes:getSelectValues('budgetMes'),situacao:getSelectValues('budgetSituacao'),tipo:getSelectValues('budgetTipo'),unidade:getSelectValues('budgetUnidade'),contrato:getSelectValues('budgetContrato')};}
-function budgetMatches(row,state,skip,query){
+function budgetMatches(row,state,skip,query,exactFleet){
   if(skip!=='mes'&&!matchesValue(String(row.mes),state.mes))return false;
   if(skip!=='situacao'&&!matchesValue(row.situacao,state.situacao))return false;
   if(skip!=='tipo'&&!matchesValue(row.tipo,state.tipo))return false;
   if(skip!=='unidade'&&!matchesValue(row.unidade,state.unidade))return false;
   if(skip!=='contrato'&&!matchesValue(row.contrato,state.contrato))return false;
-  if(query){const hay=[row.frota,row.conjunto,row.contrato,row.situacao,row.unidade,row.tipo,row.categoria].join(' ').toLowerCase();if(!hay.includes(query))return false;}
+  if(query){
+    if(exactFleet){if(row.frota.toLowerCase()!==query)return false;}
+    else{const hay=[row.frota,row.conjunto,row.contrato,row.situacao,row.unidade,row.tipo,row.categoria].join(' ').toLowerCase();if(!hay.includes(query))return false;}
+  }
   return true;
 }
 function refreshBUDGETFilters(){
@@ -2697,7 +2676,8 @@ function refreshBUDGETFilters(){
 function getBUDGETFiltered(){
   const query=((document.getElementById('budgetSearch')||{}).value||'').toLowerCase().trim();
   const state=budgetFilterState();
-  return budgetData.filter(row=>budgetMatches(row,state,'',query));
+  const exactFleet=!!query&&budgetData.some(row=>row.frota.toLowerCase()===query);
+  return budgetData.filter(row=>budgetMatches(row,state,'',query,exactFleet));
 }
 function syncBUDGETSearch(src,targetId){const target=document.getElementById(targetId);if(target&&target!==src)target.value=src.value;budgetFleetPage=0;budgetTablePage=0;renderBUDGET();}
 function syncBUDGETSelect(src,targetId){syncSelectValues(src,targetId);budgetFleetPage=0;budgetTablePage=0;renderBUDGET();}
@@ -2714,12 +2694,13 @@ function renderBUDGET(){
   const total=positive.reduce((sum,row)=>sum+row.rob,0);
   const months=[...new Set(rows.map(row=>row.mes))];
   const fleets=[...new Set(positive.map(row=>row.frota))];
+  const allFleets=[...new Set(rows.map(row=>row.frota))];
   const occupancy=rows.map(row=>row.ocupacao).filter(v=>v!=null);
   const ineff=rows.map(row=>[row.inefLog,row.inefCom,row.inefOp,row.inefMec].filter(v=>v!=null)).filter(v=>v.length).map(v=>v.reduce((a,b)=>a+b,0));
   const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value;};
   set('budgetTotal',fMoney(total));set('budgetTotalSub',`${positive.length.toLocaleString('pt-BR')} linhas com ROB`);
   set('budgetMonthlyAvg',fMoney(months.length?total/months.length:0));set('budgetMonthlyAvgSub',`${months.length} ${months.length===1?'mês':'meses'} no recorte`);
-  set('budgetFleets',fleets.length.toLocaleString('pt-BR'));set('budgetFleetsSub',`${[...new Set(rows.map(row=>row.frota))].length} frotas na base filtrada`);
+  set('budgetFleets',fleets.length.toLocaleString('pt-BR'));set('budgetFleetsSub',`${fleets.length.toLocaleString('pt-BR')} com ROB de ${allFleets.length.toLocaleString('pt-BR')} ${allFleets.length===1?'frota':'frotas'} no recorte`);
   set('budgetOccupancy',occupancy.length?(occupancy.reduce((a,b)=>a+b,0)/occupancy.length*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%':'N/D');
   set('budgetInefficiency',ineff.length?(ineff.reduce((a,b)=>a+b,0)/ineff.length*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%':'N/D');
   renderBUDGETMonthChart(rows);renderBUDGETFleetChart(rows);renderBUDGETSituation(rows);renderBUDGETRead(rows,total);
