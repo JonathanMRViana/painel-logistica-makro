@@ -91,6 +91,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-ui);min-heigh
 .install-app-btn[hidden],.install-icon-only[hidden]{display:none!important}
 .install-guide-list{margin:10px 0 0 20px;color:var(--text);font-size:13px;line-height:1.6}
 .install-guide-note{margin-top:12px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);font-size:12px;line-height:1.5;color:var(--text2)}
+.install-guide-intro{margin:0 0 14px;color:var(--text2);font-size:13px;line-height:1.5}
+.install-guide-steps{display:grid;gap:9px}
+.install-guide-step{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface)}
+.install-guide-step-number{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--makro-blue);color:#fff;font:600 12px var(--font-ui)}
+.install-guide-step strong{display:block;margin-bottom:2px;color:var(--text);font:600 13px var(--font-ui)}
+.install-guide-step span{display:block;color:var(--text2);font-size:12px;line-height:1.45}
+.install-guide-warning{margin:0 0 12px;padding:10px 12px;border-left:3px solid var(--amber);background:var(--amber-dim);color:var(--text);font-size:12px;line-height:1.5}
+.install-copy-btn{width:100%;margin-top:12px;padding:9px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font:600 12px var(--font-ui);cursor:pointer}
+.install-copy-btn:hover{border-color:var(--makro-blue);background:var(--makro-blue-dim)}
 .sb-meta{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3)}
 .status-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 3s infinite;flex-shrink:0}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
@@ -5896,6 +5905,33 @@ function showInstallGuide(mode){
   }
   overlay.classList.add('open');
 }
+function getIOSInstallContext(){
+  const ua=navigator.userAgent||'';
+  const isiOS=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const isSafari=isiOS&&/safari/i.test(ua)&&!/crios|fxios|edgios|opios|duckduckgo/i.test(ua);
+  return {isiOS,isSafari};
+}
+function showIOSInstallGuide(isSafari){
+  const overlay=document.getElementById('installOverlay');
+  const body=document.getElementById('installGuideBody');
+  if(!overlay||!body)return;
+  if(location.protocol==='file:'){
+    body.innerHTML='<div class="install-guide-warning"><strong>O arquivo local não pode ser instalado no iPhone.</strong><br>Abra no Safari o endereço publicado do painel no GitHub Pages, começando com <strong>https://</strong>.</div>';
+  }else if(!isSafari){
+    body.innerHTML='<div class="install-guide-warning"><strong>Este painel está aberto fora do Safari.</strong><br>No iPhone, abra o menu deste navegador e escolha “Abrir no Safari”. Se essa opção não aparecer, copie o link abaixo e cole no Safari.</div><button type="button" class="install-copy-btn" onclick="copyInstallLink(this)">Copiar link do painel</button>';
+  }else{
+    body.innerHTML='<p class="install-guide-intro">No iPhone, a instalação é feita pelo menu do Safari:</p><div class="install-guide-steps"><div class="install-guide-step"><div class="install-guide-step-number">1</div><div><strong>Abra o menu Compartilhar</strong><span>Toque no ícone de compartilhar do Safari.</span></div></div><div class="install-guide-step"><div class="install-guide-step-number">2</div><div><strong>Adicionar à Tela de Início</strong><span>Role a lista. Se a opção não aparecer, toque em “Editar Ações” para incluí-la.</span></div></div><div class="install-guide-step"><div class="install-guide-step-number">3</div><div><strong>Ative “Abrir como App da Web”</strong><span>Depois toque em “Adicionar”. O ícone aparecerá na Tela de Início.</span></div></div></div>';
+  }
+  overlay.classList.add('open');
+}
+async function copyInstallLink(button){
+  try{
+    await navigator.clipboard.writeText(location.href);
+    if(button){button.textContent='Link copiado';setTimeout(()=>{button.textContent='Copiar link do painel';},1800);}
+  }catch(error){
+    if(button)button.textContent='Copie o endereço na barra do navegador';
+  }
+}
 function closeInstallGuide(){
   const overlay=document.getElementById('installOverlay');
   if(overlay)overlay.classList.remove('open');
@@ -5908,8 +5944,9 @@ async function requestAppInstall(){
     deferredInstallPrompt=null;
     return;
   }
-  const isiOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
-  showInstallGuide(isiOS?'ios':'manual');
+  const ios=getIOSInstallContext();
+  if(ios.isiOS)showIOSInstallGuide(ios.isSafari);
+  else showInstallGuide('manual');
 }
 function initPWA(){
   setInstallActionVisible(!isAppStandalone());
