@@ -1,4 +1,4 @@
-const CACHE_NAME='makro-gestao-integrada-v5';
+const CACHE_NAME='makro-gestao-integrada-v6';
 const APP_SHELL=[
   './',
   './index.html',
@@ -13,7 +13,13 @@ const APP_SHELL=[
   './assets/backgrounds/makro-operacao-03.jpg',
   './assets/backgrounds/makro-operacao-04.jpg',
   './assets/backgrounds/makro-operacao-05.jpg',
-  './assets/backgrounds/makro-operacao-06.jpg'
+  './assets/backgrounds/makro-operacao-06.jpg',
+  './assets/backgrounds/makro-operacao-07.jpg',
+  './assets/backgrounds/makro-operacao-08.jpg',
+  './assets/backgrounds/makro-operacao-09.jpg',
+  './assets/backgrounds/makro-operacao-10.jpg',
+  './assets/backgrounds/makro-operacao-11.jpg',
+  './assets/backgrounds/makro-operacao-12.jpg'
 ];
 
 self.addEventListener('install',event=>{
