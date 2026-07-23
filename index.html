@@ -23,6 +23,8 @@ try{
 }catch(e){}
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="assets/vendor/html2canvas.min.js"></script>
+<script src="assets/vendor/jspdf.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 [data-theme="dark"]{
@@ -194,6 +196,32 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-ui);min-heigh
 .kv-k{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-family:var(--font-ui);margin-bottom:6px}
 .kv-v{font-size:20px;font-weight:600;line-height:1.1;color:var(--text);font-family:var(--font-ui)}
 .exec-panel{display:grid;gap:20px}
+.exec-report-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+.exec-report-toolbar-copy{min-width:0}
+.exec-report-toolbar-title{font-size:12px;font-weight:700;color:var(--text);text-transform:uppercase;line-height:1.35}
+.exec-report-toolbar-sub{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.4}
+.exec-report-last{font:10px/1.4 var(--font-data);color:var(--green);margin-top:5px;min-height:14px}
+.exec-report-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.exec-export-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:34px;padding:7px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font:600 11px var(--font-ui);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.exec-export-btn:hover{border-color:var(--makro-blue);background:var(--makro-blue-dim);color:var(--makro-blue)}
+.exec-export-btn.primary{border-color:var(--makro-blue);background:var(--makro-blue);color:#fff}
+.exec-export-btn.primary:hover{background:#0c3564;color:#fff}
+.exec-export-btn:disabled{opacity:.55;cursor:wait}
+.exec-export-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.exec-report-toast{position:fixed;right:24px;bottom:24px;z-index:1400;max-width:min(420px,calc(100vw - 32px));padding:12px 15px;border:1px solid rgba(77,185,136,.45);border-radius:var(--radius);background:#103a2d;color:#f4fff9;box-shadow:0 12px 32px rgba(0,0,0,.25);font:500 12px/1.45 var(--font-ui);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .2s,transform .2s}
+.exec-report-toast.show{opacity:1;transform:translateY(0)}
+.exec-report-toast.error{background:#541925;border-color:rgba(239,82,107,.55)}
+.exec-export-stage{position:fixed;left:-20000px;top:0;width:1360px;z-index:-1;pointer-events:none}
+.exec-export-surface{width:1360px!important;display:block!important;padding:28px;background:#f2f5f8;color:#172230;--bg:#f2f5f8;--surface:#fff;--surface2:#f7f9fb;--surface3:#edf1f5;--border:#dde3ea;--border2:#c7d0da;--text:#172230;--text2:#435164;--text3:#718094;--accent:#1b4f8a;--accent-dim:rgba(27,79,138,.09);--red:#c9233f;--red-dim:rgba(201,35,63,.08);--makro-blue:#123f76;--makro-blue-dim:rgba(18,63,118,.1);--amber:#a96816;--amber-dim:rgba(169,104,22,.09);--green:#247a55;--green-dim:rgba(36,122,85,.09);--teal:#287f86;--teal-dim:rgba(40,127,134,.09)}
+.exec-export-surface .exec-tab-content{display:block!important;width:100%!important}
+.exec-export-surface .tbl-wrap{overflow:visible!important;max-height:none!important}
+.exec-export-surface .tbl-wrap table{min-width:0!important;width:100%!important}
+.exec-export-surface .exec-data-table{min-width:0!important;table-layout:auto!important}
+.exec-export-header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:0 2px 16px;margin-bottom:20px;border-bottom:2px solid #123f76}
+.exec-export-brand{font-size:19px;font-weight:700;color:#123f76}
+.exec-export-title{font-size:12px;font-weight:700;color:#172230;text-transform:uppercase;margin-top:4px}
+.exec-export-meta{text-align:right;font:10px/1.5 var(--font-data);color:#718094}
+.exec-export-footer{margin-top:24px;padding:12px 2px 0;border-top:1px solid #c7d0da;text-align:right;font:10px var(--font-data);color:#718094}
 .exec-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:-4px}
 .exec-tab-content{display:none;min-width:0;max-width:100%}
 .exec-tab-content.active{display:block;width:100%}
@@ -271,6 +299,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-ui);min-heigh
 @media(max-width:1350px){.exec-kpis.exec-five{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:1100px){.exec-overview-grid{grid-template-columns:1fr}.exec-heat-grid{grid-template-columns:1fr}.exec-inef-grid{grid-template-columns:1fr}}
 @media(max-width:768px){.exec-kpis.exec-five{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:768px){.exec-report-toolbar{align-items:stretch;flex-direction:column}.exec-report-actions{display:grid;grid-template-columns:1fr 1fr}.exec-export-btn{width:100%}.exec-report-toast{right:16px;bottom:16px}}
 #panel-exec .tbl-wrap th:nth-child(2),#panel-exec .tbl-wrap td:nth-child(2){width:110px}
 #panel-exec .tbl-wrap th:nth-child(3),#panel-exec .tbl-wrap td:nth-child(3){width:140px}
 #panel-exec .tbl-wrap th:nth-child(4),#panel-exec .tbl-wrap td:nth-child(4){width:110px}
@@ -1904,6 +1933,23 @@ tbody tr:hover td{background:var(--surface2)}
     <!-- EXECUTIVE SUMMARY PANEL -->
     <div id="panel-exec" class="panel">
       <div class="exec-panel">
+        <div class="exec-report-toolbar">
+          <div class="exec-report-toolbar-copy">
+            <div class="exec-report-toolbar-title">Exportar Resumo Executivo</div>
+            <div class="exec-report-toolbar-sub">PDF completo para circulação gerencial ou imagem da visão aberta para apresentações.</div>
+            <div class="exec-report-last" id="execReportLastGenerated" aria-live="polite"></div>
+          </div>
+          <div class="exec-report-actions">
+            <button type="button" class="exec-export-btn" id="execPngBtn" onclick="exportExecutivePNG()">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="m21 15-5-5L5 20"/></svg>
+              Imagem da aba
+            </button>
+            <button type="button" class="exec-export-btn primary" id="execPdfBtn" onclick="exportExecutivePDF()">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l4 4v16H6z"/><path d="M14 2v5h5M9 14h6M9 18h4"/></svg>
+              PDF completo
+            </button>
+          </div>
+        </div>
         <div class="exec-tabs">
           <button class="ftag on" id="execTabOverview" onclick="setExecTab('overview')">Visão Geral</button>
           <button class="ftag" id="execTabAdherence" onclick="setExecTab('adherence')">Aderência</button>
@@ -2537,7 +2583,7 @@ const EFL_SHEETS=[
   {month:'Maio',gid:'795326864',url:'https://docs.google.com/spreadsheets/d/e/2PACX-1vQgksY-EN253ap3PxlGvh5J3NACPfbeOkeoNipkIOpo1mV06Q3Wgqu8rTM2k-vFaXZrF166yu62JEWS/pub?output=csv&gid=795326864'},
   {month:'Julho',gid:'192071067',url:'https://docs.google.com/spreadsheets/d/e/2PACX-1vQgksY-EN253ap3PxlGvh5J3NACPfbeOkeoNipkIOpo1mV06Q3Wgqu8rTM2k-vFaXZrF166yu62JEWS/pub?output=csv&gid=192071067'}
 ];
-const CSV_INEF = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQa_KB7NVqy6w4B2QRGFcNnvQEv3G_F2YjEprDxd9hZE2TDplS5RR_ZKmmoSypw5lwj2PKaAtOM4URz/pub?output=csv";
+const CSV_INEF = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQa_KB7NVqy6w4B2QRGFcNnvQEv3G_F2YjEprDxd9hZE2TDplS5RR_ZKmmoSypw5lwj2PKaAtOM4URz/pub?output=csv&gid=262129708";
 const CSV_PATIO = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRuyDBTaz3bDMc7uelyXQ8t5GkpUjdr0pfK2xm9TZHHJL6uEVEo0GxrTImAyKs-PbjHhhmNIziyBXMO/pub?output=csv";
 const CSV_PATIO_INVENTORY = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSomS3X_Fcay2QsVwB-ebdBwkuUpOFE6zPv599IoFEGwdQVOW_aloK2r4Rf1bcpa0j1ab6XIRbQ3HJM/pub?output=csv";
 const CSV_MAT = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1E33A1HGe5Qs178YvjZnrV_eA-RDIjVkxczBTHBwhk2w0_9LzGuhxLxzrIWu9jHEhKr6oZ66hoJYr/pub?gid=1385059435&single=true&output=csv";
@@ -3181,6 +3227,161 @@ function renderPROG(){
   if(occTbl){occTbl.innerHTML=occs.length?occs.map(r=>`<tr><td style="font-family:var(--font-data);white-space:nowrap">${progEsc(r.week||'—')}</td><td style="font-family:var(--font-data)">${progEsc(r.conjunto||'—')}</td><td style="font-family:var(--font-data);font-weight:600">${progEsc(r.frota||'—')}</td><td style="font-family:var(--font-data)">${progEsc(r.dataHora||'—')}</td><td>${progEsc(r.tipo||'—')}</td><td>${progEsc(r.descricao||'—')}</td><td>${progEsc(r.responsavel||'—')}</td><td>${progEsc(r.impacto||'—')}</td><td><span class="tag ${progIsOpenStatus(r.status)?'tag-red':'tag-green'}">${progEsc(r.status||'—')}</span></td><td style="font-family:var(--font-data)">${progEsc(r.dataResolucao||'—')}</td></tr>`).join(''):'<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:24px">Nenhuma ocorrência registrada</td></tr>';}
   const extraTbl=document.getElementById('progExtraTbl');
 if(extraTbl){extraTbl.innerHTML=extras.length?extras.map(r=>`<tr><td style="font-family:var(--font-data);white-space:nowrap">${progEsc(r.week||'—')}</td><td style="font-family:var(--font-data)">${progEsc(r.conjunto||'—')}</td><td>${progEsc(r.tipo||'—')}</td><td>${progEsc(r.solicitante||'—')}</td><td>${progEsc(r.cliente||'—')}</td><td style="font-family:var(--font-data)">${progEsc(r.dataSolicitacao||'—')}</td><td style="font-family:var(--font-data)">${progEsc(r.dataSaida||'—')}</td><td>${progEsc(r.motivo||'—')}</td><td>${progEsc(r.frotaAtendida||'—')}</td><td><span class="tag ${progTagDone(r.status)}">${progEsc(r.status||'—')}</span></td></tr>`).join(''):'<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:24px">Nenhuma solicitação extra registrada</td></tr>';}
+}
+
+const EXEC_REPORT_SECTIONS=Object.freeze([
+  {key:'overview',id:'execContentOverview',label:'Visão Geral'},
+  {key:'adherence',id:'execContentAdherence',label:'Aderência'},
+  {key:'rpd',id:'execContentRpd',label:'RPD'},
+  {key:'inef',id:'execContentInef',label:'Ineficiências'},
+  {key:'billing',id:'execContentBilling',label:'Faturamento'},
+  {key:'km',id:'execContentKm',label:'KM por Frota'}
+]);
+let execReportToastTimer=null;
+function execReportMoment(date=new Date()){
+  const dateText=date.toLocaleDateString('pt-BR');
+  const timeText=date.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const pad=v=>String(v).padStart(2,'0');
+  return{
+    text:`Relatório gerado em ${dateText} às ${timeText}`,
+    file:`${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}_${pad(date.getHours())}-${pad(date.getMinutes())}`
+  };
+}
+function showExecReportToast(message,isError=false){
+  const toast=document.getElementById('execReportToast');
+  if(!toast)return;
+  toast.textContent=message;
+  toast.classList.toggle('error',isError);
+  toast.classList.add('show');
+  if(execReportToastTimer)clearTimeout(execReportToastTimer);
+  execReportToastTimer=setTimeout(()=>toast.classList.remove('show'),5200);
+}
+function setExecReportBusy(busy){
+  ['execPngBtn','execPdfBtn'].forEach(id=>{const btn=document.getElementById(id);if(btn)btn.disabled=busy;});
+}
+function markExecutiveReportGenerated(moment,format){
+  const last=document.getElementById('execReportLastGenerated');
+  const message=`${moment.text} · ${format}`;
+  if(last)last.textContent=message;
+  showExecReportToast(`${message}. Arquivo pronto para uso.`);
+}
+function execDownloadBlob(blob,fileName){
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');
+  link.href=url;
+  link.download=fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+async function buildExecutiveCanvas(section,moment,includeFooter){
+  if(typeof window.html2canvas!=='function')throw new Error('O gerador de imagem não foi carregado. Verifique a conexão e tente novamente.');
+  const source=document.querySelector('#panel-exec .exec-panel');
+  if(!source)throw new Error('Resumo Executivo não encontrado.');
+  const stage=document.createElement('div');
+  stage.className='exec-export-stage';
+  const clone=source.cloneNode(true);
+  clone.classList.add('exec-export-surface');
+  const toolbar=clone.querySelector('.exec-report-toolbar');
+  const tabs=clone.querySelector('.exec-tabs');
+  if(toolbar)toolbar.remove();
+  if(tabs)tabs.remove();
+  clone.querySelectorAll('.exec-tab-content').forEach(content=>{
+    if(content.id!==section.id)content.remove();
+    else{content.classList.add('active');content.style.display='block';}
+  });
+  const header=document.createElement('div');
+  header.className='exec-export-header';
+  header.innerHTML=`<div><div class="exec-export-brand">Gestão Integrada · Makro Transportes</div><div class="exec-export-title">Resumo Executivo · ${execEsc(section.label)}</div></div><div class="exec-export-meta">Documento gerencial<br>${execEsc(moment.text)}</div>`;
+  clone.insertBefore(header,clone.firstChild);
+  if(includeFooter){
+    const footer=document.createElement('div');
+    footer.className='exec-export-footer';
+    footer.textContent=moment.text;
+    clone.appendChild(footer);
+  }
+  stage.appendChild(clone);
+  document.body.appendChild(stage);
+  try{
+    if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    return await window.html2canvas(clone,{backgroundColor:'#f2f5f8',scale:1.6,useCORS:true,logging:false,windowWidth:1440,scrollX:0,scrollY:0});
+  }finally{
+    stage.remove();
+  }
+}
+function executiveCanvasToBlob(canvas,type='image/png',quality=1){
+  return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Não foi possível preparar o arquivo.')),type,quality));
+}
+async function exportExecutivePNG(){
+  if(document.getElementById('panel-exec')?.classList.contains('active')!==true)return;
+  const section=EXEC_REPORT_SECTIONS.find(item=>item.key===execActiveTab)||EXEC_REPORT_SECTIONS[0];
+  const moment=execReportMoment();
+  setExecReportBusy(true);
+  try{
+    const canvas=await buildExecutiveCanvas(section,moment,true);
+    const blob=await executiveCanvasToBlob(canvas);
+    execDownloadBlob(blob,`resumo-executivo-${section.key}-${moment.file}.png`);
+    markExecutiveReportGenerated(moment,'PNG');
+  }catch(error){
+    console.error('Falha ao gerar PNG executivo:',error);
+    showExecReportToast(error.message||'Não foi possível gerar a imagem.',true);
+  }finally{
+    setExecReportBusy(false);
+  }
+}
+function addExecutiveCanvasToPDF(pdf,canvas,state,moment){
+  const pageWidth=pdf.internal.pageSize.getWidth();
+  const pageHeight=pdf.internal.pageSize.getHeight();
+  const margin=8;
+  const footerSpace=7;
+  const usableWidth=pageWidth-margin*2;
+  const usableHeight=pageHeight-margin*2-footerSpace;
+  const sliceHeightPx=Math.max(1,Math.floor(canvas.width*usableHeight/usableWidth));
+  for(let y=0;y<canvas.height;y+=sliceHeightPx){
+    const currentHeight=Math.min(sliceHeightPx,canvas.height-y);
+    const pageCanvas=document.createElement('canvas');
+    pageCanvas.width=canvas.width;
+    pageCanvas.height=currentHeight;
+    const context=pageCanvas.getContext('2d');
+    context.fillStyle='#f2f5f8';
+    context.fillRect(0,0,pageCanvas.width,pageCanvas.height);
+    context.drawImage(canvas,0,y,canvas.width,currentHeight,0,0,canvas.width,currentHeight);
+    if(state.hasPage)pdf.addPage('a4','landscape');
+    const renderedHeight=currentHeight*usableWidth/canvas.width;
+    pdf.addImage(pageCanvas.toDataURL('image/jpeg',.94),'JPEG',margin,margin,usableWidth,renderedHeight,undefined,'FAST');
+    pdf.setFont('helvetica','normal');
+    pdf.setFontSize(7);
+    pdf.setTextColor(95,108,124);
+    pdf.text(moment.text,margin,pageHeight-4);
+    state.hasPage=true;
+  }
+}
+async function exportExecutivePDF(){
+  if(document.getElementById('panel-exec')?.classList.contains('active')!==true)return;
+  if(!window.jspdf?.jsPDF){
+    showExecReportToast('O gerador de PDF não foi carregado. Verifique a conexão e tente novamente.',true);
+    return;
+  }
+  const moment=execReportMoment();
+  setExecReportBusy(true);
+  try{
+    const pdf=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4',compress:true});
+    const state={hasPage:false};
+    for(let index=0;index<EXEC_REPORT_SECTIONS.length;index++){
+      const section=EXEC_REPORT_SECTIONS[index];
+      const canvas=await buildExecutiveCanvas(section,moment,index===EXEC_REPORT_SECTIONS.length-1);
+      addExecutiveCanvasToPDF(pdf,canvas,state,moment);
+    }
+    pdf.save(`resumo-executivo-completo-${moment.file}.pdf`);
+    markExecutiveReportGenerated(moment,'PDF');
+  }catch(error){
+    console.error('Falha ao gerar PDF executivo:',error);
+    showExecReportToast(error.message||'Não foi possível gerar o PDF.',true);
+  }finally{
+    setExecReportBusy(false);
+  }
 }
 
 function execEsc(v){return String(v==null?'':v).replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]));}
@@ -5097,29 +5298,64 @@ function processINEF(rows){
   for(let i=0;i<rows.length;i++){
     if(rows[i].some(c=>String(c).toUpperCase().includes('TRANSPORTADOR'))){hi=i;break;}
   }
-  if(hi<0)hi=6;
+  if(hi<0){
+    console.warn('INEF: cabeçalho não encontrado na aba 262129708');
+    inefData=[];
+    renderINEFtbl();
+    return;
+  }
+  const headers=(rows[hi]||[]).map(normText);
+  const findCol=(aliases,fallback)=>{
+    for(const alias of aliases){
+      const wanted=normText(alias);
+      const exact=headers.indexOf(wanted);
+      if(exact>=0)return exact;
+      const partial=headers.findIndex(header=>header&&(header.includes(wanted)||wanted.includes(header)));
+      if(partial>=0)return partial;
+    }
+    return fallback;
+  };
+  const col={
+    transp:findCol(['TRANSPORTADOR'],1),
+    frota:findCol(['FROTA'],2),
+    cliente:findCol(['CLIENTE'],3),
+    tipo:findCol(['TIPO CONJUNTO','TIPO'],4),
+    conj:findCol(['CONJUNTO'],5),
+    vlDia:findCol(['VALOR DIÁRIA (R$)','VALOR DIARIA'],6),
+    mes:findCol(['MÊS','MES'],7),
+    motivo:findCol(['DESCRIÇÃO','DESCRICAO','MOTIVO'],8),
+    dtCheg:findCol(['DATA/HORA CHEGADA','DATA HORA CHEGADA'],9),
+    dtSaid:findCol(['DATA/HORA SAÍDA','DATA/HORA SAIDA','DATA HORA SAIDA'],10),
+    diasPar:findCol(['DIAS PARADO'],11),
+    diasDia:findCol(['DIAS DIÁRIA','DIAS DIARIA'],12),
+    vlTotal:findCol(['VALOR TOTAL (R$)','VALOR TOTAL'],13),
+    status:findCol(['STATUS'],14),
+    cobr:findCol(['STATUS COBRANÇA','STATUS COBRANCA'],15),
+    carga:findCol(['CARGA'],16),
+    obs:findCol(['OBSERVAÇÃO','OBSERVACAO','OBS.'],17)
+  };
   inefData=[];
   for(let i=hi+1;i<rows.length;i++){
     const v=rows[i];
-    if(!v[1]&&!v[5])continue;
+    if(!v[col.transp]&&!v[col.conj])continue;
     inefData.push({
-      transp:String(v[1]||'').trim(),
-      frota:String(v[2]||'').trim(),
-      cliente:String(v[3]||'').trim(),
-      tipo:String(v[4]||'').trim(),
-      conj:String(v[5]||'').trim(),
-      vlDia:parseMoney(v[6]),
-      mes:String(v[7]||'').trim().toUpperCase(),
-      motivo:String(v[8]||'').trim(),
-      dtCheg:String(v[9]||'').trim(),
-      dtSaid:String(v[10]||'').trim(),
-      diasPar:String(v[11]||'').trim(),
-      diasDia:String(v[12]||'').trim(),
-      vlTotal:parseMoney(v[13]),
-      status:String(v[14]||'').trim().toUpperCase(),
-      cobr:String(v[15]||'').trim().toUpperCase(),
-      carga:String(v[16]||'').trim(),
-      obs:String(v[17]||'').replace(/"/g,'').trim()
+      transp:String(v[col.transp]||'').trim(),
+      frota:String(v[col.frota]||'').trim(),
+      cliente:String(v[col.cliente]||'').trim(),
+      tipo:String(v[col.tipo]||'').trim(),
+      conj:String(v[col.conj]||'').trim(),
+      vlDia:parseMoney(v[col.vlDia]),
+      mes:String(v[col.mes]||'').trim().toUpperCase(),
+      motivo:String(v[col.motivo]||'').trim(),
+      dtCheg:String(v[col.dtCheg]||'').trim(),
+      dtSaid:String(v[col.dtSaid]||'').trim(),
+      diasPar:String(v[col.diasPar]||'').trim(),
+      diasDia:String(v[col.diasDia]||'').trim(),
+      vlTotal:parseMoney(v[col.vlTotal]),
+      status:String(v[col.status]||'').trim().toUpperCase(),
+      cobr:String(v[col.cobr]||'').trim().toUpperCase(),
+      carga:String(v[col.carga]||'').trim(),
+      obs:String(v[col.obs]||'').replace(/"/g,'').trim()
     });
   }
   // Dynamic selects
@@ -6252,7 +6488,7 @@ function initPWA(){
     setInstallActionVisible(false);
   });
   if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
-    navigator.serviceWorker.register('./sw.js?v=13',{updateViaCache:'none'}).then(registration=>registration.update()).catch(error=>console.warn('Service worker não registrado:',error));
+    navigator.serviceWorker.register('./sw.js?v=18',{updateViaCache:'none'}).then(registration=>registration.update()).catch(error=>console.warn('Service worker não registrado:',error));
   }
 }
 
@@ -6324,6 +6560,7 @@ updatePremiseButton(currentPanelId);
   </div>
 </div>
 <div class="premise-tooltip" id="premiseTooltip" onmouseenter="showPremiseTooltip()" onmouseleave="scheduleHidePremiseTooltip()"></div>
+<div class="exec-report-toast" id="execReportToast" role="status" aria-live="polite"></div>
 </body>
 </html>
 
