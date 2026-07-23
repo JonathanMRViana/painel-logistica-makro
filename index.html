@@ -200,7 +200,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-ui);min-heigh
 .exec-report-toolbar-copy{min-width:0}
 .exec-report-toolbar-title{font-size:12px;font-weight:700;color:var(--text);text-transform:uppercase;line-height:1.35}
 .exec-report-toolbar-sub{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.4}
-.exec-report-last{font:10px/1.4 var(--font-data);color:var(--green);margin-top:5px;min-height:14px}
 .exec-report-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .exec-export-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:34px;padding:7px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);font:600 11px var(--font-ui);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
 .exec-export-btn:hover{border-color:var(--makro-blue);background:var(--makro-blue-dim);color:var(--makro-blue)}
@@ -1937,7 +1936,6 @@ tbody tr:hover td{background:var(--surface2)}
           <div class="exec-report-toolbar-copy">
             <div class="exec-report-toolbar-title">Exportar Resumo Executivo</div>
             <div class="exec-report-toolbar-sub">PDF completo para circulação gerencial ou imagem da visão aberta para apresentações.</div>
-            <div class="exec-report-last" id="execReportLastGenerated" aria-live="polite"></div>
           </div>
           <div class="exec-report-actions">
             <button type="button" class="exec-export-btn" id="execPngBtn" onclick="exportExecutivePNG()">
@@ -3259,11 +3257,8 @@ function showExecReportToast(message,isError=false){
 function setExecReportBusy(busy){
   ['execPngBtn','execPdfBtn'].forEach(id=>{const btn=document.getElementById(id);if(btn)btn.disabled=busy;});
 }
-function markExecutiveReportGenerated(moment,format){
-  const last=document.getElementById('execReportLastGenerated');
-  const message=`${moment.text} · ${format}`;
-  if(last)last.textContent=message;
-  showExecReportToast(`${message}. Arquivo pronto para uso.`);
+function markExecutiveReportGenerated(format){
+  showExecReportToast(`${format} gerado com sucesso. Arquivo pronto para uso.`);
 }
 function execDownloadBlob(blob,fileName){
   const url=URL.createObjectURL(blob);
@@ -3323,7 +3318,7 @@ async function exportExecutivePNG(){
     const canvas=await buildExecutiveCanvas(section,moment,true);
     const blob=await executiveCanvasToBlob(canvas);
     execDownloadBlob(blob,`resumo-executivo-${section.key}-${moment.file}.png`);
-    markExecutiveReportGenerated(moment,'PNG');
+    markExecutiveReportGenerated('PNG');
   }catch(error){
     console.error('Falha ao gerar PNG executivo:',error);
     showExecReportToast(error.message||'Não foi possível gerar a imagem.',true);
@@ -3375,7 +3370,7 @@ async function exportExecutivePDF(){
       addExecutiveCanvasToPDF(pdf,canvas,state,moment);
     }
     pdf.save(`resumo-executivo-completo-${moment.file}.pdf`);
-    markExecutiveReportGenerated(moment,'PDF');
+    markExecutiveReportGenerated('PDF');
   }catch(error){
     console.error('Falha ao gerar PDF executivo:',error);
     showExecReportToast(error.message||'Não foi possível gerar o PDF.',true);
@@ -6488,7 +6483,7 @@ function initPWA(){
     setInstallActionVisible(false);
   });
   if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
-    navigator.serviceWorker.register('./sw.js?v=18',{updateViaCache:'none'}).then(registration=>registration.update()).catch(error=>console.warn('Service worker não registrado:',error));
+    navigator.serviceWorker.register('./sw.js?v=19',{updateViaCache:'none'}).then(registration=>registration.update()).catch(error=>console.warn('Service worker não registrado:',error));
   }
 }
 
